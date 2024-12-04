@@ -7,4 +7,5 @@
 ## Ramas 
 - Cada carpeta representa una capa del sistema, dentro de cada capa habran distintos modulos. EVITAR ARCHIVOS SUELTOS EN LA CARPETA DE CAPAS
 - Crear ramas para trabajar por modulo. MUY IMPORTANTE INDICAR EN EL COMMIT QUE MODULO SE ESTA TRABAJANDO.
-- 
+-  Para la creacion de una nueva rama, 1. pararse dentro de development,2. git pull development, 3.git branch xxxx. SIEMPRE DESDE CREAR LA RAMA A PARTIR DE LA ULTIMA VERSION DE DEVELOPMENT.
+-   
