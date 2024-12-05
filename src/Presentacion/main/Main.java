@@ -1,0 +1,203 @@
+package presentacion.main;
+
+import brainstorm.info.BrainstormContext;
+import com.mathworks.engine.MatlabEngine;
+import java.awt.Component;
+import static java.awt.SystemColor.menu;
+import javaswingdev.GoogleMaterialDesignIcon;
+import presentacion.form.Form_Dashboard;
+import presentacion.form.Form_Empty;
+import presentacion.menu.EventMenuSelected;
+import presentacion.menu.ModelMenuItem;
+
+public class Main extends javax.swing.JFrame {
+    
+    private static Main main;
+    private MatlabEngine eng;
+    private BrainstormContext bCon;
+    
+    public Main() {
+        try{
+            eng = MatlabEngine.startMatlab();
+            bCon=new BrainstormContext(eng);
+            bCon.startBrainstorm();
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        
+        initComponents();
+        init();
+    }
+    
+    private void init() {
+        main = this;
+//        System.out.println(bCon.subjectStudies()[1]);
+        //Elementos del menu
+        menu1.addTitle("MAIN");  //indice 1 en la lista de componentes del panelMenu
+        menu1.addMenuItem(new ModelMenuItem(GoogleMaterialDesignIcon.DASHBOARD, "Dashboard"));// indice de evento 0 
+        menu1.addTitle("PROTOCOLO: "); // indice 2
+        menu1.addTitle("SUJETO: "); //Indice 3
+        menu1.addTitle("FILE: "); // indice 4 en la lista de componentes del panelMenu
+//        updateTittleProtocol();
+//        updateTittleSujeto();
+        menu1.addMenuItem(new ModelMenuItem(GoogleMaterialDesignIcon.SYNC, "Sincronizacion")); //indice 2 
+        menu1.addMenuItem(new ModelMenuItem(null, "Procesados", "archivo 1 ", "Archivo 2"));
+        //Fin de elementos del menu
+        menu1.updateTittleProtocol(bCon.currentProtocolName());
+        menu1.updateTittleSujeto(bCon.currentSujectName());
+        
+        menu1.addEvent(new EventMenuSelected() {
+            @Override
+            //Aqui hay que meter un case con la claves de las funciones que vamos a llamar en casa de que el evento seleccionado tenga la clave
+            public void menuSelected(int index, int indexSubMenu, String aux, String subKey) {
+                // El indice 0 esta guardado para el primer evento del menu, este lo vamos a considerar como el evento que llama al "Inicio"
+                if (index == 0 && indexSubMenu == 0) {
+                    System.out.println(index);
+                    showForm(new Form_Dashboard());
+                    //Hay que hacer funciones que manden el cambion a la ventana Main, desde Dashboard.
+                    updateTitle(new Form_Dashboard().cambio());
+                } else {
+                    //Aqui dependiento del evento llamaremos a un caso, tendremos "Recordings", "Sincronizacion", y otras opciones una vez este realizada la sincronizacion
+                    System.out.println("El indice es el: "+ index);
+                    String clave=aux;
+                    switch(clave){
+                        case "Recordings":
+                            System.out.println(aux);
+                            System.out.println(indexSubMenu);
+                            System.out.println(subKey);
+                            menu1.updateTittle(subKey);
+                            showForm(new Form_Empty(index + " " + indexSubMenu));
+                        case "Sincronizacion":
+                            System.out.println(aux);
+                            System.out.println(indexSubMenu);
+                            showForm(new Form_Empty(aux));
+                    }
+                }
+            }
+        });
+        menu1.setSelectedIndex(0, 0,"", "");
+    }
+    
+    public void showForm(Component com) {
+        body.removeAll();
+        body.add(com);
+        body.repaint();
+        body.revalidate();
+    }
+    public void updateTitle(String prueba){
+        menu1.updateTittle(prueba);
+    }
+   
+            
+    
+    public static Main getMain() {
+        return main;
+    }
+    
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        background = new javax.swing.JPanel();
+        panelMenu = new javax.swing.JPanel();
+        menu1 = new presentacion.menu.Menu();
+        body = new javax.swing.JPanel();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        background.setBackground(new java.awt.Color(245, 245, 245));
+
+        panelMenu.setBackground(new java.awt.Color(255, 255, 255));
+
+        javax.swing.GroupLayout panelMenuLayout = new javax.swing.GroupLayout(panelMenu);
+        panelMenu.setLayout(panelMenuLayout);
+        panelMenuLayout.setHorizontalGroup(
+            panelMenuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 226, Short.MAX_VALUE)
+            .addGroup(panelMenuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(menu1, javax.swing.GroupLayout.DEFAULT_SIZE, 226, Short.MAX_VALUE))
+        );
+        panelMenuLayout.setVerticalGroup(
+            panelMenuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 705, Short.MAX_VALUE)
+            .addGroup(panelMenuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(menu1, javax.swing.GroupLayout.DEFAULT_SIZE, 705, Short.MAX_VALUE))
+        );
+
+        body.setOpaque(false);
+        body.setLayout(new java.awt.BorderLayout());
+
+        javax.swing.GroupLayout backgroundLayout = new javax.swing.GroupLayout(background);
+        background.setLayout(backgroundLayout);
+        backgroundLayout.setHorizontalGroup(
+            backgroundLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(backgroundLayout.createSequentialGroup()
+                .addComponent(panelMenu, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(body, javax.swing.GroupLayout.DEFAULT_SIZE, 1092, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        backgroundLayout.setVerticalGroup(
+            backgroundLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(panelMenu, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(backgroundLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(body, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(background, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(background, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+
+        pack();
+        setLocationRelativeTo(null);
+    }// </editor-fold>//GEN-END:initComponents
+
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new Main().setVisible(true);
+            }
+        });
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel background;
+    private javax.swing.JPanel body;
+    private presentacion.menu.Menu menu1;
+    private javax.swing.JPanel panelMenu;
+    // End of variables declaration//GEN-END:variables
+}
