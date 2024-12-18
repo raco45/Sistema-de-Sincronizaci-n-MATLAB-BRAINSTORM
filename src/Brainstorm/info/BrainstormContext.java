@@ -64,6 +64,21 @@ public class BrainstormContext {
             return "";
         }
     }
+    // Da una lista con el nombre del estudio/archivo cargado en el protocolo actual
+    public String currentStudyName(){
+        try{
+            eng.eval("currentStudy=bst_get('Study')");
+            Struct study= eng.getVariable("currentStudy");
+            String name = (String) study.get("Name");
+            System.out.println(name.replaceAll("@raw",""));
+            return name.replaceAll("@raw","");
+            
+        }catch(Exception e){
+            e.printStackTrace();
+            return "";
+        }
+    }
+    
     // Da una lista con los nombres de los estudios
     public String[] subjectStudies(){
         try{

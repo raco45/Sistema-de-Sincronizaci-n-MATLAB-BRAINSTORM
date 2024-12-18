@@ -1,6 +1,8 @@
 package presentacion.menu;
 
+import brainstorm.BrainstormStart;
 import brainstorm.info.BrainstormContext;
+import com.mathworks.engine.EngineException;
 import com.mathworks.engine.MatlabEngine;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -8,6 +10,8 @@ import java.awt.Component;
 import java.awt.Font;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javaswingdev.GoogleMaterialDesignIcon;
 import presentacion.swing.scroll.ScrollBar;
 import javax.swing.JLabel;
@@ -19,7 +23,7 @@ import net.miginfocom.swing.MigLayout;
 public class Menu extends JPanel {
 
     private int index = -1;
-    private MatlabEngine eng;
+
     private final List<EventMenuSelected> events = new ArrayList<>();
     private String titulo="Vacio";
     private BrainstormContext bCon;
@@ -28,12 +32,14 @@ public class Menu extends JPanel {
     }
 
     private void init() {
-        try{
-            eng = MatlabEngine.startMatlab();
-        }catch(Exception e){
-            e.printStackTrace();
+ 
+        try {
+            bCon= BrainstormStart.getInstance();
+        } catch (EngineException ex) {
+            Logger.getLogger(Menu.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Menu.class.getName()).log(Level.SEVERE, null, ex);
         }
-        bCon=new BrainstormContext(eng);
         setBackground(Color.WHITE);
         setLayout(new BorderLayout());
         JScrollPane scroll = createScroll();
@@ -166,21 +172,6 @@ public class Menu extends JPanel {
     public void setTitulo(String titulo) {
         this.titulo = titulo;
     }
-
-    /**
-     * @return the eng
-     */
-    public MatlabEngine getEng() {
-        return eng;
-    }
-
-    /**
-     * @param eng the eng to set
-     */
-    public void setEng(MatlabEngine eng) {
-        this.eng = eng;
-    }
-
     /**
      * @return the bCon
      */

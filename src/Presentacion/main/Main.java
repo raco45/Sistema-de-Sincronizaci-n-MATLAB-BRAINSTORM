@@ -1,9 +1,13 @@
 package presentacion.main;
 
+import brainstorm.BrainstormStart;
 import brainstorm.info.BrainstormContext;
+import com.mathworks.engine.EngineException;
 import com.mathworks.engine.MatlabEngine;
 import java.awt.Component;
 import static java.awt.SystemColor.menu;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javaswingdev.GoogleMaterialDesignIcon;
 import presentacion.form.Form_Dashboard;
 import presentacion.form.Form_Empty;
@@ -13,19 +17,11 @@ import presentacion.menu.ModelMenuItem;
 public class Main extends javax.swing.JFrame {
     
     private static Main main;
-    private MatlabEngine eng;
-    private BrainstormContext bCon;
+    public BrainstormContext bCon;
     
-    public Main() {
-        try{
-            eng = MatlabEngine.startMatlab();
-            bCon=new BrainstormContext(eng);
-            bCon.startBrainstorm();
-
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        
+    public Main() throws EngineException, InterruptedException {
+        bCon= BrainstormStart.getInstance();
+        bCon.startBrainstorm();
         initComponents();
         init();
     }
@@ -189,7 +185,13 @@ public class Main extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Main().setVisible(true);
+                try {
+                    new Main().setVisible(true);
+                } catch (EngineException ex) {
+                    Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
     }

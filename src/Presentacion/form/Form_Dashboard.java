@@ -1,38 +1,35 @@
 package presentacion.form;
 
+import brainstorm.BrainstormStart;
+import brainstorm.info.BrainstormContext;
+import com.mathworks.engine.EngineException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import presentacion.card.ModelCard;
 import presentacion.main.Main;
 import presentacion.menu.Menu;
 
 public class Form_Dashboard extends javax.swing.JPanel {
 
-
+    private BrainstormContext bCon;
     public Form_Dashboard() {
+        try {
+            bCon= BrainstormStart.getInstance();
+        } catch (EngineException ex) {
+            Logger.getLogger(Form_Dashboard.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Form_Dashboard.class.getName()).log(Level.SEVERE, null, ex);
+        }
         initComponents();
         init();
     }
 
     private void init() {
-        table.fixTable(jScrollPane1);
-        table.addRow(new Object[]{"1", "Mike Bhand", "mikebhand@gmail.com", "Admin", "25 Apr,2018"});
-        table.addRow(new Object[]{"2", "Andrew Strauss", "andrewstrauss@gmail.com", "Editor", "25 Apr,2018"});
-        table.addRow(new Object[]{"3", "Ross Kopelman", "rosskopelman@gmail.com", "Subscriber", "25 Apr,2018"});
-        table.addRow(new Object[]{"4", "Mike Hussy", "mikehussy@gmail.com", "Admin", "25 Apr,2018"});
-        table.addRow(new Object[]{"5", "Kevin Pietersen", "kevinpietersen@gmail.com", "Admin", "25 Apr,2018"});
-        table.addRow(new Object[]{"6", "Andrew Strauss", "andrewstrauss@gmail.com", "Editor", "25 Apr,2018"});
-        table.addRow(new Object[]{"7", "Ross Kopelman", "rosskopelman@gmail.com", "Subscriber", "25 Apr,2018"});
-        table.addRow(new Object[]{"8", "Mike Hussy", "mikehussy@gmail.com", "Admin", "25 Apr,2018"});
-        table.addRow(new Object[]{"9", "Kevin Pietersen", "kevinpietersen@gmail.com", "Admin", "25 Apr,2018"});
-        table.addRow(new Object[]{"10", "Kevin Pietersen", "kevinpietersen@gmail.com", "Admin", "25 Apr,2018"});
-        table.addRow(new Object[]{"11", "Andrew Strauss", "andrewstrauss@gmail.com", "Editor", "25 Apr,2018"});
-        table.addRow(new Object[]{"12", "Ross Kopelman", "rosskopelman@gmail.com", "Subscriber", "25 Apr,2018"});
-        table.addRow(new Object[]{"13", "Mike Hussy", "mikehussy@gmail.com", "Admin", "25 Apr,2018"});
-        table.addRow(new Object[]{"14", "Kevin Pietersen", "kevinpietersen@gmail.com", "Admin", "25 Apr,2018"});
 
-        //  init card data
-        card1.setData(new ModelCard(null, null, null, "$ 500.00", "Report Income Monthly"));
-        card2.setData(new ModelCard(null, null, null, "$ 800.00", "Report Expense Monthly"));
-        card3.setData(new ModelCard(null, null, null, "$ 300.00", "Report Profit Monthly"));
+        card1.setData(new ModelCard(null, null, null, bCon.currentProtocolName(), "Protocolo"));
+        card2.setData(new ModelCard(null, null, null, bCon.currentSujectName(), "Sujeto"));
+        card3.setData(new ModelCard(null, null, null, bCon.currentStudyName(), "Archivo"));
+        
     }
     public String cambio(){
         return "Prueba";
@@ -46,8 +43,9 @@ public class Form_Dashboard extends javax.swing.JPanel {
         card2 = new Presentacion.Card();
         card3 = new Presentacion.Card();
         roundPanel1 = new presentacion.swing.RoundPanel();
+        jButton1 = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        table = new presentacion.swing.table.Table();
+        studyList = new javax.swing.JTextArea();
 
         setOpaque(false);
 
@@ -63,39 +61,39 @@ public class Form_Dashboard extends javax.swing.JPanel {
         roundPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 5, 5, 5));
         roundPanel1.setRound(10);
 
-        table.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "#", "Name", "Email", "Position", "Date Join"
-            }
-        ) {
-            boolean[] canEdit = new boolean [] {
-                false, false, false, false, false
-            };
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
+        jButton1.setText("jButton1");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
             }
         });
-        jScrollPane1.setViewportView(table);
+
+        studyList.setColumns(20);
+        studyList.setRows(5);
+        jScrollPane1.setViewportView(studyList);
 
         javax.swing.GroupLayout roundPanel1Layout = new javax.swing.GroupLayout(roundPanel1);
         roundPanel1.setLayout(roundPanel1Layout);
         roundPanel1Layout.setHorizontalGroup(
             roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(roundPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1)
-                .addContainerGap())
+                .addGap(40, 40, 40)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(49, 49, 49)
+                .addComponent(jButton1)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         roundPanel1Layout.setVerticalGroup(
             roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(roundPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(roundPanel1Layout.createSequentialGroup()
+                        .addGap(107, 107, 107)
+                        .addComponent(jButton1))
+                    .addGroup(roundPanel1Layout.createSequentialGroup()
+                        .addGap(59, 59, 59)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(206, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -128,12 +126,23 @@ public class Form_Dashboard extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+        String[] lista= bCon.subjectStudies();
+        String aux="";
+        for (String lista1 : lista) {
+            aux += lista1 + "\n";
+        }
+        studyList.setText(aux);
+    }//GEN-LAST:event_jButton1ActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private Presentacion.Card card1;
     private Presentacion.Card card2;
     private Presentacion.Card card3;
+    private javax.swing.JButton jButton1;
     private javax.swing.JScrollPane jScrollPane1;
     private presentacion.swing.RoundPanel roundPanel1;
-    private presentacion.swing.table.Table table;
+    private javax.swing.JTextArea studyList;
     // End of variables declaration//GEN-END:variables
 }
