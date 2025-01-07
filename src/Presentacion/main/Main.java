@@ -27,6 +27,7 @@ public class Main extends javax.swing.JFrame {
     }
     
     private void init() {
+        bCon.currentProtocolIndex();
         main = this;
 //        System.out.println(bCon.subjectStudies()[1]);
         //Elementos del menu

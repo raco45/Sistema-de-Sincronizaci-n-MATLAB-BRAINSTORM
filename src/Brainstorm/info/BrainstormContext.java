@@ -3,6 +3,7 @@ package brainstorm.info;
 
 import com.mathworks.engine.MatlabEngine;
 import com.mathworks.matlab.types.Struct;
+import java.io.File;
 import java.util.concurrent.ExecutionException;
 
 
@@ -28,6 +29,57 @@ public class BrainstormContext {
         }
     }
     
+    //Ruta del directorio de Brainstorm
+    public String homeDirectory(){
+        try{
+            eng.eval("homeDirectory=bst_get('BrainstormDbDir')");
+            String ruta = (String) eng.getVariable("homeDirectory");
+            System.out.println(ruta);
+            return ruta;
+        }catch(Exception e ){
+            return "";
+        }
+    }
+    
+    public void setProtocol(double index){
+        try{
+            int prueba= (int) index;
+            eng.eval(String.format("bst_set('iProtocol',%s)", prueba));
+            System.out.println("Working");
+        }catch(Exception e){
+            System.out.println("Not working");
+        }
+    }
+    
+    // Lista de protocolos
+    public String[] protocolList(){
+             // Especifica la ruta del directorio que deseas explorar
+        String rutaDirectorio = this.homeDirectory(); // Cambia esto por la ruta deseada
+        File directorio = new File(rutaDirectorio);
+
+        // Verifica si la ruta es un directorio
+        if (directorio.isDirectory()) {
+            // Lista los nombres de las carpetas dentro del directorio
+            String[] carpetas = directorio.list((current, name) -> new File(current, name).isDirectory());
+            return carpetas;
+        } else {
+            System.out.println("La ruta especificada no es un directorio.");
+            return null;
+        }
+    }
+    
+    // Indice de un protocolo por su nombre
+    public double protocolIndex(String protocolName){
+        try{
+            eng.eval(String.format("indexProtocol=bst_get('Protocol','%s')",protocolName));
+            double indice=(double) eng.getVariable("indexProtocol");
+            System.out.println("El indice de "+ protocolName + " es " + indice);
+            return indice;  
+        }catch(Exception e ){
+            return -1;
+        }
+    }
+    
     // Informacion del protocolo cargado
     
     public double currentProtocolIndex(){
@@ -37,7 +89,6 @@ public class BrainstormContext {
             System.out.println("Indice del protocolo: "+ indice);
             return indice;
         }catch(IllegalStateException | InterruptedException | ExecutionException e){
-            e.printStackTrace();
             return -1;
         }
     }
