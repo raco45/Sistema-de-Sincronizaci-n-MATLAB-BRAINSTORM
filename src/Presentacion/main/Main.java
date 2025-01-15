@@ -1,5 +1,4 @@
 package presentacion.main;
-
 import brainstorm.BrainstormStart;
 import brainstorm.info.BrainstormContext;
 import com.mathworks.engine.EngineException;
@@ -18,6 +17,7 @@ public class Main extends javax.swing.JFrame {
     
     private static Main main;
     public BrainstormContext bCon;
+    ModelMenuItem studies;
     
     public Main() throws EngineException, InterruptedException {
         bCon= BrainstormStart.getInstance();
@@ -28,18 +28,17 @@ public class Main extends javax.swing.JFrame {
     
     private void init() {
         bCon.currentProtocolIndex();
+        bCon.loadProtocol();
         main = this;
-//        System.out.println(bCon.subjectStudies()[1]);
+//        System.out.println(bCon.protocolStudies()[1]);
         //Elementos del menu
         menu1.addTitle("MAIN");  //indice 1 en la lista de componentes del panelMenu
         menu1.addMenuItem(new ModelMenuItem(GoogleMaterialDesignIcon.DASHBOARD, "Dashboard"));// indice de evento 0 
         menu1.addTitle("PROTOCOLO: "); // indice 2
         menu1.addTitle("SUJETO: "); //Indice 3
         menu1.addTitle("FILE: "); // indice 4 en la lista de componentes del panelMenu
-//        updateTittleProtocol();
-//        updateTittleSujeto();
-        menu1.addMenuItem(new ModelMenuItem(GoogleMaterialDesignIcon.SYNC, "Sincronizacion")); //indice 2 
-        menu1.addMenuItem(new ModelMenuItem(null, "Procesados", "archivo 1 ", "Archivo 2"));
+        menu1.addMenuItem(new ModelMenuItem(null, "Procesados"));
+        
         //Fin de elementos del menu
         menu1.updateTittleProtocol(bCon.currentProtocolName());
         menu1.updateTittleSujeto(bCon.currentSujectName());
@@ -51,24 +50,18 @@ public class Main extends javax.swing.JFrame {
                 // El indice 0 esta guardado para el primer evento del menu, este lo vamos a considerar como el evento que llama al "Inicio"
                 if (index == 0 && indexSubMenu == 0) {
                     System.out.println(index);
-                    showForm(new Form_Dashboard());
+                    showForm(new Form_Dashboard(main));
                     //Hay que hacer funciones que manden el cambion a la ventana Main, desde Dashboard.
-                    updateTitle(new Form_Dashboard().cambio());
                 } else {
                     //Aqui dependiento del evento llamaremos a un caso, tendremos "Recordings", "Sincronizacion", y otras opciones una vez este realizada la sincronizacion
                     System.out.println("El indice es el: "+ index);
                     String clave=aux;
                     switch(clave){
-                        case "Recordings":
-                            System.out.println(aux);
-                            System.out.println(indexSubMenu);
-                            System.out.println(subKey);
-                            menu1.updateTittle(subKey);
-                            showForm(new Form_Empty(index + " " + indexSubMenu));
-                        case "Sincronizacion":
-                            System.out.println(aux);
-                            System.out.println(indexSubMenu);
-                            showForm(new Form_Empty(aux));
+                        case "Procesados":
+                            System.out.println(aux); // aux tiene el texto del nombre del dropdown
+                            System.out.println(indexSubMenu); //Sub indice de la lista, 
+                            System.out.println(subKey); // subkey te arroja el nombre de el objeto seleccionado
+
                     }
                 }
             }
@@ -82,11 +75,19 @@ public class Main extends javax.swing.JFrame {
         body.repaint();
         body.revalidate();
     }
-    public void updateTitle(String prueba){
-        menu1.updateTittle(prueba);
+    public void updateTitleProtocolo(){
+        menu1.updateTittleProtocol(bCon.getProtocol().nombreProtocolo());    
+    }
+    public void updateTitleSujeto(){
+        menu1.updateTittleSujeto(bCon.getSubject().nombreSujeto());
     }
    
-            
+    public void addMenuItem(String[] studiesList){
+        menu1.removeMenuItem();
+        ModelMenuItem studies = new ModelMenuItem(null, "Procesados");
+        studies.setSubMenu(studiesList);
+        menu1.addMenuItem(studies);
+    }       
     
     public static Main getMain() {
         return main;

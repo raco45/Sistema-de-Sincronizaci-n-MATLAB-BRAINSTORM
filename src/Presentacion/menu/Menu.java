@@ -104,6 +104,10 @@ public class Menu extends JPanel {
     public void addMenuItem(ModelMenuItem menu) {
         panelMenu.add(createMenuItem(menu), "h 35!");
     }
+    public void removeMenuItem(){
+        int num=panelMenu.getComponentCount();
+        panelMenu.remove(num-1);
+    }
 
     public void addTitle(String title) {
         JLabel label = new JLabel(title);

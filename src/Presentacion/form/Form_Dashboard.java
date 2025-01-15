@@ -3,6 +3,7 @@ package presentacion.form;
 import brainstorm.BrainstormStart;
 import brainstorm.info.BrainstormContext;
 import com.mathworks.engine.EngineException;
+import java.util.HashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import presentacion.card.ModelCard;
@@ -12,8 +13,9 @@ import presentacion.menu.Menu;
 public class Form_Dashboard extends javax.swing.JPanel {
 
     private BrainstormContext bCon;
+    private Main main;
 
-    public Form_Dashboard() {
+    public Form_Dashboard(Main main) {
         try {
             bCon = BrainstormStart.getInstance();
         } catch (EngineException ex) {
@@ -21,6 +23,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
         } catch (InterruptedException ex) {
             Logger.getLogger(Form_Dashboard.class.getName()).log(Level.SEVERE, null, ex);
         }
+        this.main=main;
         initComponents();
         init();
     }
@@ -30,7 +33,11 @@ public class Form_Dashboard extends javax.swing.JPanel {
         card1.setData(new ModelCard(null, null, null, bCon.currentProtocolName(), "Protocolo"));
         card2.setData(new ModelCard(null, null, null, bCon.currentSujectName(), "Sujeto"));
 //        card3.setData(new ModelCard(null, null, null, "", "Archivo"));
+        this.llenar();
+        this.llenarSujetos();
         this.protocolList.setSelectedIndex(-1);
+        this.subjectList.setSelectedIndex(-1);
+        
         this.protocolList.addActionListener(e -> {
             String seleccion = (String) this.protocolList.getSelectedItem();
             if (seleccion != null) {
@@ -38,9 +45,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
                 bCon.setProtocol(index);
                 this.actualizar();
             }
-
         });
-        this.llenar();
 
     }
 
@@ -51,6 +56,33 @@ public class Form_Dashboard extends javax.swing.JPanel {
     public void actualizar() {
         card1.setData(new ModelCard(null, null, null, bCon.currentProtocolName(), "Protocolo"));
         card2.setData(new ModelCard(null, null, null, bCon.currentSujectName(), "Sujeto"));
+        this.main.updateTitleProtocolo();
+        this.actionListenerSujetos();
+        this.llenarSujetos();
+    }
+    
+    public void actionListenerSujetos(){
+        
+        this.subjectList.addActionListener(e -> {
+        String seleccion = (String) this.subjectList.getSelectedItem();
+        String[] listaSujetos = bCon.protocolSubjects();
+        if(seleccion != null){
+            for(int i=1 ; i <= listaSujetos.length ; i++ ){
+                if(seleccion.equals(listaSujetos[i-1])){
+                    int iSubject= i;
+                    bCon.setSubject(iSubject);
+                    this.actualizarSujetos(listaSujetos[i-1]);
+                    bCon.subjectStudies(listaSujetos[i-1]);
+                    String[] prueba=bCon.subjectStudiesArray(listaSujetos[i-1]);
+                    this.main.addMenuItem(prueba);
+                }
+            }   
+        }
+        });
+    }
+    public void actualizarSujetos(String sujeto){
+        this.main.updateTitleSujeto();
+        card2.setData(new ModelCard(null, null, null, sujeto, "Sujeto"));
     }
 
     public String[] protocolList() {
@@ -59,10 +91,27 @@ public class Form_Dashboard extends javax.swing.JPanel {
 
     public void llenar() {
         for (String opcion : this.protocolList()) {
-            bCon.protocolIndex(opcion);
-            this.protocolList.addItem(opcion);
-
+//            this.protocolList.addItem(opcion);
+            if(bCon.protocolIndex(opcion)==0){
+                System.out.println("Vacio");
+            }else{
+                this.protocolList.addItem(opcion);                
+            }
         }
+    }
+
+    public void llenarSujetos() {
+        this.subjectList.removeAllItems();
+        String[] sujetos = bCon.protocolSubjects();
+        if (sujetos[0] == "") {
+            System.out.println("No hay sujetos");
+        } else {
+            for (String opcion : sujetos) {
+                this.subjectList.addItem(opcion);
+            }
+        }
+        bCon.protocolStudies();
+
     }
 
     @SuppressWarnings("unchecked")
@@ -97,7 +146,6 @@ public class Form_Dashboard extends javax.swing.JPanel {
             }
         });
 
-        subjectList.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         subjectList.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 subjectListActionPerformed(evt);
@@ -111,7 +159,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
             .addGroup(roundPanel1Layout.createSequentialGroup()
                 .addGap(112, 112, 112)
                 .addComponent(protocolList, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 86, Short.MAX_VALUE)
                 .addComponent(subjectList, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(111, 111, 111))
         );
