@@ -167,14 +167,11 @@ public class BrainstormContext {
 
     // Da una lista con los nombres de los estudios dentro de un protocolo
     public Struct[] protocolStudies() {
-        ArrayList d = new ArrayList();
-
         try {
             eng.eval("infoStudies=bst_get('ProtocolStudies')");
             Struct infoEstudios = (Struct) eng.getVariable("infoStudies");
             Struct[] detalleEstudios = (Struct[]) infoEstudios.get("Study"); // Array de estudios
             eng.eval("estudios=bst_get('StudyCount')");
-            String[] lista = new String[detalleEstudios.length];
 
             return detalleEstudios;
         } catch (Exception e) {
