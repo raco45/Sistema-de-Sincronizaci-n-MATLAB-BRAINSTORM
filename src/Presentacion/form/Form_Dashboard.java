@@ -104,7 +104,13 @@ public class Form_Dashboard extends javax.swing.JPanel {
     public void llenarSujetos() {
         this.subjectList.removeAllItems();
         String[] sujetos = bCon.protocolSubjects();
+        
         if (sujetos[0] == "") {
+            bCon.setSubject(-1);
+            String[] prueba= {""};
+            this.actualizarSujetos("No subjects");
+            this.main.addMenuItem(prueba);
+                
             System.out.println("No hay sujetos");
         } else {
             for (String opcion : sujetos) {

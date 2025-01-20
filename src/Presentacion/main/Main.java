@@ -1,4 +1,5 @@
 package presentacion.main;
+
 import brainstorm.BrainstormStart;
 import brainstorm.info.BrainstormContext;
 import com.mathworks.engine.EngineException;
@@ -14,18 +15,18 @@ import presentacion.menu.EventMenuSelected;
 import presentacion.menu.ModelMenuItem;
 
 public class Main extends javax.swing.JFrame {
-    
+
     private static Main main;
     public BrainstormContext bCon;
     ModelMenuItem studies;
-    
+
     public Main() throws EngineException, InterruptedException {
-        bCon= BrainstormStart.getInstance();
+        bCon = BrainstormStart.getInstance();
         bCon.startBrainstorm();
         initComponents();
         init();
     }
-    
+
     private void init() {
         bCon.currentProtocolIndex();
         bCon.loadProtocol();
@@ -38,11 +39,11 @@ public class Main extends javax.swing.JFrame {
         menu1.addTitle("SUJETO: "); //Indice 3
         menu1.addTitle("FILE: "); // indice 4 en la lista de componentes del panelMenu
         menu1.addMenuItem(new ModelMenuItem(null, "Procesados"));
-        
+
         //Fin de elementos del menu
         menu1.updateTittleProtocol(bCon.currentProtocolName());
         menu1.updateTittleSujeto(bCon.currentSujectName());
-        
+
         menu1.addEvent(new EventMenuSelected() {
             @Override
             //Aqui hay que meter un case con la claves de las funciones que vamos a llamar en casa de que el evento seleccionado tenga la clave
@@ -54,10 +55,14 @@ public class Main extends javax.swing.JFrame {
                     //Hay que hacer funciones que manden el cambion a la ventana Main, desde Dashboard.
                 } else {
                     //Aqui dependiento del evento llamaremos a un caso, tendremos "Recordings", "Sincronizacion", y otras opciones una vez este realizada la sincronizacion
-                    System.out.println("El indice es el: "+ index);
-                    String clave=aux;
-                    switch(clave){
+                    System.out.println("El indice es el: " + index);
+                    String clave = aux;
+                    switch (clave) {
                         case "Procesados":
+                            if (indexSubMenu > 0) {
+                                bCon.setStudyContext(indexSubMenu);
+                                menu1.updateTittleStudy(bCon.getStudy().nombreStudy());
+                            }
                             System.out.println(aux); // aux tiene el texto del nombre del dropdown
                             System.out.println(indexSubMenu); //Sub indice de la lista, 
                             System.out.println(subKey); // subkey te arroja el nombre de el objeto seleccionado
@@ -66,33 +71,39 @@ public class Main extends javax.swing.JFrame {
                 }
             }
         });
-        menu1.setSelectedIndex(0, 0,"", "");
+        menu1.setSelectedIndex(0, 0, "", "");
     }
-    
+
     public void showForm(Component com) {
         body.removeAll();
         body.add(com);
         body.repaint();
         body.revalidate();
     }
-    public void updateTitleProtocolo(){
-        menu1.updateTittleProtocol(bCon.getProtocol().nombreProtocolo());    
+
+    public void updateTitleProtocolo() {
+        menu1.updateTittleProtocol(bCon.getProtocol().nombreProtocolo());
     }
-    public void updateTitleSujeto(){
-        menu1.updateTittleSujeto(bCon.getSubject().nombreSujeto());
+
+    public void updateTitleSujeto() {
+        try {
+            menu1.updateTittleSujeto(bCon.getSubject().nombreSujeto());
+        } catch (Exception e) {
+            menu1.updateTittleSujeto("Vacio");
+        }
     }
-   
-    public void addMenuItem(String[] studiesList){
+
+    public void addMenuItem(String[] studiesList) {
         menu1.removeMenuItem();
         ModelMenuItem studies = new ModelMenuItem(null, "Procesados");
         studies.setSubMenu(studiesList);
         menu1.addMenuItem(studies);
-    }       
-    
+    }
+
     public static Main getMain() {
         return main;
     }
-    
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {

@@ -117,7 +117,7 @@ public class Menu extends JPanel {
         panelMenu.add(label);
     }
     
-    public void updateTittle(String newTitle){
+    public void updateTittleStudy(String newTitle){
         JLabel aux=(JLabel) panelMenu.getComponent(4);
         aux.setText("FILE: "+newTitle);
     }
