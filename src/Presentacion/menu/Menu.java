@@ -103,10 +103,23 @@ public class Menu extends JPanel {
     //  Public Method
     public void addMenuItem(ModelMenuItem menu) {
         panelMenu.add(createMenuItem(menu), "h 35!");
+       
     }
-    public void removeMenuItem(){
+    public void addMenuItemAgain(ModelMenuItem menu, int index) {
+        panelMenu.add(createMenuItem(menu), "h 35!", index);
+       
+    }
+    public void addMenuItemBottom(ModelMenuItem menu) {
+        panelMenu.add(createMenuItem(menu), "push, aligny bottom");
+        
+       
+    }
+    public int removeMenuItem(){
         int num=panelMenu.getComponentCount();
-        panelMenu.remove(num-1);
+        int index=num-3;
+        System.out.println(index);
+        panelMenu.remove(num-3);
+        return index;
     }
 
     public void addTitle(String title) {

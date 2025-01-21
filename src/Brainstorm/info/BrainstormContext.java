@@ -63,6 +63,7 @@ public class BrainstormContext {
                 Struct sSubject = (Struct) eng.getVariable("sSubject");
                 String protocolo = this.currentProtocolName();
                 Subject sujeto = new Subject(iSubject, sSubject, protocolo);
+                this.setStudy(null);
                 this.setSubject(sujeto);
                 eng.eval(String.format("bst_set('Subject',%s,sSubject)", iSubject));
             }else{
@@ -238,10 +239,12 @@ public class BrainstormContext {
     // Recibe un indice y nos entrega el estudio 
     public void setStudyContext(int index){
         try{
-            eng.eval(String.format("study=bst_get('Study',%s)", index));
-            Struct estudio = (Struct) eng.getVariable("study");
-            
-            this.setStudy(new Study(index, estudio,this.getSubject().nombreSujeto()));
+            ArrayList estudios = this.subjectStudies(this.getSubject().nombreSujeto()); 
+//            estudios.get(index);
+//            eng.eval(String.format("study=bst_get('Study',%s)", index));
+//            Struct estudio = (Struct) eng.getVariable("study");
+            this.setStudy((Study) estudios.get(index-1));
+//            this.setStudy(new Study(index, estudio,this.getSubject().nombreSujeto()));
         }catch(Exception e ){
             
         }

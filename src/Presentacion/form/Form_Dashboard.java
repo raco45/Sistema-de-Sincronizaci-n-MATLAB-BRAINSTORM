@@ -72,6 +72,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
                 if(seleccion.equals(listaSujetos[i-1])){
                     int iSubject= i;
                     bCon.setSubject(iSubject);
+                    this.main.updateTitleStudy();
                     this.actualizarSujetos(listaSujetos[i-1]);
 //                    bCon.subjectStudies(listaSujetos[i-1]);
                     String[] prueba=bCon.subjectStudiesArray(listaSujetos[i-1]);

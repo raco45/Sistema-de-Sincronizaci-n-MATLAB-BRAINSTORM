@@ -39,7 +39,8 @@ public class Main extends javax.swing.JFrame {
         menu1.addTitle("SUJETO: "); //Indice 3
         menu1.addTitle("FILE: "); // indice 4 en la lista de componentes del panelMenu
         menu1.addMenuItem(new ModelMenuItem(null, "Procesados"));
-
+        menu1.addMenuItem(new ModelMenuItem(null, "Visualización","Grafica 1", "Grafica 2","Grafica3"  ));
+        menu1.addMenuItemBottom(new ModelMenuItem(null, "Brainstorm" ));
         //Fin de elementos del menu
         menu1.updateTittleProtocol(bCon.currentProtocolName());
         menu1.updateTittleSujeto(bCon.currentSujectName());
@@ -92,12 +93,19 @@ public class Main extends javax.swing.JFrame {
             menu1.updateTittleSujeto("Vacio");
         }
     }
+    public void updateTitleStudy() {
+        try {
+            menu1.updateTittleStudy(bCon.getStudy().nombreStudy());
+        } catch (Exception e) {
+            menu1.updateTittleStudy("Vacio");
+        }
+    }
 
     public void addMenuItem(String[] studiesList) {
-        menu1.removeMenuItem();
+        int index=menu1.removeMenuItem();
         ModelMenuItem studies = new ModelMenuItem(null, "Procesados");
         studies.setSubMenu(studiesList);
-        menu1.addMenuItem(studies);
+        menu1.addMenuItemAgain(studies,index);
     }
 
     public static Main getMain() {
