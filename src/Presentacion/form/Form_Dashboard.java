@@ -72,6 +72,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
                 if(seleccion.equals(listaSujetos[i-1])){
                     int iSubject= i;
                     bCon.setSubject(iSubject);
+                    this.main.updateTitleStudy();
                     this.actualizarSujetos(listaSujetos[i-1]);
 //                    bCon.subjectStudies(listaSujetos[i-1]);
                     String[] prueba=bCon.subjectStudiesArray(listaSujetos[i-1]);
@@ -104,7 +105,13 @@ public class Form_Dashboard extends javax.swing.JPanel {
     public void llenarSujetos() {
         this.subjectList.removeAllItems();
         String[] sujetos = bCon.protocolSubjects();
+        
         if (sujetos[0] == "") {
+            bCon.setSubject(-1);
+            String[] prueba= {""};
+            this.actualizarSujetos("No subjects");
+            this.main.addMenuItem(prueba);
+                
             System.out.println("No hay sujetos");
         } else {
             for (String opcion : sujetos) {

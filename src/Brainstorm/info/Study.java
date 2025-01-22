@@ -19,6 +19,17 @@ public class Study {
         this.study=study;
         this.subject=subject;
     }
+    
+    
+        public String nombreStudy() {
+        try {
+            String name = (String) this.study.get("Name");
+            return name;
+        } catch (Exception e) {
+              return null;
+        }
+
+    }
 
     /**
      * @return the studyIndex

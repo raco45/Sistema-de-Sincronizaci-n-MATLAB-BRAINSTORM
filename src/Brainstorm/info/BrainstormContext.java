@@ -47,7 +47,7 @@ public class BrainstormContext {
             eng.eval(String.format("db_load_protocol(%s)", index));
             eng.eval("infoProtocol=bst_get('ProtocolInfo')");
             Struct protocolo = eng.getVariable("infoProtocol");
-            Protocolo protocol = new Protocolo((int) index, protocolo );
+            Protocolo protocol = new Protocolo((int) index, protocolo);
             this.setProtocol(protocol);
             System.out.println("Working");
         } catch (Exception e) {
@@ -58,12 +58,17 @@ public class BrainstormContext {
     //Se encarga de colocar un sujeto seleccionado
     public void setSubject(int iSubject) {
         try {
-            eng.eval(String.format("sSubject=bst_get('Subject', %s)", iSubject));
-            Struct sSubject = (Struct) eng.getVariable("sSubject");
-            String protocolo= this.currentProtocolName();
-            Subject sujeto = new Subject(iSubject, sSubject,protocolo);
-            this.setSubject(sujeto);
-            eng.eval(String.format("bst_set('Subject',%s,sSubject)", iSubject));
+            if (iSubject > 0) {
+                eng.eval(String.format("sSubject=bst_get('Subject', %s)", iSubject));
+                Struct sSubject = (Struct) eng.getVariable("sSubject");
+                String protocolo = this.currentProtocolName();
+                Subject sujeto = new Subject(iSubject, sSubject, protocolo);
+                this.setStudy(null);
+                this.setSubject(sujeto);
+                eng.eval(String.format("bst_set('Subject',%s,sSubject)", iSubject));
+            }else{
+                this.setSubject(null);
+            }
 
 //            eng.eval("protocolSubject=bst_get('ProtocolSubjects')");
 //            Struct sujetos = (Struct) eng.getVariable("protocolSubject");
@@ -180,7 +185,7 @@ public class BrainstormContext {
             return lista;
         }
     }
-    
+
     // Nos entrega un arrayList con los estudios que pertenecen a un sujeto en especifico
     public ArrayList subjectStudies(String subject) {
         try {
@@ -205,10 +210,10 @@ public class BrainstormContext {
             return null;
         }
     }
-       // Nos entrega un arrayList con los estudios que pertenecen a un sujeto en especifico
+    // Nos entrega un arrayList con los estudios que pertenecen a un sujeto en especifico
     public String[] subjectStudiesArray(String subject) {
         try {
-            int capa=this.subjectStudies(subject).size();
+            int capa = this.subjectStudies(subject).size();
             String[] estudios = new String[(int) capa];
             Struct[] protocolStudies = this.protocolStudies();
             int aux = 0;
@@ -217,7 +222,7 @@ public class BrainstormContext {
                 nameAux = (String) estudio.get("Name");
                 String nameSubject = (String) estudio.get("BrainStormSubject");
                 if (nameSubject.contains(subject)) {
-                    estudios[aux]=nameAux;
+                    estudios[aux] = nameAux;
                     System.out.println(nameAux);
                     System.out.println(nameSubject);
                     System.out.println(aux);
@@ -230,6 +235,21 @@ public class BrainstormContext {
         }
     }
 
+    
+    // Recibe un indice y nos entrega el estudio 
+    public void setStudyContext(int index){
+        try{
+            ArrayList estudios = this.subjectStudies(this.getSubject().nombreSujeto()); 
+//            estudios.get(index);
+//            eng.eval(String.format("study=bst_get('Study',%s)", index));
+//            Struct estudio = (Struct) eng.getVariable("study");
+            this.setStudy((Study) estudios.get(index-1));
+//            this.setStudy(new Study(index, estudio,this.getSubject().nombreSujeto()));
+        }catch(Exception e ){
+            
+        }
+    }
+    
     //Retorna una lista con los nombres de los sujetos en un protocolo
     public String[] protocolSubjects() {
         try {
