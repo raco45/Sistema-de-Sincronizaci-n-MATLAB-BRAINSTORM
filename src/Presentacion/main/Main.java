@@ -6,6 +6,7 @@ import com.mathworks.engine.EngineException;
 import com.mathworks.engine.MatlabEngine;
 import java.awt.Component;
 import static java.awt.SystemColor.menu;
+import java.awt.event.WindowEvent;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javaswingdev.GoogleMaterialDesignIcon;
@@ -62,6 +63,7 @@ public class Main extends javax.swing.JFrame {
                         case "Procesados":
                             if (indexSubMenu > 0) {
                                 bCon.setStudyContext(indexSubMenu);
+                                bCon.channelStudy();
                                 menu1.updateTittleStudy(bCon.getStudy().nombreStudy());
                             }
                             System.out.println(aux); // aux tiene el texto del nombre del dropdown
@@ -107,6 +109,8 @@ public class Main extends javax.swing.JFrame {
         studies.setSubMenu(studiesList);
         menu1.addMenuItemAgain(studies,index);
     }
+    
+    // Agregar un WindowAdapter
 
     public static Main getMain() {
         return main;
@@ -122,6 +126,7 @@ public class Main extends javax.swing.JFrame {
         body = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setAlwaysOnTop(true);
 
         background.setBackground(new java.awt.Color(245, 245, 245));
 

@@ -24,8 +24,16 @@ public class Subject {
             return name;
         } catch (Exception e) {
               return null;
-        }
 
+        }
+    }
+    public String fileName(){
+        try{
+            String fileName = (String) this.sujeto.get("FileName");
+            return fileName;
+        }catch(Exception e){
+            return null;
+        }
     }
 
     /**
