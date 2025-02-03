@@ -1,10 +1,16 @@
 package brainstorm.info;
 
+import com.mathworks.engine.EngineException;
 import com.mathworks.engine.MatlabEngine;
+import com.mathworks.engine.MatlabExecutionException;
+import com.mathworks.engine.MatlabSyntaxException;
 import com.mathworks.matlab.types.Struct;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class BrainstormContext {
 
@@ -47,7 +53,7 @@ public class BrainstormContext {
             eng.eval(String.format("db_load_protocol(%s)", index));
             eng.eval("infoProtocol=bst_get('ProtocolInfo')");
             Struct protocolo = eng.getVariable("infoProtocol");
-            Protocolo protocol = new Protocolo((int) index, protocolo );
+            Protocolo protocol = new Protocolo((int) index, protocolo);
             this.setProtocol(protocol);
             System.out.println("Working");
         } catch (Exception e) {
@@ -58,12 +64,17 @@ public class BrainstormContext {
     //Se encarga de colocar un sujeto seleccionado
     public void setSubject(int iSubject) {
         try {
-            eng.eval(String.format("sSubject=bst_get('Subject', %s)", iSubject));
-            Struct sSubject = (Struct) eng.getVariable("sSubject");
-            String protocolo= this.currentProtocolName();
-            Subject sujeto = new Subject(iSubject, sSubject,protocolo);
-            this.setSubject(sujeto);
-            eng.eval(String.format("bst_set('Subject',%s,sSubject)", iSubject));
+            if (iSubject > 0) {
+                eng.eval(String.format("sSubject=bst_get('Subject', %s)", iSubject));
+                Struct sSubject = (Struct) eng.getVariable("sSubject");
+                String protocolo = this.currentProtocolName();
+                Subject sujeto = new Subject(iSubject, sSubject, protocolo);
+                this.setStudy(null);
+                this.setSubject(sujeto);
+//                eng.eval(String.format("bst_set('Subject',%s,sSubject)", iSubject));
+            } else {
+                this.setSubject(null);
+            }
 
 //            eng.eval("protocolSubject=bst_get('ProtocolSubjects')");
 //            Struct sujetos = (Struct) eng.getVariable("protocolSubject");
@@ -167,14 +178,11 @@ public class BrainstormContext {
 
     // Da una lista con los nombres de los estudios dentro de un protocolo
     public Struct[] protocolStudies() {
-        ArrayList d = new ArrayList();
-
         try {
             eng.eval("infoStudies=bst_get('ProtocolStudies')");
             Struct infoEstudios = (Struct) eng.getVariable("infoStudies");
             Struct[] detalleEstudios = (Struct[]) infoEstudios.get("Study"); // Array de estudios
             eng.eval("estudios=bst_get('StudyCount')");
-            String[] lista = new String[detalleEstudios.length];
 
             return detalleEstudios;
         } catch (Exception e) {
@@ -183,7 +191,7 @@ public class BrainstormContext {
             return lista;
         }
     }
-    
+
     // Nos entrega un arrayList con los estudios que pertenecen a un sujeto en especifico
     public ArrayList subjectStudies(String subject) {
         try {
@@ -208,10 +216,11 @@ public class BrainstormContext {
             return null;
         }
     }
-       // Nos entrega un arrayList con los estudios que pertenecen a un sujeto en especifico
+
+    // Nos entrega un arrayList con los estudios que pertenecen a un sujeto en especifico
     public String[] subjectStudiesArray(String subject) {
         try {
-            int capa=this.subjectStudies(subject).size();
+            int capa = this.subjectStudies(subject).size();
             String[] estudios = new String[(int) capa];
             Struct[] protocolStudies = this.protocolStudies();
             int aux = 0;
@@ -220,7 +229,7 @@ public class BrainstormContext {
                 nameAux = (String) estudio.get("Name");
                 String nameSubject = (String) estudio.get("BrainStormSubject");
                 if (nameSubject.contains(subject)) {
-                    estudios[aux]=nameAux;
+                    estudios[aux] = nameAux;
                     System.out.println(nameAux);
                     System.out.println(nameSubject);
                     System.out.println(aux);
@@ -230,6 +239,20 @@ public class BrainstormContext {
             return estudios;
         } catch (Exception e) {
             return null;
+        }
+    }
+
+    // Recibe un indice y nos entrega el estudio 
+    public void setStudyContext(int index) {
+        try {
+            ArrayList estudios = this.subjectStudies(this.getSubject().nombreSujeto());
+//            estudios.get(index);
+//            eng.eval(String.format("study=bst_get('Study',%s)", index));
+//            Struct estudio = (Struct) eng.getVariable("study");
+            this.setStudy((Study) estudios.get(index - 1));
+//            this.setStudy(new Study(index, estudio,this.getSubject().nombreSujeto()));
+        } catch (Exception e) {
+
         }
     }
 
@@ -288,6 +311,181 @@ public class BrainstormContext {
             e.printStackTrace();
             //return aux;
         }
+    }
+
+    //Obtener el channel de un estudio
+    public void channelStudy() {
+        try {
+            eng.eval(String.format("channel=bst_get('ChannelForStudy',%s)", this.getStudy().studyIndex));
+            Struct fileName = (Struct) eng.getVariable("channel");
+            String name = (String) fileName.get("FileName");
+        } catch (InterruptedException ex) {
+            Logger.getLogger(BrainstormContext.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (MatlabSyntaxException ex) {
+            Logger.getLogger(BrainstormContext.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (CancellationException ex) {
+            Logger.getLogger(BrainstormContext.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (EngineException ex) {
+            Logger.getLogger(BrainstormContext.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ExecutionException ex) {
+            Logger.getLogger(BrainstormContext.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    // Sirve para cambiar el tipo de data al correcto durante la sincronizacion. tipoSensor= 1 para FC, 0 para GSR
+    public void changeDataType(String name) throws InterruptedException {
+        try {
+//            eng.eval(String.format("ChannelMat = in_bst_channel('%s')",name)); // Struct con informacion del channel file
+            eng.eval(String.format("sInputs = bst_process('GetInputStruct', '%s')", name)); //Struct para pasarle a un proceso
+
+            eng.eval(String.format("preua=bst_process('CallProcess', 'process_channel_settype', sInputs, [],'sensortypes', 'µS', 'newtype', 'GSR')", name)); // Processo para cambiarle el tipo a un sensor
+
+            eng.eval(String.format("preua=bst_process('CallProcess', 'process_channel_settype', sInputs, [],'sensortypes', 'BPM', 'newtype', 'FC')", name)); // Processo para cambiarle el tipo a un sensor
+
+        } catch (MatlabSyntaxException ex) {
+            Logger.getLogger(BrainstormContext.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (CancellationException ex) {
+            Logger.getLogger(BrainstormContext.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (EngineException ex) {
+            Logger.getLogger(BrainstormContext.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ExecutionException ex) {
+            Logger.getLogger(BrainstormContext.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    //Funcion para importar una nueva grabacion a un sujeto seleccionado
+    public String reviewRawFile(String ruta) {
+        try {
+            eng.eval("sFiles=[]");
+
+            eng.eval("bst_report('Start',sFiles)");
+
+            String s1 = this.subject.nombreSujeto();
+            eng.eval(String.format("sFiles = bst_process('CallProcess', 'process_import_data_raw', sFiles, [], ...\n"
+                    + "    'subjectname',    '%1$s', ...\n"
+                    + "    'datafile',       {'%2$s', 'EEG-WS-CSV'}, ...\n"
+                    + "    'channelreplace', 1, ...\n"
+                    + "    'channelalign',   1, ...\n"
+                    + "    'evtmode',        'value')", s1, ruta));
+
+            this.subjectStudiesArray(s1);
+            this.reload();
+            Struct prueb = eng.getVariable("sFiles");
+            String dataFileName = (String) prueb.get("FileName");
+            return dataFileName;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    // Cargar marcadores y convertir en eventos simples
+    public String cargarMarcadores(String dataFileName, String ruta, String eventName) {
+        try {
+            eng.eval(String.format("sFiles = {...\n"
+                    + "    '%s'}", dataFileName));
+            eng.eval(String.format("RawFiles = {...\n"
+                    + "    '%s'};", ruta));
+            eng.eval("sFiles = bst_process('CallProcess', 'process_evt_import', sFiles, [], ...\n"
+                    + "    'evtfile', {RawFiles{1}, 'CSV-TIME'}, ...\n"
+                    + "    'evtname', 'New', ...\n"
+                    + "    'delete',  0);");
+
+            eng.eval(String.format("sFiles = bst_process('CallProcess', 'process_evt_simple', sFiles, [], ...\n"
+                    + "    'eventname', '%s', ...\n"
+                    + "    'method',    'start');", eventName));
+
+            Struct prueb = eng.getVariable("sFiles");
+            String dataName = (String) prueb.get("FileName");
+            this.reload();
+            return dataName;
+
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    //Sincronizar eventos. Recibe el data file name de los archivos a sincronizar. Me va a lanzar un array de struct, tengo que sacar los dos dataFileName de ahi
+    public Struct[] syncEvents(String dataNameNeulog, String dataNameEmotiv) {
+        try {
+            eng.eval(String.format("sFiles = {...\n"
+                    + "    '%1$s', ...\n"
+                    + "    '%2$s'};", dataNameNeulog, dataNameEmotiv));
+
+            eng.eval("sFiles = bst_process('CallProcess', 'process_sync_recordings', sFiles, [], ...\n"
+                    + "    'src',          '100', ...\n"
+                    + "    'method',       'xcorr'); ");
+
+            Struct[] files = (Struct[]) eng.getVariable("sFiles");
+            return files;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    //Combine recordings sincronizadas
+    public void combineRecordings(String dataNeulog, String dataEmotiv) {
+        try {
+            eng.eval(String.format("sFiles = {...\n"
+                    + "    '%1$s', ...\n"
+                    + "    '%2$s'};", dataNeulog, dataEmotiv));
+
+            eng.eval("sFiles = bst_process('CallProcess', 'process_combine_recordings', sFiles, [], ...\n"
+                    + "    'condition', 'Combined');");
+            this.reload();
+        } catch (Exception e) {
+
+        }
+    }
+
+    public void addEEGPositions(String name) {
+        try {
+            eng.eval(String.format("sFiles = {...\n"
+                    + "    '%s'};", name));
+            String archivoPos = "test\\positionsFile\\emotiv_epoc.pos";
+            eng.eval(String.format("RawFiles = {...\n"
+                    + "    '%s'}", archivoPos));
+
+            eng.eval("sFiles = bst_process('CallProcess', 'process_channel_addloc', sFiles, [], ...\n"
+                    + "    'channelfile', {RawFiles{1}, 'POLHEMUS'}, ...\n"
+                    + "    'usedefault',  '', ...  % \n"
+                    + "    'fixunits',    1, ...\n"
+                    + "    'vox2ras',     1, ...\n"
+                    + "    'mrifile',     {'', ''}, ...\n"
+                    + "    'fiducials',   [])");
+        } catch (Exception e) {
+
+        }
+    }
+
+    // Volver a cargar la BD
+    public void reload() {
+        try {
+            eng.eval("db_reload_database('current')");
+//            eng.eval("bst_memory('UnloadAll','Forced')");
+//            eng.eval(String.format("db_reload_subjects(%s)", index));
+        } catch (Exception e) {
+
+        }
+    }
+
+    public int closeBrainstorm() {
+        try {
+            eng.eval("brainstorm stop");
+
+        } catch (InterruptedException ex) {
+            Logger.getLogger(BrainstormContext.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (MatlabSyntaxException ex) {
+            Logger.getLogger(BrainstormContext.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (CancellationException ex) {
+            Logger.getLogger(BrainstormContext.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (EngineException ex) {
+            Logger.getLogger(BrainstormContext.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ExecutionException ex) {
+            Logger.getLogger(BrainstormContext.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return 3;
     }
 
     /**

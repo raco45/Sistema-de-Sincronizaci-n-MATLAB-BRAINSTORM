@@ -1,0 +1,145 @@
+package logica;
+
+import brainstorm.BrainstormStart;
+import brainstorm.info.BrainstormContext;
+import com.mathworks.engine.EngineException;
+import com.mathworks.matlab.types.Struct;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+/**
+ *
+ * @author raco1
+ */
+public class Sincronizacion {
+
+    public String rutaEmotiv;
+    public String rutaNeulog;
+    public String rutaMarcadoresEmotiv;
+    public String rutaMarcadoresNeulog;
+    public String emotivSync;
+    public String neulogSync;
+    
+    
+    public String combine;
+    private BrainstormContext bCon;
+
+    public Sincronizacion(String emotiv, String neulog, String markerEmotiv, String markerNeulog) {
+        this.rutaEmotiv = emotiv;
+        this.rutaNeulog = neulog;
+        this.rutaMarcadoresEmotiv=markerEmotiv;
+        this.rutaMarcadoresNeulog=markerNeulog;
+        try {
+            bCon = BrainstormStart.getInstance();
+        } catch (EngineException ex) {
+            Logger.getLogger(Sincronizacion.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Sincronizacion.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }
+
+    public void sincronizar() {
+        try {
+            String dataFileNameNeulog = bCon.reviewRawFile(rutaNeulog); // Ingresar datos de GSR y FC
+            String dataFileNameEmotiv = bCon.reviewRawFile(rutaEmotiv); // ingresar datos de EEG
+            
+            //Cabiar el tipo de sensor en archivo Neulog
+            bCon.changeDataType(dataFileNameNeulog);
+            bCon.addEEGPositions(dataFileNameEmotiv);
+            //Asignar marcadores a archivos de senales
+            dataFileNameNeulog = bCon.cargarMarcadores(dataFileNameNeulog, rutaMarcadoresNeulog, "100");
+            dataFileNameEmotiv = bCon.cargarMarcadores(dataFileNameEmotiv, rutaMarcadoresEmotiv, "100");
+            
+            // Sincronizar eventos
+            Struct[] archivos= bCon.syncEvents(dataFileNameNeulog, dataFileNameEmotiv);
+            
+            this.emotivSync= (String) archivos[0].get("FileName");
+            this.neulogSync= (String) archivos[1].get("FileName");
+            // Combinar archivos sincronizados. 
+            
+            bCon.combineRecordings(emotivSync, neulogSync);
+            
+            
+            
+            
+            
+            
+            
+
+        } catch (Exception e) {
+
+        }
+    }
+
+    /**
+     * @return the rutaEmotiv
+     */
+    public String getRutaEmotiv() {
+        return rutaEmotiv;
+    }
+
+    /**
+     * @param rutaEmotiv the rutaEmotiv to set
+     */
+    public void setRutaEmotiv(String rutaEmotiv) {
+        this.rutaEmotiv = rutaEmotiv;
+    }
+
+    /**
+     * @return the rutaNeulog
+     */
+    public String getRutaNeulog() {
+        return rutaNeulog;
+    }
+
+    /**
+     * @param rutaNeulog the rutaNeulog to set
+     */
+    public void setRutaNeulog(String rutaNeulog) {
+        this.rutaNeulog = rutaNeulog;
+    }
+
+    /**
+     * @return the emotivSync
+     */
+    public String getEmotivSync() {
+        return emotivSync;
+    }
+
+    /**
+     * @param emotivSync the emotivSync to set
+     */
+    public void setEmotivSync(String emotivSync) {
+        this.emotivSync = emotivSync;
+    }
+
+    /**
+     * @return the neulogSync
+     */
+    public String getNeulogSync() {
+        return neulogSync;
+    }
+
+    /**
+     * @param neulogSync the neulogSync to set
+     */
+    public void setNeulogSync(String neulogSync) {
+        this.neulogSync = neulogSync;
+    }
+
+    /**
+     * @return the combine
+     */
+    public String getCombine() {
+        return combine;
+    }
+
+    /**
+     * @param combine the combine to set
+     */
+    public void setCombine(String combine) {
+        this.combine = combine;
+    }
+
+}

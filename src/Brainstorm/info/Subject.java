@@ -1,4 +1,3 @@
-
 package brainstorm.info;
 
 import com.mathworks.matlab.types.Struct;
@@ -8,21 +7,33 @@ import com.mathworks.matlab.types.Struct;
  * @author raco1
  */
 public class Subject {
+
     public int subjectIndex;
     public Struct sujeto;
     public String protocolo;
-    
-    
-    
-    public Subject(int index, Struct sujeto, String protocol){
-        this.subjectIndex=index;
-        this.sujeto=sujeto;
-        this.protocolo=protocol;
+
+    public Subject(int index, Struct sujeto, String protocol) {
+        this.subjectIndex = index;
+        this.sujeto = sujeto;
+        this.protocolo = protocol;
     }
-    
-    public String nombreSujeto(){
-        String name = (String) this.sujeto.get("Name");
-        return name;
+
+    public String nombreSujeto() {
+        try {
+            String name = (String) this.sujeto.get("Name");
+            return name;
+        } catch (Exception e) {
+              return null;
+
+        }
+    }
+    public String fileName(){
+        try{
+            String fileName = (String) this.sujeto.get("FileName");
+            return fileName;
+        }catch(Exception e){
+            return null;
+        }
     }
 
     /**
@@ -66,5 +77,5 @@ public class Subject {
     public void setProtocolo(String protocolo) {
         this.protocolo = protocolo;
     }
-    
+
 }
