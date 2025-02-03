@@ -7,6 +7,8 @@ import java.awt.BorderLayout;
 import java.util.HashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.SwingWorker;
+import logica.Sincronizacion;
 import presentacion.card.ModelCard;
 import presentacion.main.Main;
 import presentacion.menu.Menu;
@@ -24,7 +26,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
         } catch (InterruptedException ex) {
             Logger.getLogger(Form_Dashboard.class.getName()).log(Level.SEVERE, null, ex);
         }
-        this.main=main;
+        this.main = main;
         initComponents();
         init();
     }
@@ -38,15 +40,69 @@ public class Form_Dashboard extends javax.swing.JPanel {
         this.llenarSujetos();
         this.protocolList.setSelectedIndex(-1);
         this.subjectList.setSelectedIndex(-1);
-        
+
         this.protocolList.addActionListener(e -> {
             String seleccion = (String) this.protocolList.getSelectedItem();
             if (seleccion != null) {
                 double index = bCon.protocolIndex(seleccion);
                 bCon.setProtocol(index);
+                bCon.reload();
                 this.actualizar();
             }
         });
+        this.syncButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                // Deshabilitar el botón para evitar múltiples clics mientras trabaja
+                syncButton.setEnabled(false);
+
+                // Ejecutar la acción en un SwingWorker (hilo en segundo plano)
+                SwingWorker<Void, Void> worker = new SwingWorker<>() {
+                    @Override
+                    protected Void doInBackground() throws Exception {
+                        // Aquí va la lógica de sincronización (ejemplo simulado)
+                        System.out.println("Sincronizando...");
+                        String rutaEmotiv="C:\\Users\\raco1\\OneDrive\\Desktop\\Trabajo de grado\\Drive\\Data 31-05\\Emotiv\\Etapa A\\Pipeline Brainstorm\\CSV\\RomanEtapaA_Emotiv.csv";
+                        String rutaNeulog="C:\\Users\\raco1\\OneDrive\\Desktop\\Trabajo de grado\\Drive\\Data 31-05\\Emotiv\\Etapa A\\Pipeline Brainstorm\\CSV\\RomanEtapaA_Neulog.csv";
+                        String rutaMarcadoresEmotiv="C:\\Users\\raco1\\OneDrive\\Desktop\\Trabajo de grado\\Drive\\Data 31-05\\Emotiv\\Etapa A\\Pipeline Brainstorm\\MarcadoresEmotiv.txt";
+                        String rutaMarcadoresNeulog="C:\\Users\\raco1\\OneDrive\\Desktop\\Trabajo de grado\\Drive\\Data 31-05\\Emotiv\\Etapa A\\Pipeline Brainstorm\\MarcadotesNeulog.txt";
+                        Sincronizacion sync= new Sincronizacion(rutaEmotiv, rutaNeulog, rutaMarcadoresEmotiv, rutaMarcadoresNeulog);
+                        
+                        sync.sincronizar();
+
+//                        String dataName = bCon.reviewRawFile("C:\\Users\\raco1\\OneDrive\\Desktop\\Trabajo de grado\\Drive\\Data 31-05\\Emotiv\\Etapa A\\Pipeline Brainstorm\\CSV\\RomanEtapaA_Neulog.csv");
+//                        
+//                        bCon.changeDataType(dataName);
+//                        
+//                        bCon.cargarMarcadores(dataName, "C:\\Users\\raco1\\OneDrive\\Desktop\\Trabajo de grado\\Drive\\Data 31-05\\Emotiv\\Etapa A\\Pipeline Brainstorm\\MarcadotesNeulog.txt" , "100");
+                        Thread.sleep(2000); // Simula un trabajo de 2 segundos
+                        return null;
+                    }
+
+                    @Override
+
+                    protected void done() {
+                        // Una vez completado, restaurar el botón
+                        syncButton.setEnabled(true);
+                        syncButton.getModel().setPressed(false);
+                        syncButton.getModel().setArmed(false);
+                        System.out.println("Sincronización completada.");
+                    }
+                };
+
+                // Iniciar el trabajo en segundo plano
+                worker.execute();
+            }
+//            public void actionPerformed(java.awt.event.ActionEvent evt) {
+//                // Código que quieres ejecutar cuando se presiona el botón
+//                bCon.reviewRawFile("C:\\Users\\raco1\\OneDrive\\Desktop\\Trabajo de grado\\Drive\\Data 31-05\\Emotiv\\Etapa A\\Pipeline Brainstorm\\CSV\\RomanEtapaA_Neulog.csv");
+//                bCon.reviewRawFile("C:\\Users\\raco1\\OneDrive\\Desktop\\Trabajo de grado\\Drive\\Data 31-05\\Emotiv\\Etapa A\\Pipeline Brainstorm\\CSV\\RomanEtapaA_Emotiv.csv");
+//
+//                // Restablecer el estado del botón
+//                syncButton.getModel().setPressed(false);
+//                syncButton.getModel().setArmed(false);
+//            }
+        }
+        );
 
     }
 
@@ -61,28 +117,28 @@ public class Form_Dashboard extends javax.swing.JPanel {
         this.actionListenerSujetos();
         this.llenarSujetos();
     }
-    
-    public void actionListenerSujetos(){
-        
+
+    public void actionListenerSujetos() {
+
         this.subjectList.addActionListener(e -> {
-        String seleccion = (String) this.subjectList.getSelectedItem();
-        String[] listaSujetos = bCon.protocolSubjects();
-        if(seleccion != null){
-            for(int i=1 ; i <= listaSujetos.length ; i++ ){
-                if(seleccion.equals(listaSujetos[i-1])){
-                    int iSubject= i;
-                    bCon.setSubject(iSubject);
-                    this.main.updateTitleStudy();
-                    this.actualizarSujetos(listaSujetos[i-1]);
-//                    bCon.subjectStudies(listaSujetos[i-1]);
-                    String[] prueba=bCon.subjectStudiesArray(listaSujetos[i-1]);
-                    this.main.addMenuItem(prueba);
+            String seleccion = (String) this.subjectList.getSelectedItem();
+            String[] listaSujetos = bCon.protocolSubjects();
+            if (seleccion != null) {
+                for (int i = 1; i <= listaSujetos.length; i++) {
+                    if (seleccion.equals(listaSujetos[i - 1])) {
+                        int iSubject = i;
+                        bCon.setSubject(iSubject);
+                        this.main.updateTitleStudy();
+                        this.actualizarSujetos(listaSujetos[i - 1]);
+                        String[] prueba = bCon.subjectStudiesArray(listaSujetos[i - 1]);
+                        this.main.addMenuItem(prueba);
+                    }
                 }
-            }   
-        }
+            }
         });
     }
-    public void actualizarSujetos(String sujeto){
+
+    public void actualizarSujetos(String sujeto) {
         this.main.updateTitleSujeto();
         card2.setData(new ModelCard(null, null, null, sujeto, "Sujeto"));
     }
@@ -94,10 +150,10 @@ public class Form_Dashboard extends javax.swing.JPanel {
     public void llenar() {
         for (String opcion : this.protocolList()) {
 //            this.protocolList.addItem(opcion);
-            if(bCon.protocolIndex(opcion)==0){
+            if (bCon.protocolIndex(opcion) == 0) {
                 System.out.println("Vacio");
-            }else{
-                this.protocolList.addItem(opcion);                
+            } else {
+                this.protocolList.addItem(opcion);
             }
         }
     }
@@ -105,13 +161,13 @@ public class Form_Dashboard extends javax.swing.JPanel {
     public void llenarSujetos() {
         this.subjectList.removeAllItems();
         String[] sujetos = bCon.protocolSubjects();
-        
+
         if (sujetos[0] == "") {
             bCon.setSubject(-1);
-            String[] prueba= {""};
+            String[] prueba = {""};
             this.actualizarSujetos("No subjects");
             this.main.addMenuItem(prueba);
-                
+
             System.out.println("No hay sujetos");
         } else {
             for (String opcion : sujetos) {
@@ -136,13 +192,13 @@ public class Form_Dashboard extends javax.swing.JPanel {
         jButton2 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
-        jToggleButton1 = new javax.swing.JToggleButton();
         jSeparator1 = new javax.swing.JSeparator();
         jLabel1 = new javax.swing.JLabel();
         jToggleButton2 = new javax.swing.JToggleButton();
         jToggleButton3 = new javax.swing.JToggleButton();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
+        syncButton = new javax.swing.JButton();
 
         setOpaque(false);
         setPreferredSize(new java.awt.Dimension(879, 661));
@@ -168,9 +224,6 @@ public class Form_Dashboard extends javax.swing.JPanel {
 
         jButton4.setText("Eliminar Sujeto");
 
-        jToggleButton1.setText("Sincronizar");
-        jToggleButton1.setPreferredSize(new java.awt.Dimension(10, 22));
-
         jLabel1.setFont(new java.awt.Font("SansSerif", 1, 24)); // NOI18N
         jLabel1.setText("Sincronización");
 
@@ -193,6 +246,13 @@ public class Form_Dashboard extends javax.swing.JPanel {
 
         jLabel3.setFont(new java.awt.Font("SansSerif", 1, 12)); // NOI18N
         jLabel3.setText("Archivo Cargado");
+
+        syncButton.setText("Sincronizar");
+        syncButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                syncButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout roundPanel1Layout = new javax.swing.GroupLayout(roundPanel1);
         roundPanel1.setLayout(roundPanel1Layout);
@@ -219,21 +279,22 @@ public class Form_Dashboard extends javax.swing.JPanel {
                 .addGap(26, 26, 26)
                 .addComponent(jLabel1)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, roundPanel1Layout.createSequentialGroup()
+            .addGroup(roundPanel1Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel3)
-                .addGap(127, 127, 127)
-                .addComponent(jLabel2)
+                .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(roundPanel1Layout.createSequentialGroup()
+                        .addGap(36, 36, 36)
+                        .addComponent(jLabel3)
+                        .addGap(141, 141, 141)
+                        .addComponent(jLabel2))
+                    .addGroup(roundPanel1Layout.createSequentialGroup()
+                        .addComponent(jToggleButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(89, 89, 89)
+                        .addComponent(jToggleButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(roundPanel1Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jToggleButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(89, 89, 89)
-                .addComponent(jToggleButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(roundPanel1Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jToggleButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(syncButton, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         roundPanel1Layout.setVerticalGroup(
@@ -255,17 +316,17 @@ public class Form_Dashboard extends javax.swing.JPanel {
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel1)
-                .addGap(40, 40, 40)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 41, Short.MAX_VALUE)
                 .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jToggleButton2)
                     .addComponent(jToggleButton3))
-                .addGap(18, 18, 18)
+                .addGap(18, 18, Short.MAX_VALUE)
                 .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(jLabel3))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 8, Short.MAX_VALUE)
-                .addComponent(jToggleButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(12, 12, 12))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(syncButton, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -306,6 +367,27 @@ public class Form_Dashboard extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_jToggleButton3ActionPerformed
 
+    private void syncButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_syncButtonActionPerformed
+//        try {
+        // TODO add your handling code here:
+        // Aquí va la lógica de sincronización (ejemplo simulado)
+//            System.out.println("Sincronizando...");
+//            String dataName = bCon.reviewRawFile("C:\\Users\\raco1\\OneDrive\\Desktop\\Trabajo de grado\\Drive\\Data 31-05\\Emotiv\\Etapa A\\Pipeline Brainstorm\\CSV\\RomanEtapaA_Neulog.csv");
+//
+//            bCon.changeDataType(dataName, 0);
+//            bCon.changeDataType(dataName, 1);
+//
+//            bCon.cargarMarcadores(dataName, "C:\\Users\\raco1\\OneDrive\\Desktop\\Trabajo de grado\\Drive\\Data 31-05\\Emotiv\\Etapa A\\Pipeline Brainstorm\\MarcadotesNeulog.txt", "100");
+//
+//            syncButton.setEnabled(true);
+//            syncButton.getModel().setPressed(false);
+//            syncButton.getModel().setArmed(false);
+//            System.out.println("Sincronización completada.");
+//        } catch (InterruptedException ex) {
+//            Logger.getLogger(Form_Dashboard.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+    }//GEN-LAST:event_syncButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private Presentacion.Card card1;
     private Presentacion.Card card2;
@@ -318,11 +400,11 @@ public class Form_Dashboard extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JSeparator jSeparator1;
-    private javax.swing.JToggleButton jToggleButton1;
     private javax.swing.JToggleButton jToggleButton2;
     private javax.swing.JToggleButton jToggleButton3;
     private javax.swing.JComboBox<String> protocolList;
     private presentacion.swing.RoundPanel roundPanel1;
     private javax.swing.JComboBox<String> subjectList;
+    private javax.swing.JButton syncButton;
     // End of variables declaration//GEN-END:variables
 }
