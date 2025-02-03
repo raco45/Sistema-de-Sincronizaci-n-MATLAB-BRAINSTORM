@@ -1,9 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package Acceso_Datos;
+package Acceso_Datos.neulog;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -11,20 +6,15 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Scanner;
 import javax.swing.JFileChooser;
 
 /**
  *
  * @author raco1
  */
-public class MainData {
+public class PreprocesarNeulog {
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        // Crear un cuadro de diálogo para seleccionar el archivo
+    public static String traerArchivo() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Selecciona el archivo CSV");
 
@@ -32,7 +22,7 @@ public class MainData {
 
         if (userSelection != JFileChooser.APPROVE_OPTION) {
             System.out.println("No se seleccionó ningún archivo. Saliendo...");
-            return;
+            return null;
         }
 
         File inputFile = fileChooser.getSelectedFile();
@@ -44,9 +34,9 @@ public class MainData {
 
             String line;
             boolean headerFound = false;
-            
-            double time= (double) 0;
-            
+
+            double time = (double) 0;
+
             while ((line = br.readLine()) != null) {
                 String[] columns = line.split(",");
 
@@ -61,7 +51,7 @@ public class MainData {
                     } else if (headerFound) {
                         // Escribe los datos debajo de los encabezados
                         bw.write(String.valueOf(time) + "," + columns[1].trim() + "," + columns[2].trim());
-                        time+=0.2;
+                        time += 0.2;
                         bw.newLine();
                     }
                 } catch (Exception e) {
@@ -71,9 +61,12 @@ public class MainData {
             }
 
             System.out.println("Archivo procesado correctamente. Resultado en: " + outputFilePath);
+            return outputFilePath;
 
         } catch (IOException e) {
             System.out.println("Ocurrió un error al procesar el archivo: " + e.getMessage());
+            return null;
         }
     }
+
 }

@@ -1,5 +1,6 @@
 package presentacion.form;
 
+import Acceso_Datos.neulog.PreprocesarNeulog;
 import brainstorm.BrainstormStart;
 import brainstorm.info.BrainstormContext;
 import com.mathworks.engine.EngineException;
@@ -7,6 +8,7 @@ import java.awt.BorderLayout;
 import java.util.HashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 import logica.Sincronizacion;
 import presentacion.card.ModelCard;
@@ -17,6 +19,8 @@ public class Form_Dashboard extends javax.swing.JPanel {
 
     private BrainstormContext bCon;
     private Main main;
+    private Sincronizacion sync;
+    private int flag;
 
     public Form_Dashboard(Main main) {
         try {
@@ -27,6 +31,8 @@ public class Form_Dashboard extends javax.swing.JPanel {
             Logger.getLogger(Form_Dashboard.class.getName()).log(Level.SEVERE, null, ex);
         }
         this.main = main;
+        this.sync = new Sincronizacion("", "", "", "");
+        this.flag = 0;
         initComponents();
         init();
     }
@@ -61,19 +67,15 @@ public class Form_Dashboard extends javax.swing.JPanel {
                     protected Void doInBackground() throws Exception {
                         // Aquí va la lógica de sincronización (ejemplo simulado)
                         System.out.println("Sincronizando...");
-                        String rutaEmotiv="C:\\Users\\raco1\\OneDrive\\Desktop\\Trabajo de grado\\Drive\\Data 31-05\\Emotiv\\Etapa A\\Pipeline Brainstorm\\CSV\\RomanEtapaA_Emotiv.csv";
-                        String rutaNeulog="C:\\Users\\raco1\\OneDrive\\Desktop\\Trabajo de grado\\Drive\\Data 31-05\\Emotiv\\Etapa A\\Pipeline Brainstorm\\CSV\\RomanEtapaA_Neulog.csv";
-                        String rutaMarcadoresEmotiv="C:\\Users\\raco1\\OneDrive\\Desktop\\Trabajo de grado\\Drive\\Data 31-05\\Emotiv\\Etapa A\\Pipeline Brainstorm\\MarcadoresEmotiv.txt";
-                        String rutaMarcadoresNeulog="C:\\Users\\raco1\\OneDrive\\Desktop\\Trabajo de grado\\Drive\\Data 31-05\\Emotiv\\Etapa A\\Pipeline Brainstorm\\MarcadotesNeulog.txt";
-                        Sincronizacion sync= new Sincronizacion(rutaEmotiv, rutaNeulog, rutaMarcadoresEmotiv, rutaMarcadoresNeulog);
-                        
+//                        String rutaEmotiv="C:\\Users\\raco1\\OneDrive\\Desktop\\Trabajo de grado\\Drive\\Data 31-05\\Emotiv\\Etapa A\\Pipeline Brainstorm\\CSV\\RomanEtapaA_Emotiv.csv";
+//                        String rutaNeulog="C:\\Users\\raco1\\OneDrive\\Desktop\\Trabajo de grado\\Drive\\Data 31-05\\Emotiv\\Etapa A\\Pipeline Brainstorm\\CSV\\RomanEtapaA_Neulog.csv";
+//                        String rutaMarcadoresEmotiv="C:\\Users\\raco1\\OneDrive\\Desktop\\Trabajo de grado\\Drive\\Data 31-05\\Emotiv\\Etapa A\\Pipeline Brainstorm\\MarcadoresEmotiv.txt";
+//                        String rutaMarcadoresNeulog="C:\\Users\\raco1\\OneDrive\\Desktop\\Trabajo de grado\\Drive\\Data 31-05\\Emotiv\\Etapa A\\Pipeline Brainstorm\\MarcadotesNeulog.txt";
+//                        Sincronizacion sync= new Sincronizacion(rutaEmotiv, rutaNeulog, rutaMarcadoresEmotiv, rutaMarcadoresNeulog);
+
                         sync.sincronizar();
 
-//                        String dataName = bCon.reviewRawFile("C:\\Users\\raco1\\OneDrive\\Desktop\\Trabajo de grado\\Drive\\Data 31-05\\Emotiv\\Etapa A\\Pipeline Brainstorm\\CSV\\RomanEtapaA_Neulog.csv");
-//                        
-//                        bCon.changeDataType(dataName);
-//                        
-//                        bCon.cargarMarcadores(dataName, "C:\\Users\\raco1\\OneDrive\\Desktop\\Trabajo de grado\\Drive\\Data 31-05\\Emotiv\\Etapa A\\Pipeline Brainstorm\\MarcadotesNeulog.txt" , "100");
+//                       
                         Thread.sleep(2000); // Simula un trabajo de 2 segundos
                         return null;
                     }
@@ -92,15 +94,6 @@ public class Form_Dashboard extends javax.swing.JPanel {
                 // Iniciar el trabajo en segundo plano
                 worker.execute();
             }
-//            public void actionPerformed(java.awt.event.ActionEvent evt) {
-//                // Código que quieres ejecutar cuando se presiona el botón
-//                bCon.reviewRawFile("C:\\Users\\raco1\\OneDrive\\Desktop\\Trabajo de grado\\Drive\\Data 31-05\\Emotiv\\Etapa A\\Pipeline Brainstorm\\CSV\\RomanEtapaA_Neulog.csv");
-//                bCon.reviewRawFile("C:\\Users\\raco1\\OneDrive\\Desktop\\Trabajo de grado\\Drive\\Data 31-05\\Emotiv\\Etapa A\\Pipeline Brainstorm\\CSV\\RomanEtapaA_Emotiv.csv");
-//
-//                // Restablecer el estado del botón
-//                syncButton.getModel().setPressed(false);
-//                syncButton.getModel().setArmed(false);
-//            }
         }
         );
 
@@ -194,11 +187,11 @@ public class Form_Dashboard extends javax.swing.JPanel {
         jButton4 = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JSeparator();
         jLabel1 = new javax.swing.JLabel();
-        jToggleButton2 = new javax.swing.JToggleButton();
-        jToggleButton3 = new javax.swing.JToggleButton();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
+        neulogPath = new javax.swing.JLabel();
+        emotivPath = new javax.swing.JLabel();
         syncButton = new javax.swing.JButton();
+        neulogFiles1 = new javax.swing.JButton();
+        emotivFiles = new javax.swing.JButton();
 
         setOpaque(false);
         setPreferredSize(new java.awt.Dimension(879, 661));
@@ -227,30 +220,30 @@ public class Form_Dashboard extends javax.swing.JPanel {
         jLabel1.setFont(new java.awt.Font("SansSerif", 1, 24)); // NOI18N
         jLabel1.setText("Sincronización");
 
-        jToggleButton2.setText("Archivo EEG");
-        jToggleButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jToggleButton2ActionPerformed(evt);
-            }
-        });
+        neulogPath.setFont(new java.awt.Font("SansSerif", 1, 12)); // NOI18N
+        neulogPath.setText("Archivo Cargado");
 
-        jToggleButton3.setText("Archivos GSR y FC");
-        jToggleButton3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jToggleButton3ActionPerformed(evt);
-            }
-        });
-
-        jLabel2.setFont(new java.awt.Font("SansSerif", 1, 12)); // NOI18N
-        jLabel2.setText("Archivo Cargado");
-
-        jLabel3.setFont(new java.awt.Font("SansSerif", 1, 12)); // NOI18N
-        jLabel3.setText("Archivo Cargado");
+        emotivPath.setFont(new java.awt.Font("SansSerif", 1, 12)); // NOI18N
+        emotivPath.setText("Archivo Cargado");
 
         syncButton.setText("Sincronizar");
         syncButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 syncButtonActionPerformed(evt);
+            }
+        });
+
+        neulogFiles1.setText("Archivos GSR y FC");
+        neulogFiles1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                neulogFiles1ActionPerformed(evt);
+            }
+        });
+
+        emotivFiles.setText("Archivo EEG");
+        emotivFiles.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                emotivFilesActionPerformed(evt);
             }
         });
 
@@ -284,15 +277,15 @@ public class Form_Dashboard extends javax.swing.JPanel {
                 .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(roundPanel1Layout.createSequentialGroup()
                         .addGap(36, 36, 36)
-                        .addComponent(jLabel3)
+                        .addComponent(emotivPath)
                         .addGap(141, 141, 141)
-                        .addComponent(jLabel2))
+                        .addComponent(neulogPath))
                     .addGroup(roundPanel1Layout.createSequentialGroup()
-                        .addComponent(jToggleButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(89, 89, 89)
-                        .addComponent(jToggleButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(emotivFiles, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(83, 83, 83)
+                        .addComponent(neulogFiles1, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(roundPanel1Layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, roundPanel1Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(syncButton, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -316,14 +309,14 @@ public class Form_Dashboard extends javax.swing.JPanel {
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 41, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 46, Short.MAX_VALUE)
                 .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jToggleButton2)
-                    .addComponent(jToggleButton3))
+                    .addComponent(neulogFiles1)
+                    .addComponent(emotivFiles))
                 .addGap(18, 18, Short.MAX_VALUE)
                 .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(jLabel3))
+                    .addComponent(neulogPath)
+                    .addComponent(emotivPath))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(syncButton, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -359,14 +352,6 @@ public class Form_Dashboard extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jToggleButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton2ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jToggleButton2ActionPerformed
-
-    private void jToggleButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton3ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jToggleButton3ActionPerformed
-
     private void syncButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_syncButtonActionPerformed
 //        try {
         // TODO add your handling code here:
@@ -388,20 +373,39 @@ public class Form_Dashboard extends javax.swing.JPanel {
 //        }
     }//GEN-LAST:event_syncButtonActionPerformed
 
+    private void neulogFiles1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_neulogFiles1ActionPerformed
+        // TODO add your handling code here:
+        try {
+            String value = PreprocesarNeulog.traerArchivo();
+            if (value != null) {
+                JOptionPane.showMessageDialog(null, value);
+                flag += 2;
+            } else {
+                JOptionPane.showMessageDialog(null, "Error de procesamiento");
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error de procesamiento");
+        }
+    }//GEN-LAST:event_neulogFiles1ActionPerformed
+
+    private void emotivFilesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_emotivFilesActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_emotivFilesActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private Presentacion.Card card1;
     private Presentacion.Card card2;
     private Presentacion.Card card3;
+    private javax.swing.JButton emotivFiles;
+    private javax.swing.JLabel emotivPath;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JSeparator jSeparator1;
-    private javax.swing.JToggleButton jToggleButton2;
-    private javax.swing.JToggleButton jToggleButton3;
+    private javax.swing.JButton neulogFiles1;
+    private javax.swing.JLabel neulogPath;
     private javax.swing.JComboBox<String> protocolList;
     private presentacion.swing.RoundPanel roundPanel1;
     private javax.swing.JComboBox<String> subjectList;
