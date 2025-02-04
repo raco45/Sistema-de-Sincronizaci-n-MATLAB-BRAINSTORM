@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package Acceso_Datos.emotiv;
+
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
@@ -14,31 +15,113 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 /**
- * Esta clase implementa el procesamiento de un archivo CSV de entrada para generar dos archivos de salida:
- *  - Uno de señales (con sufijo _SIGNALS.csv), en el que se renombra y normaliza la columna de tiempo,
- *    se eliminan prefijos en las columnas EEG y se procesan los marcadores.
- *  - Uno de potencias (con sufijo _POWERS.csv), en el que se calcula el promedio de las bandas Theta, Alpha,
- *    BetaL, BetaH y Gamma en intervalos de 0.125 segundos.
+ * Esta clase implementa el procesamiento de un archivo CSV de entrada para
+ * generar dos archivos de salida: - Uno de señales (con sufijo _SIGNALS.csv),
+ * en el que se renombra y normaliza la columna de tiempo, se eliminan prefijos
+ * en las columnas EEG y se procesan los marcadores. - Uno de potencias (con
+ * sufijo _POWERS.csv), en el que se calcula el promedio de las bandas Theta,
+ * Alpha, BetaL, BetaH y Gamma en intervalos de 0.125 segundos.
  *
  * Se utiliza Apache Commons CSV para leer y escribir los archivos CSV.
  */
-
-
 /**
  *
  * @author roman
  */
-
 public class PreprocesarEmotiv {
+
+    public static String traerArchivo() {
+
+        try {
+
+            String pythonScript = "./src/Logica/funciones_matlab/python/preprocessing.py"; // Ruta relativa al script
+            List<String> command = new ArrayList<>();
+            command.add("python"); // Comando para ejecutar Python
+            command.add(pythonScript); // Ruta al script Python
+
+            // Crear el proceso para ejecutar el script Python
+            ProcessBuilder pb = new ProcessBuilder(command);
+            pb.redirectErrorStream(true); // Combinar salida estándar y errores
+            Process process = pb.start();
+
+            // Leer la salida del script Python
+            try (var reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    System.out.println(line);
+                }
+            }
+
+            // Esperar a que el proceso termine
+            int exitCode = process.waitFor();
+            System.out.println("El script Python terminó con código de salida: " + exitCode);
+            return "";
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+    public static String generarArchivoMarcadores(String inputCsv) throws IOException {
+        // Obtener la carpeta padre del archivo CSV
+        Path inputPath = Paths.get(inputCsv);
+        Path parentDir = inputPath.getParent();
+        String outputTxt = parentDir.resolve("output.txt").toString();
+
+        // Abrir los archivos para lectura y escritura
+        try (BufferedReader br = new BufferedReader(new FileReader(inputCsv));
+                BufferedWriter bw = new BufferedWriter(new FileWriter(outputTxt))) {
+
+            String line;
+            boolean isHeader = true;
+
+            // Leer el archivo CSV línea por línea
+            while ((line = br.readLine()) != null) {
+                // Dividir la línea en columnas
+                String[] columns = line.split(",");
+
+                // Si es la primera línea (header), encontrar los índices de las columnas necesarias
+                if (isHeader) {
+                    isHeader = false;
+                    continue;
+                }
+
+                // Asegurarse de que hay suficientes columnas
+                if (columns.length < 2) {
+                    continue;
+                }
+
+                // Extraer las columnas necesarias
+                String markerValueStr = columns[columns.length - 1]; // Última columna
+                String timeStr = columns[0]; // Primera columna
+
+                // Parsear valores
+                int markerValue = Integer.parseInt(markerValueStr.trim());
+                double time = Double.parseDouble(timeStr.trim());
+
+                // Si MarkerValueInt no es 0, escribir en el archivo de salida
+                if (markerValue != 0) {
+                    bw.write(markerValue + ", " + time + ", 0\n");
+                }
+            }
+        }
+
+        // Retornar la ruta del archivo de salida
+        return outputTxt;
+    }
+
     /**
      * Función generateFiles:
      *
-     * Procesa un archivo CSV de entrada (filePath) y genera dos archivos de salida:
-     *  - nombre_SIGNALS.csv
-     *  - nombre_POWERS.csv
+     * Procesa un archivo CSV de entrada (filePath) y genera dos archivos de
+     * salida: - nombre_SIGNALS.csv - nombre_POWERS.csv
      *
      * @param filePath ruta del archivo CSV de entrada.
      * @return una lista con las rutas de los archivos generados.
@@ -48,23 +131,23 @@ public class PreprocesarEmotiv {
         // -------------------------------------------------------------------------
         // 1. Definir la lista de columnas de interés.
         List<String> columnsInterest = Arrays.asList(
-            "Timestamp",
-            "EEG.AF3", "EEG.F7", "EEG.F3", "EEG.FC5", "EEG.T7", "EEG.P7", "EEG.O1", "EEG.O2", "EEG.P8", "EEG.T8", "EEG.FC6", "EEG.F4", "EEG.F8", "EEG.AF4",
-            "MarkerIndex", "MarkerType", "MarkerValueInt",
-            "POW.AF3.Theta", "POW.AF3.Alpha", "POW.AF3.BetaL", "POW.AF3.BetaH", "POW.AF3.Gamma",
-            "POW.F7.Theta", "POW.F7.Alpha", "POW.F7.BetaL", "POW.F7.BetaH", "POW.F7.Gamma",
-            "POW.F3.Theta", "POW.F3.Alpha", "POW.F3.BetaL", "POW.F3.BetaH", "POW.F3.Gamma",
-            "POW.FC5.Theta", "POW.FC5.Alpha", "POW.FC5.BetaL", "POW.FC5.BetaH", "POW.FC5.Gamma",
-            "POW.T7.Theta", "POW.T7.Alpha", "POW.T7.BetaL", "POW.T7.BetaH", "POW.T7.Gamma",
-            "POW.P7.Theta", "POW.P7.Alpha", "POW.P7.BetaL", "POW.P7.BetaH", "POW.P7.Gamma",
-            "POW.O1.Theta", "POW.O1.Alpha", "POW.O1.BetaL", "POW.O1.BetaH", "POW.O1.Gamma",
-            "POW.O2.Theta", "POW.O2.Alpha", "POW.O2.BetaL", "POW.O2.BetaH", "POW.O2.Gamma",
-            "POW.P8.Theta", "POW.P8.Alpha", "POW.P8.BetaL", "POW.P8.BetaH", "POW.P8.Gamma",
-            "POW.T8.Theta", "POW.T8.Alpha", "POW.T8.BetaL", "POW.T8.BetaH", "POW.T8.Gamma",
-            "POW.FC6.Theta", "POW.FC6.Alpha", "POW.FC6.BetaL", "POW.FC6.BetaH", "POW.FC6.Gamma",
-            "POW.F4.Theta", "POW.F4.Alpha", "POW.F4.BetaL", "POW.F4.BetaH", "POW.F4.Gamma",
-            "POW.F8.Theta", "POW.F8.Alpha", "POW.F8.BetaL", "POW.F8.BetaH", "POW.F8.Gamma",
-            "POW.AF4.Theta", "POW.AF4.Alpha", "POW.AF4.BetaL", "POW.AF4.BetaH", "POW.AF4.Gamma"
+                "Timestamp",
+                "EEG.AF3", "EEG.F7", "EEG.F3", "EEG.FC5", "EEG.T7", "EEG.P7", "EEG.O1", "EEG.O2", "EEG.P8", "EEG.T8", "EEG.FC6", "EEG.F4", "EEG.F8", "EEG.AF4",
+                "MarkerIndex", "MarkerType", "MarkerValueInt",
+                "POW.AF3.Theta", "POW.AF3.Alpha", "POW.AF3.BetaL", "POW.AF3.BetaH", "POW.AF3.Gamma",
+                "POW.F7.Theta", "POW.F7.Alpha", "POW.F7.BetaL", "POW.F7.BetaH", "POW.F7.Gamma",
+                "POW.F3.Theta", "POW.F3.Alpha", "POW.F3.BetaL", "POW.F3.BetaH", "POW.F3.Gamma",
+                "POW.FC5.Theta", "POW.FC5.Alpha", "POW.FC5.BetaL", "POW.FC5.BetaH", "POW.FC5.Gamma",
+                "POW.T7.Theta", "POW.T7.Alpha", "POW.T7.BetaL", "POW.T7.BetaH", "POW.T7.Gamma",
+                "POW.P7.Theta", "POW.P7.Alpha", "POW.P7.BetaL", "POW.P7.BetaH", "POW.P7.Gamma",
+                "POW.O1.Theta", "POW.O1.Alpha", "POW.O1.BetaL", "POW.O1.BetaH", "POW.O1.Gamma",
+                "POW.O2.Theta", "POW.O2.Alpha", "POW.O2.BetaL", "POW.O2.BetaH", "POW.O2.Gamma",
+                "POW.P8.Theta", "POW.P8.Alpha", "POW.P8.BetaL", "POW.P8.BetaH", "POW.P8.Gamma",
+                "POW.T8.Theta", "POW.T8.Alpha", "POW.T8.BetaL", "POW.T8.BetaH", "POW.T8.Gamma",
+                "POW.FC6.Theta", "POW.FC6.Alpha", "POW.FC6.BetaL", "POW.FC6.BetaH", "POW.FC6.Gamma",
+                "POW.F4.Theta", "POW.F4.Alpha", "POW.F4.BetaL", "POW.F4.BetaH", "POW.F4.Gamma",
+                "POW.F8.Theta", "POW.F8.Alpha", "POW.F8.BetaL", "POW.F8.BetaH", "POW.F8.Gamma",
+                "POW.AF4.Theta", "POW.AF4.Alpha", "POW.AF4.BetaL", "POW.AF4.BetaH", "POW.AF4.Gamma"
         );
 
         // -------------------------------------------------------------------------
@@ -225,8 +308,8 @@ public class PreprocesarEmotiv {
         // Time, AF3, F7, F3, FC5, T7, P7, O1, O2, P8, T8, FC6, F4, F8, AF4, MarkerIndex, MarkerType, MarkerValueInt
         List<Map<String, String>> orderedDfSignals = new ArrayList<>();
         List<String> desiredOrder = Arrays.asList(
-            "Time", "AF3", "F7", "F3", "FC5", "T7", "P7", "O1", "O2", "P8",
-            "T8", "FC6", "F4", "F8", "AF4", "MarkerIndex", "MarkerType", "MarkerValueInt"
+                "Time", "AF3", "F7", "F3", "FC5", "T7", "P7", "O1", "O2", "P8",
+                "T8", "FC6", "F4", "F8", "AF4", "MarkerIndex", "MarkerType", "MarkerValueInt"
         );
         for (Map<String, String> row : dfSignals) {
             Map<String, String> newRow = new LinkedHashMap<>();
@@ -423,7 +506,8 @@ public class PreprocesarEmotiv {
     }
 
     /**
-     * Método auxiliar para detectar el delimitador del CSV a partir de una muestra.
+     * Método auxiliar para detectar el delimitador del CSV a partir de una
+     * muestra.
      *
      * @param sample Cadena con parte del contenido del CSV.
      * @return El carácter que se detecta como delimitador.
@@ -448,14 +532,17 @@ public class PreprocesarEmotiv {
     }
 
     /**
-     * Método auxiliar para escribir un archivo CSV a partir de una lista de filas (cada fila es un Map).
+     * Método auxiliar para escribir un archivo CSV a partir de una lista de
+     * filas (cada fila es un Map).
      *
      * @param filePath Ruta del archivo a generar.
-     * @param data     Lista de filas.
+     * @param data Lista de filas.
      * @throws IOException en caso de error de escritura.
      */
     private static void writeCSV(String filePath, List<Map<String, String>> data) throws IOException {
-        if (data == null || data.isEmpty()) return;
+        if (data == null || data.isEmpty()) {
+            return;
+        }
         // Obtener el header a partir de las claves de la primera fila.
         List<String> headers = new ArrayList<>(data.get(0).keySet());
         BufferedWriter writer = new BufferedWriter(new FileWriter(filePath));
@@ -479,7 +566,9 @@ public class PreprocesarEmotiv {
      * @return Promedio de los valores (o 0 si la lista está vacía).
      */
     private static double mean(List<Double> list) {
-        if (list == null || list.isEmpty()) return 0.0;
+        if (list == null || list.isEmpty()) {
+            return 0.0;
+        }
         double sum = 0.0;
         for (double d : list) {
             sum += d;
@@ -490,18 +579,20 @@ public class PreprocesarEmotiv {
     /**
      * Redondea un valor double a la cantidad de decimales indicados.
      *
-     * @param value  Valor a redondear.
+     * @param value Valor a redondear.
      * @param places Número de decimales.
      * @return Valor redondeado.
      */
     private static double round(double value, int places) {
-        if (places < 0) throw new IllegalArgumentException();
+        if (places < 0) {
+            throw new IllegalArgumentException();
+        }
         long factor = (long) Math.pow(10, places);
         value = value * factor;
         long tmp = Math.round(value);
         return (double) tmp / factor;
     }
-    
+
     // MAIN
     public static void main(String[] args) {
         String filePath = "C:\\Users\\Usuario\\OneDrive\\Documentos\\TRIMESTRES_UNIMET\\conversor emotiv\\Nuevo\\RomanChacin - copia.csv";
@@ -518,5 +609,5 @@ public class PreprocesarEmotiv {
             e.printStackTrace();
         }
     }
-    
+
 }
