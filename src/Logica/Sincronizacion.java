@@ -48,8 +48,8 @@ public class Sincronizacion {
             bCon.changeDataType(dataFileNameNeulog);
             bCon.addEEGPositions(dataFileNameEmotiv);
             //Asignar marcadores a archivos de senales
-            dataFileNameNeulog = bCon.cargarMarcadores(dataFileNameNeulog, rutaMarcadoresNeulog, "100");
-            dataFileNameEmotiv = bCon.cargarMarcadores(dataFileNameEmotiv, rutaMarcadoresEmotiv, "100");
+            dataFileNameNeulog = bCon.cargarMarcadores(dataFileNameNeulog, getRutaMarcadoresNeulog(), "100");
+            dataFileNameEmotiv = bCon.cargarMarcadores(dataFileNameEmotiv, getRutaMarcadoresEmotiv(), "100");
             
             // Sincronizar eventos
             Struct[] archivos= bCon.syncEvents(dataFileNameNeulog, dataFileNameEmotiv);
@@ -72,6 +72,16 @@ public class Sincronizacion {
         }
     }
 
+    
+    public void resetSync(){
+        this.setCombine("");
+        this.setEmotivSync("");
+        this.setNeulogSync("");
+        this.setRutaEmotiv("");
+        this.setRutaNeulog("");
+        this.setRutaMarcadoresEmotiv("");
+        this.setRutaMarcadoresNeulog("");
+    }
     /**
      * @return the rutaEmotiv
      */
@@ -140,6 +150,34 @@ public class Sincronizacion {
      */
     public void setCombine(String combine) {
         this.combine = combine;
+    }
+
+    /**
+     * @return the rutaMarcadoresEmotiv
+     */
+    public String getRutaMarcadoresEmotiv() {
+        return rutaMarcadoresEmotiv;
+    }
+
+    /**
+     * @param rutaMarcadoresEmotiv the rutaMarcadoresEmotiv to set
+     */
+    public void setRutaMarcadoresEmotiv(String rutaMarcadoresEmotiv) {
+        this.rutaMarcadoresEmotiv = rutaMarcadoresEmotiv;
+    }
+
+    /**
+     * @return the rutaMarcadoresNeulog
+     */
+    public String getRutaMarcadoresNeulog() {
+        return rutaMarcadoresNeulog;
+    }
+
+    /**
+     * @param rutaMarcadoresNeulog the rutaMarcadoresNeulog to set
+     */
+    public void setRutaMarcadoresNeulog(String rutaMarcadoresNeulog) {
+        this.rutaMarcadoresNeulog = rutaMarcadoresNeulog;
     }
 
 }
