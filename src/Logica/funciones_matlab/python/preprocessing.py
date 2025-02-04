@@ -137,7 +137,8 @@ def generate_files():
     # g) Eliminar las últimas 3 columnas para obtener el DataFrame final de señales.
     df_signals_final = df_signals
     # Guardar el DataFrame de señales en un archivo CSV con sufijo '_SIGNALS.csv'.
-    df_signals_final.to_csv(file_path + '_SIGNALS.csv', index=False)
+    signal_path = file_path + '_SIGNALS.csv'
+    df_signals_final.to_csv(signal_path,, index=False)
 
     # -------------------------------------------------------------------------
     # 9. Procesar el DataFrame de potencias (df_powers):
@@ -274,7 +275,7 @@ def generate_files():
     # Guardar el DataFrame final en un archivo CSV sin incluir el índice.
     df2.to_csv(power_meaned_path, index=False)
     
-    return
+    return [signal_path, power_meaned_path]
 
 # Ejecutar la función para iniciar el procesamiento.
 generate_files()

@@ -1,5 +1,6 @@
 package presentacion.form;
 
+import Acceso_Datos.emotiv.PreprocesarEmotiv;
 import Acceso_Datos.neulog.PreprocesarNeulog;
 import brainstorm.BrainstormStart;
 import brainstorm.info.BrainstormContext;
@@ -58,45 +59,97 @@ public class Form_Dashboard extends javax.swing.JPanel {
         });
         this.syncButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                // Deshabilitar el botón para evitar múltiples clics mientras trabaja
-                syncButton.setEnabled(false);
+                // Verificar la condición antes de ejecutar la sincronización
+                if (flag == 4) { // Reemplaza cumpleCondicion() con tu lógica
+                    // Deshabilitar el botón para evitar múltiples clics mientras trabaja
+                    syncButton.setEnabled(false);
+                    // Ejecutar la acción en un SwingWorker (hilo en segundo plano)
+                    SwingWorker<Void, Void> worker = new SwingWorker<>() {
+                        @Override
+                        protected Void doInBackground() throws Exception {
+                            // Aquí va la lógica de sincronización
+                            System.out.println("Sincronizando...");
+                            sync.sincronizar(); // Tu lógica de sincronización
+                            Thread.sleep(2000); // Simula un trabajo de 2 segundos
+                            return null;
+                        }
 
-                // Ejecutar la acción en un SwingWorker (hilo en segundo plano)
-                SwingWorker<Void, Void> worker = new SwingWorker<>() {
-                    @Override
-                    protected Void doInBackground() throws Exception {
-                        // Aquí va la lógica de sincronización (ejemplo simulado)
-                        System.out.println("Sincronizando...");
-//                        String rutaEmotiv="C:\\Users\\raco1\\OneDrive\\Desktop\\Trabajo de grado\\Drive\\Data 31-05\\Emotiv\\Etapa A\\Pipeline Brainstorm\\CSV\\RomanEtapaA_Emotiv.csv";
-//                        String rutaNeulog="C:\\Users\\raco1\\OneDrive\\Desktop\\Trabajo de grado\\Drive\\Data 31-05\\Emotiv\\Etapa A\\Pipeline Brainstorm\\CSV\\RomanEtapaA_Neulog.csv";
-//                        String rutaMarcadoresEmotiv="C:\\Users\\raco1\\OneDrive\\Desktop\\Trabajo de grado\\Drive\\Data 31-05\\Emotiv\\Etapa A\\Pipeline Brainstorm\\MarcadoresEmotiv.txt";
-//                        String rutaMarcadoresNeulog="C:\\Users\\raco1\\OneDrive\\Desktop\\Trabajo de grado\\Drive\\Data 31-05\\Emotiv\\Etapa A\\Pipeline Brainstorm\\MarcadotesNeulog.txt";
-//                        Sincronizacion sync= new Sincronizacion(rutaEmotiv, rutaNeulog, rutaMarcadoresEmotiv, rutaMarcadoresNeulog);
-
-                        sync.sincronizar();
-
-//                       
-                        Thread.sleep(2000); // Simula un trabajo de 2 segundos
-                        return null;
-                    }
-
-                    @Override
-
-                    protected void done() {
-                        // Una vez completado, restaurar el botón
-                        syncButton.setEnabled(true);
-                        syncButton.getModel().setPressed(false);
-                        syncButton.getModel().setArmed(false);
-                        System.out.println("Sincronización completada.");
-                    }
-                };
-
-                // Iniciar el trabajo en segundo plano
-                worker.execute();
+                        @Override
+                        protected void done() {
+                            // Una vez completado, restaurar el botón
+                            syncButton.setEnabled(true);
+                            syncButton.getModel().setPressed(false);
+                            syncButton.getModel().setArmed(false);
+                            JOptionPane.showMessageDialog(null, "Sincronización completada");
+                        }
+                    };
+                    // Iniciar el trabajo en segundo plano
+                    worker.execute();
+                } else {
+                    // Mostrar mensaje de advertencia si no se cumple la condición
+                    JOptionPane.showMessageDialog(
+                            null,
+                            "No se cumplen las condiciones para la sincronización.",
+                            "Advertencia",
+                            JOptionPane.WARNING_MESSAGE
+                    );
+                }
             }
-        }
-        );
-
+        });
+        this.emotivFiles.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                if (bCon.getSubject() != null) { 
+                    System.out.println("Condición cumplida. Ejecutando acción...");
+                    try {
+                        String value = PreprocesarEmotiv.traerArchivo();
+                        if (value != null) {
+                            JOptionPane.showMessageDialog(null, value);
+                            flag += 2;
+                            sync.setRutaEmotiv(value);
+                            sync.setRutaMarcadoresNeulog(PreprocesarEmotiv.generarArchivoMarcadores("C:\\Users\\raco1\\OneDrive\\Desktop\\Trabajo de grado\\Drive\\Data 31-05\\Emotiv\\Etapa A\\CSV\\Copia archivo Roman Etapa A_SIGNALS.csv"));
+                        } else {
+                            JOptionPane.showMessageDialog(null, "Error de procesamiento");
+                        }
+                    } catch (Exception e) {
+                        JOptionPane.showMessageDialog(null, "Error de procesamiento");
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(
+                            null,
+                            "No se cumplen las condiciones para realizar esta acción.",
+                            "Advertencia",
+                            JOptionPane.WARNING_MESSAGE
+                    );
+                }
+            }
+        });
+        this.neulogFiles.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                if (bCon.getSubject() != null) { 
+                    System.out.println("Condición cumplida. Ejecutando acción...");
+                    try {
+                        String value = PreprocesarNeulog.traerArchivo();
+                        if (value != null) {
+                            JOptionPane.showMessageDialog(null, value);
+                            flag += 2;
+                            sync.setRutaNeulog(value);
+                            sync.setRutaMarcadoresNeulog(PreprocesarNeulog.generarArchivoMarcadores(value));
+                        } else {
+                            JOptionPane.showMessageDialog(null, "Error de procesamiento");
+                        }
+                    } catch (Exception e) {
+                        JOptionPane.showMessageDialog(null, "Error de procesamiento");
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(
+                            null,
+                            "No se cumplen las condiciones para realizar esta acción.",
+                            "Advertencia",
+                            JOptionPane.WARNING_MESSAGE
+                    );
+                }
+            }
+        });
     }
 
     public String cambio() {
@@ -190,7 +243,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
         neulogPath = new javax.swing.JLabel();
         emotivPath = new javax.swing.JLabel();
         syncButton = new javax.swing.JButton();
-        neulogFiles1 = new javax.swing.JButton();
+        neulogFiles = new javax.swing.JButton();
         emotivFiles = new javax.swing.JButton();
 
         setOpaque(false);
@@ -233,10 +286,10 @@ public class Form_Dashboard extends javax.swing.JPanel {
             }
         });
 
-        neulogFiles1.setText("Archivos GSR y FC");
-        neulogFiles1.addActionListener(new java.awt.event.ActionListener() {
+        neulogFiles.setText("Archivos GSR y FC");
+        neulogFiles.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                neulogFiles1ActionPerformed(evt);
+                neulogFilesActionPerformed(evt);
             }
         });
 
@@ -283,7 +336,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
                     .addGroup(roundPanel1Layout.createSequentialGroup()
                         .addComponent(emotivFiles, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(83, 83, 83)
-                        .addComponent(neulogFiles1, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(neulogFiles, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, roundPanel1Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -311,7 +364,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 46, Short.MAX_VALUE)
                 .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(neulogFiles1)
+                    .addComponent(neulogFiles)
                     .addComponent(emotivFiles))
                 .addGap(18, 18, Short.MAX_VALUE)
                 .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -353,43 +406,25 @@ public class Form_Dashboard extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void syncButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_syncButtonActionPerformed
-//        try {
-        // TODO add your handling code here:
-        // Aquí va la lógica de sincronización (ejemplo simulado)
-//            System.out.println("Sincronizando...");
-//            String dataName = bCon.reviewRawFile("C:\\Users\\raco1\\OneDrive\\Desktop\\Trabajo de grado\\Drive\\Data 31-05\\Emotiv\\Etapa A\\Pipeline Brainstorm\\CSV\\RomanEtapaA_Neulog.csv");
-//
-//            bCon.changeDataType(dataName, 0);
-//            bCon.changeDataType(dataName, 1);
-//
-//            bCon.cargarMarcadores(dataName, "C:\\Users\\raco1\\OneDrive\\Desktop\\Trabajo de grado\\Drive\\Data 31-05\\Emotiv\\Etapa A\\Pipeline Brainstorm\\MarcadotesNeulog.txt", "100");
-//
-//            syncButton.setEnabled(true);
-//            syncButton.getModel().setPressed(false);
-//            syncButton.getModel().setArmed(false);
-//            System.out.println("Sincronización completada.");
-//        } catch (InterruptedException ex) {
-//            Logger.getLogger(Form_Dashboard.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-    }//GEN-LAST:event_syncButtonActionPerformed
 
-    private void neulogFiles1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_neulogFiles1ActionPerformed
-        // TODO add your handling code here:
         try {
-            String value = PreprocesarNeulog.traerArchivo();
-            if (value != null) {
-                JOptionPane.showMessageDialog(null, value);
-                flag += 2;
-            } else {
-                JOptionPane.showMessageDialog(null, "Error de procesamiento");
+            if (flag == 2) {
+                JOptionPane.showMessageDialog(null, "Falta un archivo por cargar");
+            } else if (flag == 4) {
+
             }
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Error de procesamiento");
+
         }
-    }//GEN-LAST:event_neulogFiles1ActionPerformed
+    }//GEN-LAST:event_syncButtonActionPerformed
+
+    private void neulogFilesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_neulogFilesActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_neulogFilesActionPerformed
 
     private void emotivFilesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_emotivFilesActionPerformed
         // TODO add your handling code here:
+
     }//GEN-LAST:event_emotivFilesActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -404,7 +439,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
     private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JSeparator jSeparator1;
-    private javax.swing.JButton neulogFiles1;
+    private javax.swing.JButton neulogFiles;
     private javax.swing.JLabel neulogPath;
     private javax.swing.JComboBox<String> protocolList;
     private presentacion.swing.RoundPanel roundPanel1;
