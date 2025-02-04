@@ -6,9 +6,12 @@ import brainstorm.BrainstormStart;
 import brainstorm.info.BrainstormContext;
 import com.mathworks.engine.EngineException;
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
 import java.util.HashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 import logica.Sincronizacion;
@@ -98,7 +101,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
         });
         this.emotivFiles.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                if (bCon.getSubject() != null) { 
+                if (bCon.getSubject() != null) {
                     System.out.println("Condición cumplida. Ejecutando acción...");
                     try {
                         String value = PreprocesarEmotiv.traerArchivo();
@@ -125,7 +128,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
         });
         this.neulogFiles.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                if (bCon.getSubject() != null) { 
+                if (bCon.getSubject() != null) {
                     System.out.println("Condición cumplida. Ejecutando acción...");
                     try {
                         String value = PreprocesarNeulog.traerArchivo();
@@ -148,6 +151,36 @@ public class Form_Dashboard extends javax.swing.JPanel {
                             JOptionPane.WARNING_MESSAGE
                     );
                 }
+            }
+        });
+
+        eliminarProtocolo.addActionListener(e -> {
+            // Crear un JLabel personalizado con texto rojo
+            JLabel mensaje = new JLabel("¿Estás seguro de realizar esta acción?");
+            mensaje.setForeground(Color.RED);
+            mensaje.setFont(new Font("Arial", Font.BOLD, 14));
+
+            // Mostrar el JOptionPane con opciones Sí y No
+            int respuesta = JOptionPane.showConfirmDialog(
+                    main, // Componente padre
+                    mensaje, // Mensaje (puede ser un JLabel)
+                    "Advertencia", // Título de la ventana
+                    JOptionPane.YES_NO_OPTION, // Opciones disponibles
+                    JOptionPane.WARNING_MESSAGE // Tipo de mensaje
+            );
+
+            // Procesar la respuesta del usuario
+            if (respuesta == JOptionPane.YES_OPTION) {
+                bCon.deleteProtocol();
+                this.main.showForm(new Form_Dashboard(main));
+                this.main.updateTitleProtocolo();
+                this.main.updateTitleStudy();
+                this.main.updateTitleSujeto();
+                System.out.println("El usuario eligió 'Sí'.");
+            } else if (respuesta == JOptionPane.NO_OPTION) {
+                System.out.println("El usuario eligió 'No'.");
+            } else {
+                System.out.println("El usuario cerró el cuadro de diálogo.");
             }
         });
     }
@@ -220,7 +253,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
                 this.subjectList.addItem(opcion);
             }
         }
-        bCon.protocolStudies();
+//        bCon.protocolStudies();
 
     }
 
@@ -235,7 +268,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
         protocolList = new javax.swing.JComboBox<>();
         subjectList = new javax.swing.JComboBox<>();
         jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        eliminarProtocolo = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JSeparator();
@@ -264,7 +297,12 @@ public class Form_Dashboard extends javax.swing.JPanel {
 
         jButton1.setText("Nuevo Protocolo");
 
-        jButton2.setText("Eliminar Protocolo");
+        eliminarProtocolo.setText("Eliminar Protocolo");
+        eliminarProtocolo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                eliminarProtocoloActionPerformed(evt);
+            }
+        });
 
         jButton3.setText("Nuevo Sujeto");
 
@@ -313,7 +351,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
             .addGroup(roundPanel1Layout.createSequentialGroup()
                 .addGap(222, 222, 222)
                 .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(eliminarProtocolo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -336,11 +374,8 @@ public class Form_Dashboard extends javax.swing.JPanel {
                     .addGroup(roundPanel1Layout.createSequentialGroup()
                         .addComponent(emotivFiles, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(83, 83, 83)
-                        .addComponent(neulogFiles, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, roundPanel1Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(syncButton, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(neulogFiles, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(syncButton, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         roundPanel1Layout.setVerticalGroup(
@@ -356,7 +391,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
                     .addComponent(jButton3))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton2)
+                    .addComponent(eliminarProtocolo)
                     .addComponent(jButton4))
                 .addGap(106, 106, 106)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -427,14 +462,18 @@ public class Form_Dashboard extends javax.swing.JPanel {
 
     }//GEN-LAST:event_emotivFilesActionPerformed
 
+    private void eliminarProtocoloActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_eliminarProtocoloActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_eliminarProtocoloActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private Presentacion.Card card1;
     private Presentacion.Card card2;
     private Presentacion.Card card3;
+    private javax.swing.JButton eliminarProtocolo;
     private javax.swing.JButton emotivFiles;
     private javax.swing.JLabel emotivPath;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel1;

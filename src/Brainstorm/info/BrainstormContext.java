@@ -438,7 +438,8 @@ public class BrainstormContext {
 
         }
     }
-
+    
+    //Agregar archivo de positions de EEG
     public void addEEGPositions(String name) {
         try {
             eng.eval(String.format("sFiles = {...\n"
@@ -468,6 +469,23 @@ public class BrainstormContext {
         } catch (Exception e) {
 
         }
+    }
+    
+    //Elimiar un protocolo el protocolo cargado o current protocol
+    public void deleteProtocol(){
+        try{
+            eng.eval("db_delete_protocol(0,1)");
+            this.resetContext();
+            this.setProtocol(this.currentProtocolIndex());
+        }catch(Exception e){
+            
+        }
+    }
+    
+    public void resetContext(){
+        this.setSubject(null);
+        this.setProtocol(null);
+        this.setStudy(null);
     }
 
     public int closeBrainstorm() {
