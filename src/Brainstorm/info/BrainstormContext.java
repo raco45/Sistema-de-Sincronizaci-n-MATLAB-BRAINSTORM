@@ -11,6 +11,7 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JFrame;
 
 public class BrainstormContext {
 
@@ -338,10 +339,9 @@ public class BrainstormContext {
 //            eng.eval(String.format("ChannelMat = in_bst_channel('%s')",name)); // Struct con informacion del channel file
             eng.eval(String.format("sInputs = bst_process('GetInputStruct', '%s')", name)); //Struct para pasarle a un proceso
 
-            eng.eval(String.format("preua=bst_process('CallProcess', 'process_channel_settype', sInputs, [],'sensortypes', 'µS', 'newtype', 'GSR')", name)); // Processo para cambiarle el tipo a un sensor
+            eng.eval(String.format("preua=bst_process('CallProcess', 'process_channel_settype', sInputs, [],'sensortypes', 'EEG', 'newtype', 'NEULOG')", name)); // Processo para cambiarle el tipo a un sensor
 
-            eng.eval(String.format("preua=bst_process('CallProcess', 'process_channel_settype', sInputs, [],'sensortypes', 'BPM', 'newtype', 'FC')", name)); // Processo para cambiarle el tipo a un sensor
-
+//            eng.eval(String.format("preua=bst_process('CallProcess', 'process_channel_settype', sInputs, [],'sensortypes', 'BPM', 'newtype', 'NUELOG')", name)); // Processo para cambiarle el tipo a un sensor
         } catch (MatlabSyntaxException ex) {
             Logger.getLogger(BrainstormContext.class.getName()).log(Level.SEVERE, null, ex);
         } catch (CancellationException ex) {
@@ -425,7 +425,7 @@ public class BrainstormContext {
     }
 
     //Combine recordings sincronizadas
-    public void combineRecordings(String dataNeulog, String dataEmotiv) {
+    public double combineRecordings(String dataNeulog, String dataEmotiv) {
         try {
             eng.eval(String.format("sFiles = {...\n"
                     + "    '%1$s', ...\n"
@@ -433,12 +433,18 @@ public class BrainstormContext {
 
             eng.eval("sFiles = bst_process('CallProcess', 'process_combine_recordings', sFiles, [], ...\n"
                     + "    'condition', 'Combined');");
+            
+            Struct prueba = (Struct) eng.getVariable("sFiles");
+            double in= (double) prueba.get("iStudy");
+            System.out.println(in);
             this.reload();
+            return in;
         } catch (Exception e) {
-
+            return 0;
         }
     }
 
+    //Agregar las la posicion de los electrodos
     public void addEEGPositions(String name) {
         try {
             eng.eval(String.format("sFiles = {...\n"
@@ -454,6 +460,45 @@ public class BrainstormContext {
                     + "    'vox2ras',     1, ...\n"
                     + "    'mrifile',     {'', ''}, ...\n"
                     + "    'fiducials',   [])");
+        } catch (Exception e) {
+
+        }
+    }
+    
+    public void videoPowers(double iStudy, String videoFileName){
+        try{
+            eng.eval(String.format("[iNewFiles, OutputVideoFiles] = import_video(%1$s, %2$s)",iStudy,videoFileName ));
+        }catch(Exception e){
+            
+        }
+    }
+
+    //Generar peliculas
+    public void generateTimeSeries() {
+        try {
+            eng.eval(String.format("datas='%s'", this.getStudy().dataFileName()));
+
+            eng.eval("eeg = view_timeseries(datas, 'EEG');");
+//            eng.eval("movegui(eeg,'northeast');");
+//            eng.eval("eeg.Position = [100, 500, 500, 400]");
+
+            eng.eval("neulog = view_timeseries(datas, 'NEULOG');");
+//            eng.eval("neulog.Position = [700, 500, 500, 400];");
+//
+            eng.eval("figure_timeseries('SetDisplayMode', eeg, 'Column');");
+//
+            eng.eval("figure_timeseries('SetDisplayMode', neulog, 'Butterfly');");
+
+            eng.eval("mapa=view_topography(datas, 'EEG', '2DDisc')");
+            
+            eng.eval("pow=view_video(datas, PlayerType='VideoReader', isNewFigure=0)");
+            
+            eng.eval("arreglar(neulog,mapa,eeg)");
+            eng.eval("arrangeFiguresInGrid(neulog,mapa, eeg,pow)");
+           
+            
+            
+
         } catch (Exception e) {
 
         }

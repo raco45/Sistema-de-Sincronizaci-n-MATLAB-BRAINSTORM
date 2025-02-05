@@ -142,12 +142,8 @@
                           <EmptySpace min="-2" pref="83" max="-2" attributes="0"/>
                           <Component id="neulogFiles" min="-2" pref="155" max="-2" attributes="0"/>
                       </Group>
+                      <Component id="syncButton" alignment="0" min="-2" pref="112" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace max="32767" attributes="0"/>
-              </Group>
-              <Group type="102" alignment="1" attributes="0">
-                  <EmptySpace max="32767" attributes="0"/>
-                  <Component id="syncButton" min="-2" pref="112" max="-2" attributes="0"/>
                   <EmptySpace max="32767" attributes="0"/>
               </Group>
           </Group>
@@ -221,6 +217,9 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Eliminar Protocolo"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton2ActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="jButton3">
           <Properties>

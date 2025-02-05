@@ -7,6 +7,7 @@ import brainstorm.info.BrainstormContext;
 import com.mathworks.engine.EngineException;
 import java.awt.BorderLayout;
 import java.util.HashSet;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -101,12 +102,15 @@ public class Form_Dashboard extends javax.swing.JPanel {
                 if (bCon.getSubject() != null) { 
                     System.out.println("Condición cumplida. Ejecutando acción...");
                     try {
-                        String value = PreprocesarEmotiv.traerArchivo();
+                        List<String> valores= PreprocesarEmotiv.generateFiles();
+                        String value = valores.get(0);
+                        String powers= valores.get(1);
                         if (value != null) {
                             JOptionPane.showMessageDialog(null, value);
                             flag += 2;
                             sync.setRutaEmotiv(value);
-                            sync.setRutaMarcadoresNeulog(PreprocesarEmotiv.generarArchivoMarcadores("C:\\Users\\raco1\\OneDrive\\Desktop\\Trabajo de grado\\Drive\\Data 31-05\\Emotiv\\Etapa A\\CSV\\Copia archivo Roman Etapa A_SIGNALS.csv"));
+                            sync.setRutaMarcadoresEmotiv(PreprocesarEmotiv.generarArchivoMarcadores(value));
+                            sync.setRutaPowers(powers);
                         } else {
                             JOptionPane.showMessageDialog(null, "Error de procesamiento");
                         }
@@ -265,6 +269,11 @@ public class Form_Dashboard extends javax.swing.JPanel {
         jButton1.setText("Nuevo Protocolo");
 
         jButton2.setText("Eliminar Protocolo");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         jButton3.setText("Nuevo Sujeto");
 
@@ -336,11 +345,8 @@ public class Form_Dashboard extends javax.swing.JPanel {
                     .addGroup(roundPanel1Layout.createSequentialGroup()
                         .addComponent(emotivFiles, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(83, 83, 83)
-                        .addComponent(neulogFiles, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, roundPanel1Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(syncButton, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(neulogFiles, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(syncButton, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         roundPanel1Layout.setVerticalGroup(
@@ -426,6 +432,10 @@ public class Form_Dashboard extends javax.swing.JPanel {
         // TODO add your handling code here:
 
     }//GEN-LAST:event_emotivFilesActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private Presentacion.Card card1;

@@ -19,7 +19,7 @@ public class Sincronizacion {
     public String rutaMarcadoresNeulog;
     public String emotivSync;
     public String neulogSync;
-    
+    public String rutaPowers;
     
     public String combine;
     private BrainstormContext bCon;
@@ -48,17 +48,19 @@ public class Sincronizacion {
             bCon.changeDataType(dataFileNameNeulog);
             bCon.addEEGPositions(dataFileNameEmotiv);
             //Asignar marcadores a archivos de senales
-            dataFileNameNeulog = bCon.cargarMarcadores(dataFileNameNeulog, getRutaMarcadoresNeulog(), "100");
-            dataFileNameEmotiv = bCon.cargarMarcadores(dataFileNameEmotiv, getRutaMarcadoresEmotiv(), "100");
+            String dataNeulog = bCon.cargarMarcadores(dataFileNameNeulog, getRutaMarcadoresNeulog(), "100");
+            String dataEmotiv = bCon.cargarMarcadores(dataFileNameEmotiv, getRutaMarcadoresEmotiv(), "100");
             
             // Sincronizar eventos
-            Struct[] archivos= bCon.syncEvents(dataFileNameNeulog, dataFileNameEmotiv);
+            Struct[] archivos= bCon.syncEvents(dataNeulog, dataEmotiv);
             
-            this.emotivSync= (String) archivos[0].get("FileName");
-            this.neulogSync= (String) archivos[1].get("FileName");
+            this.emotivSync= (String) archivos[1].get("FileName");
+            this.neulogSync= (String) archivos[0].get("FileName");
             // Combinar archivos sincronizados. 
             
-            bCon.combineRecordings(emotivSync, neulogSync);
+            double iStudy =bCon.combineRecordings(emotivSync, neulogSync);
+            
+//            bCon.videoPowers(iStudy, this.getRutaPowers());
             
             
             
@@ -178,6 +180,20 @@ public class Sincronizacion {
      */
     public void setRutaMarcadoresNeulog(String rutaMarcadoresNeulog) {
         this.rutaMarcadoresNeulog = rutaMarcadoresNeulog;
+    }
+
+    /**
+     * @return the rutaPowers
+     */
+    public String getRutaPowers() {
+        return rutaPowers;
+    }
+
+    /**
+     * @param rutaPowers the rutaPowers to set
+     */
+    public void setRutaPowers(String rutaPowers) {
+        this.rutaPowers = rutaPowers;
     }
 
 }

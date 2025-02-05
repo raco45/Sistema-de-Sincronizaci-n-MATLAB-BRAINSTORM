@@ -12,6 +12,7 @@ import org.apache.commons.csv.CSVRecord;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -19,6 +20,7 @@ import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import javax.swing.JFileChooser;
 
 /**
  * Esta clase implementa el procesamiento de un archivo CSV de entrada para
@@ -127,7 +129,19 @@ public class PreprocesarEmotiv {
      * @return una lista con las rutas de los archivos generados.
      * @throws IOException si ocurre algún error de I/O.
      */
-    public static List<String> generateFiles(String filePath) throws IOException {
+    public static List<String> generateFiles() throws IOException {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Selecciona el archivo CSV");
+
+        int userSelection = fileChooser.showOpenDialog(null);
+
+        if (userSelection != JFileChooser.APPROVE_OPTION) {
+            System.out.println("No se seleccionó ningún archivo. Saliendo...");
+            return null;
+        }
+
+        File inputFile = fileChooser.getSelectedFile();
+        String filePath = inputFile.getAbsolutePath();
         // -------------------------------------------------------------------------
         // 1. Definir la lista de columnas de interés.
         List<String> columnsInterest = Arrays.asList(
@@ -591,23 +605,6 @@ public class PreprocesarEmotiv {
         value = value * factor;
         long tmp = Math.round(value);
         return (double) tmp / factor;
-    }
-
-    // MAIN
-    public static void main(String[] args) {
-        String filePath = "C:\\Users\\Usuario\\OneDrive\\Documentos\\TRIMESTRES_UNIMET\\conversor emotiv\\Nuevo\\RomanChacin - copia.csv";
-
-        try {
-            List<String> outputPaths = generateFiles(filePath);
-            if (outputPaths != null) {
-                System.out.println("Archivos generados:");
-                for (String path : outputPaths) {
-                    System.out.println(path);
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
 }

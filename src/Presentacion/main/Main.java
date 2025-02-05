@@ -40,7 +40,7 @@ public class Main extends javax.swing.JFrame {
         menu1.addTitle("SUJETO: "); //Indice 3
         menu1.addTitle("FILE: "); // indice 4 en la lista de componentes del panelMenu
         menu1.addMenuItem(new ModelMenuItem(null, "Procesados"));
-        menu1.addMenuItem(new ModelMenuItem(null, "Visualización","Grafica 1", "Grafica 2","Grafica3"  ));
+        menu1.addMenuItem(new ModelMenuItem(null, "Visualización","TimeSeries" ));
         menu1.addMenuItemBottom(new ModelMenuItem(null, "Brainstorm" ));
         //Fin de elementos del menu
         menu1.updateTittleProtocol(bCon.currentProtocolName());
@@ -69,6 +69,11 @@ public class Main extends javax.swing.JFrame {
                             System.out.println(aux); // aux tiene el texto del nombre del dropdown
                             System.out.println(indexSubMenu); //Sub indice de la lista, 
                             System.out.println(subKey); // subkey te arroja el nombre de el objeto seleccionado
+                            
+                        case "Visualización":
+                            if(indexSubMenu==1){
+                                bCon.generateTimeSeries();
+                            }
 
                     }
                 }
