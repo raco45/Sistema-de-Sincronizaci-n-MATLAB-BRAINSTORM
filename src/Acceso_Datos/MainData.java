@@ -5,14 +5,27 @@
  */
 package Acceso_Datos;
 
+import com.mathworks.engine.MatlabEngine;
+import java.awt.Color;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.GridLayout;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 
 /**
  *
@@ -24,56 +37,34 @@ public class MainData {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // Crear un cuadro de diálogo para seleccionar el archivo
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Selecciona el archivo CSV");
+             try {
+            // Iniciar el motor de MATLAB
+            System.out.println("Iniciando MATLAB...");
+            MatlabEngine matlabEngine = MatlabEngine.startMatlab();
+            System.out.println("MATLAB iniciado con éxito.");
 
-        int userSelection = fileChooser.showOpenDialog(null);
+            // Crear figuras en MATLAB
+            System.out.println("Creando figuras...");
+            matlabEngine.eval("fig1 = figure('Name', 'Figura 1'); plot(rand(10,1));");
+            matlabEngine.eval("fig2 = figure('Name', 'Figura 2'); plot(sin(1:0.1:10));");
+            matlabEngine.eval("fig3 = figure('Name', 'Figura 3'); plot(cos(1:0.1:10));");
+            matlabEngine.eval("fig4 = figure('Name', 'Figura 4'); plot(tan(1:0.1:10));");
 
-        if (userSelection != JFileChooser.APPROVE_OPTION) {
-            System.out.println("No se seleccionó ningún archivo. Saliendo...");
-            return;
-        }
+            // Pasar las figuras a la función createEmbeddedFigures
+            System.out.println("Creando figura embebida...");
+            matlabEngine.feval("createEmbeddedFigures(fig1, fig2, fig3, fig4)");
+            System.out.println("Figura embebida creada correctamente.");
 
-        File inputFile = fileChooser.getSelectedFile();
-        String inputFilePath = inputFile.getAbsolutePath();
-        String outputFilePath = inputFile.getParent() + File.separator + "archivo_filtrado_neulog.csv";
+            // Mantener MATLAB abierto hasta presionar Enter
+            System.out.println("Presiona Enter para cerrar...");
+            System.in.read();
 
-        try (BufferedReader br = new BufferedReader(new FileReader(inputFilePath));
-                BufferedWriter bw = new BufferedWriter(new FileWriter(outputFilePath))) {
+            // Cerrar el motor de MATLAB
+            matlabEngine.close();
+            System.out.println("Motor de MATLAB cerrado.");
 
-            String line;
-            boolean headerFound = false;
-            
-            double time= (double) 0;
-            
-            while ((line = br.readLine()) != null) {
-                String[] columns = line.split(",");
-
-                try {
-                    // Verifica si la línea tiene los encabezados requeridos
-                    if (columns[0].trim().equalsIgnoreCase("Time")) {
-
-                        // Escribe los encabezados en el archivo de salida
-                        bw.write("Time,BPM,µS");
-                        bw.newLine();
-                        headerFound = true;
-                    } else if (headerFound) {
-                        // Escribe los datos debajo de los encabezados
-                        bw.write(String.valueOf(time) + "," + columns[1].trim() + "," + columns[2].trim());
-                        time+=0.2;
-                        bw.newLine();
-                    }
-                } catch (Exception e) {
-                    break;
-                }
-
-            }
-
-            System.out.println("Archivo procesado correctamente. Resultado en: " + outputFilePath);
-
-        } catch (IOException e) {
-            System.out.println("Ocurrió un error al procesar el archivo: " + e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

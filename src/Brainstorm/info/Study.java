@@ -45,6 +45,16 @@ public class Study {
             return null;
         }
     }
+    
+    public String dataVideoFileName(){
+        try {
+            Struct data = (Struct) this.study.get("Image");
+            String name= (String) data.get("FileName");
+            return name;
+        } catch (Exception e) {
+            return null;
+        }
+    }
 
     /**
      * @return the studyIndex

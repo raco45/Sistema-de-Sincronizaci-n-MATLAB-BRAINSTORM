@@ -6,10 +6,13 @@ import brainstorm.BrainstormStart;
 import brainstorm.info.BrainstormContext;
 import com.mathworks.engine.EngineException;
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
 import java.util.HashSet;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 import logica.Sincronizacion;
@@ -40,10 +43,9 @@ public class Form_Dashboard extends javax.swing.JPanel {
     }
 
     private void init() {
-
-        card1.setData(new ModelCard(null, null, null, bCon.currentProtocolName(), "Protocolo"));
-        card2.setData(new ModelCard(null, null, null, bCon.currentSujectName(), "Sujeto"));
-//        card3.setData(new ModelCard(null, null, null, "", "Archivo"));
+        card1.setData(new ModelCard(null, null, null, bCon.currentProtocolName(), "Protocol"));
+        card2.setData(new ModelCard(null, null, null, bCon.currentSujectName(), "Subject"));
+//        card3.setData(new ModelCard(null, null, null, bCon.currentStudyName(), "Study"));
         this.llenar();
         this.llenarSujetos();
         this.protocolList.setSelectedIndex(-1);
@@ -99,12 +101,12 @@ public class Form_Dashboard extends javax.swing.JPanel {
         });
         this.emotivFiles.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                if (bCon.getSubject() != null) { 
+                if (bCon.getSubject() != null) {
                     System.out.println("Condición cumplida. Ejecutando acción...");
                     try {
-                        List<String> valores= PreprocesarEmotiv.generateFiles();
+                        List<String> valores = PreprocesarEmotiv.generateFiles();
                         String value = valores.get(0);
-                        String powers= valores.get(1);
+                        String powers = valores.get(1);
                         if (value != null) {
                             JOptionPane.showMessageDialog(null, value);
                             flag += 2;
@@ -129,7 +131,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
         });
         this.neulogFiles.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                if (bCon.getSubject() != null) { 
+                if (bCon.getSubject() != null) {
                     System.out.println("Condición cumplida. Ejecutando acción...");
                     try {
                         String value = PreprocesarNeulog.traerArchivo();
@@ -154,6 +156,38 @@ public class Form_Dashboard extends javax.swing.JPanel {
                 }
             }
         });
+
+        this.eliminarProtocolo.addActionListener(e -> {
+            // Crear un JLabel personalizado con texto rojo
+            JLabel mensaje = new JLabel("¿Estás seguro de realizar esta acción?");
+            mensaje.setForeground(Color.RED);
+            mensaje.setFont(new Font("Arial", Font.BOLD, 14));
+
+            // Mostrar el JOptionPane con opciones Sí y No
+            int respuesta = JOptionPane.showConfirmDialog(
+                    main, // Componente padre
+                    mensaje, // Mensaje (puede ser un JLabel)
+                    "Advertencia", // Título de la ventana
+                    JOptionPane.YES_NO_OPTION, // Opciones disponibles
+                    JOptionPane.WARNING_MESSAGE // Tipo de mensaje
+            );
+
+            // Procesar la respuesta del usuario
+            if (respuesta == JOptionPane.YES_OPTION) {
+                bCon.deleteProtocol();
+                this.main.showForm(new Form_Dashboard(main));
+                this.main.updateTitleProtocolo();
+                this.main.updateTitleStudy();
+                this.main.updateTitleSujeto();
+                System.out.println("El usuario eligió 'Sí'.");
+            } else if (respuesta == JOptionPane.NO_OPTION) {
+                System.out.println("El usuario eligió 'No'.");
+            } else {
+                System.out.println("El usuario cerró el cuadro de diálogo.");
+            }
+        });
+
+        
     }
 
     public String cambio() {
@@ -161,11 +195,17 @@ public class Form_Dashboard extends javax.swing.JPanel {
     }
 
     public void actualizar() {
-        card1.setData(new ModelCard(null, null, null, bCon.currentProtocolName(), "Protocolo"));
-        card2.setData(new ModelCard(null, null, null, bCon.currentSujectName(), "Sujeto"));
+        card1.setData(new ModelCard(null, null, null, bCon.currentProtocolName(), "Protocol"));
+        card2.setData(new ModelCard(null, null, null, bCon.currentSujectName(), "Subject"));
+//        card3.setData(new ModelCard(null, null, null, "", "Study"));
+
         this.main.updateTitleProtocolo();
         this.actionListenerSujetos();
         this.llenarSujetos();
+    }
+
+    public void actualizatStudyCard() {
+//        card3.setData(new ModelCard(null, null, null, bCon.study.nombreStudy(), "Study"));
     }
 
     public void actionListenerSujetos() {
@@ -190,7 +230,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
 
     public void actualizarSujetos(String sujeto) {
         this.main.updateTitleSujeto();
-        card2.setData(new ModelCard(null, null, null, sujeto, "Sujeto"));
+        card2.setData(new ModelCard(null, null, null, sujeto, "Subject"));
     }
 
     public String[] protocolList() {
@@ -201,7 +241,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
         for (String opcion : this.protocolList()) {
 //            this.protocolList.addItem(opcion);
             if (bCon.protocolIndex(opcion) == 0) {
-                System.out.println("Vacio");
+                System.out.println("Empty");
             } else {
                 this.protocolList.addItem(opcion);
             }
@@ -224,7 +264,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
                 this.subjectList.addItem(opcion);
             }
         }
-        bCon.protocolStudies();
+//        bCon.protocolStudies();
 
     }
 
@@ -234,12 +274,11 @@ public class Form_Dashboard extends javax.swing.JPanel {
 
         card1 = new Presentacion.Card();
         card2 = new Presentacion.Card();
-        card3 = new Presentacion.Card();
         roundPanel1 = new presentacion.swing.RoundPanel();
         protocolList = new javax.swing.JComboBox<>();
         subjectList = new javax.swing.JComboBox<>();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        crearProtocolo = new javax.swing.JButton();
+        eliminarProtocolo = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JSeparator();
@@ -249,6 +288,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
         syncButton = new javax.swing.JButton();
         neulogFiles = new javax.swing.JButton();
         emotivFiles = new javax.swing.JButton();
+        jButton1 = new javax.swing.JButton();
 
         setOpaque(false);
         setPreferredSize(new java.awt.Dimension(879, 661));
@@ -257,27 +297,38 @@ public class Form_Dashboard extends javax.swing.JPanel {
         card2.setColor2(new java.awt.Color(26, 166, 170));
         card2.setIcon(javaswingdev.GoogleMaterialDesignIcon.PIE_CHART);
 
-        card3.setColor1(new java.awt.Color(95, 243, 140));
-        card3.setColor2(new java.awt.Color(3, 157, 27));
-        card3.setIcon(javaswingdev.GoogleMaterialDesignIcon.RING_VOLUME);
-
         roundPanel1.setBackground(new java.awt.Color(255, 255, 255));
         roundPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 5, 5, 5));
         roundPanel1.setPreferredSize(new java.awt.Dimension(819, 451));
         roundPanel1.setRound(10);
 
-        jButton1.setText("Nuevo Protocolo");
-
-        jButton2.setText("Eliminar Protocolo");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        crearProtocolo.setText("Nuevo Protocolo");
+        crearProtocolo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                crearProtocoloActionPerformed(evt);
+            }
+        });
+
+        eliminarProtocolo.setText("Eliminar Protocolo");
+        eliminarProtocolo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                eliminarProtocoloActionPerformed(evt);
             }
         });
 
         jButton3.setText("Nuevo Sujeto");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
 
         jButton4.setText("Eliminar Sujeto");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
 
         jLabel1.setFont(new java.awt.Font("SansSerif", 1, 24)); // NOI18N
         jLabel1.setText("Sincronización");
@@ -309,6 +360,13 @@ public class Form_Dashboard extends javax.swing.JPanel {
             }
         });
 
+        jButton1.setText("Actualizar");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout roundPanel1Layout = new javax.swing.GroupLayout(roundPanel1);
         roundPanel1.setLayout(roundPanel1Layout);
         roundPanel1Layout.setHorizontalGroup(
@@ -316,14 +374,14 @@ public class Form_Dashboard extends javax.swing.JPanel {
             .addGroup(roundPanel1Layout.createSequentialGroup()
                 .addGap(150, 150, 150)
                 .addComponent(protocolList, javax.swing.GroupLayout.PREFERRED_SIZE, 256, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 17, Short.MAX_VALUE)
                 .addComponent(subjectList, javax.swing.GroupLayout.PREFERRED_SIZE, 256, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(150, 150, 150))
             .addGroup(roundPanel1Layout.createSequentialGroup()
                 .addGap(222, 222, 222)
                 .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(eliminarProtocolo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(crearProtocolo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -348,6 +406,10 @@ public class Form_Dashboard extends javax.swing.JPanel {
                         .addComponent(neulogFiles, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(syncButton, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(roundPanel1Layout.createSequentialGroup()
+                .addGap(37, 37, 37)
+                .addComponent(jButton1)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         roundPanel1Layout.setVerticalGroup(
             roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -358,13 +420,15 @@ public class Form_Dashboard extends javax.swing.JPanel {
                     .addComponent(subjectList, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1)
+                    .addComponent(crearProtocolo)
                     .addComponent(jButton3))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton2)
+                    .addComponent(eliminarProtocolo)
                     .addComponent(jButton4))
-                .addGap(106, 106, 106)
+                .addGap(52, 52, 52)
+                .addComponent(jButton1)
+                .addGap(32, 32, 32)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel1)
@@ -386,23 +450,20 @@ public class Form_Dashboard extends javax.swing.JPanel {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(30, 30, 30)
+                .addGap(20, 20, 20)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(roundPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 828, Short.MAX_VALUE)
+                    .addComponent(roundPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 839, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(card1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGap(30, 30, 30)
-                        .addComponent(card2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGap(30, 30, 30)
-                        .addComponent(card3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addGap(30, 30, 30))
+                        .addGap(135, 135, 135)
+                        .addComponent(card2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addGap(20, 20, 20))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(30, 30, 30)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(card3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(card2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(card1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -413,15 +474,15 @@ public class Form_Dashboard extends javax.swing.JPanel {
 
     private void syncButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_syncButtonActionPerformed
 
-        try {
-            if (flag == 2) {
-                JOptionPane.showMessageDialog(null, "Falta un archivo por cargar");
-            } else if (flag == 4) {
-
-            }
-        } catch (Exception e) {
-
-        }
+//        try {
+//            if (flag == 2) {
+//                JOptionPane.showMessageDialog(null, "Falta un archivo por cargar");
+//            } else if (flag == 4) {
+//
+//            }
+//        } catch (Exception e) {
+//
+//        }
     }//GEN-LAST:event_syncButtonActionPerformed
 
     private void neulogFilesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_neulogFilesActionPerformed
@@ -433,18 +494,42 @@ public class Form_Dashboard extends javax.swing.JPanel {
 
     }//GEN-LAST:event_emotivFilesActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+    private void eliminarProtocoloActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_eliminarProtocoloActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jButton2ActionPerformed
+    }//GEN-LAST:event_eliminarProtocoloActionPerformed
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        // TODO add your handling code here:
+        bCon.deleteSubject();
+    }//GEN-LAST:event_jButton4ActionPerformed
+
+    private void crearProtocoloActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_crearProtocoloActionPerformed
+        // TODO add your handling code here:
+        bCon.crearProtocolo();
+    }//GEN-LAST:event_crearProtocoloActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        // TODO add your handling code here:
+        bCon.creatSujeto();
+
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+        init();
+        this.main.updateTitleProtocolo();
+        this.main.updateTitleStudy();
+        this.main.updateTitleSujeto();
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private Presentacion.Card card1;
     private Presentacion.Card card2;
-    private Presentacion.Card card3;
+    private javax.swing.JButton crearProtocolo;
+    private javax.swing.JButton eliminarProtocolo;
     private javax.swing.JButton emotivFiles;
     private javax.swing.JLabel emotivPath;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel1;

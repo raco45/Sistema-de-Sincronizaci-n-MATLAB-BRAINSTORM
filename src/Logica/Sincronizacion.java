@@ -47,18 +47,46 @@ public class Sincronizacion {
             //Cabiar el tipo de sensor en archivo Neulog
             bCon.changeDataType(dataFileNameNeulog);
             bCon.addEEGPositions(dataFileNameEmotiv);
+            
+            
             //Asignar marcadores a archivos de senales
-            String dataNeulog = bCon.cargarMarcadores(dataFileNameNeulog, getRutaMarcadoresNeulog(), "100");
-            String dataEmotiv = bCon.cargarMarcadores(dataFileNameEmotiv, getRutaMarcadoresEmotiv(), "100");
+            Struct dataNeulog = bCon.cargarMarcadores(dataFileNameNeulog, getRutaMarcadoresNeulog(), "100");
+            Struct dataEmotiv = bCon.cargarMarcadores(dataFileNameEmotiv, getRutaMarcadoresEmotiv(), "100");
+            
+            String dataNeulogFileName = (String) dataNeulog.get("FileName");
+            String dataEmotivFileName = (String) dataEmotiv.get("FileName");
+            
+            
             
             // Sincronizar eventos
-            Struct[] archivos= bCon.syncEvents(dataNeulog, dataEmotiv);
+            Struct[] archivos= bCon.syncEvents(dataNeulogFileName, dataEmotivFileName);
             
             this.emotivSync= (String) archivos[1].get("FileName");
             this.neulogSync= (String) archivos[0].get("FileName");
             // Combinar archivos sincronizados. 
             
             double iStudy =bCon.combineRecordings(emotivSync, neulogSync);
+            
+            //Obtener indice iStudy de los archivos  generados
+            
+//            double indexDataNeulog=(double) dataNeulog.get("iStudy");
+//            double indexDataEmotiv= (double)dataEmotiv.get("iStudy");
+//            double indexDataSyncNeulog= (double) archivos[0].get("iStudy");
+//            double indexDataSyncEmotiv= (double) archivos[1].get("iStudy");
+            
+            System.out.println(dataNeulog);
+            System.out.println(dataEmotiv);
+            System.out.println(this.emotivSync);
+            System.out.println(this.neulogSync);
+            
+            
+            bCon.deleteStudy(dataNeulogFileName);
+            bCon.deleteStudy(dataEmotivFileName);
+            bCon.deleteStudy(this.emotivSync);
+            bCon.deleteStudy(this.neulogSync);
+            
+            bCon.reload();
+//            bCon.generarImagenes();
             
 //            bCon.videoPowers(iStudy, this.getRutaPowers());
             

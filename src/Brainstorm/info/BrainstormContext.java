@@ -7,6 +7,7 @@ import com.mathworks.engine.MatlabSyntaxException;
 import com.mathworks.matlab.types.Struct;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
@@ -314,22 +315,28 @@ public class BrainstormContext {
         }
     }
 
-    //Obtener el channel de un estudio
-    public void channelStudy() {
+    //Funcion para eliminar un estudio 
+    public void deleteStudy(String fileName) {
         try {
-            eng.eval(String.format("channel=bst_get('ChannelForStudy',%s)", this.getStudy().studyIndex));
-            Struct fileName = (Struct) eng.getVariable("channel");
-            String name = (String) fileName.get("FileName");
-        } catch (InterruptedException ex) {
-            Logger.getLogger(BrainstormContext.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (MatlabSyntaxException ex) {
-            Logger.getLogger(BrainstormContext.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (CancellationException ex) {
-            Logger.getLogger(BrainstormContext.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (EngineException ex) {
-            Logger.getLogger(BrainstormContext.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ExecutionException ex) {
-            Logger.getLogger(BrainstormContext.class.getName()).log(Level.SEVERE, null, ex);
+            int aux = 1;
+            Struct[] protocolStudies = this.protocolStudies();
+            for (Struct study : protocolStudies) {
+
+                Struct data = (Struct) study.get("Data");
+                if (data != null) {
+                    String nameAux = (String) data.get("FileName");
+                    System.out.println(nameAux);
+                    if (nameAux.equals(fileName)) {
+                        eng.eval(String.format("errFolders = db_delete_studies( %s )", aux));
+
+                    }
+                }
+
+                aux += 1;
+            }
+
+        } catch (Exception e) {
+
         }
     }
 
@@ -379,7 +386,7 @@ public class BrainstormContext {
     }
 
     // Cargar marcadores y convertir en eventos simples
-    public String cargarMarcadores(String dataFileName, String ruta, String eventName) {
+    public Struct cargarMarcadores(String dataFileName, String ruta, String eventName) {
         try {
             eng.eval(String.format("sFiles = {...\n"
                     + "    '%s'}", dataFileName));
@@ -397,7 +404,7 @@ public class BrainstormContext {
             Struct prueb = eng.getVariable("sFiles");
             String dataName = (String) prueb.get("FileName");
             this.reload();
-            return dataName;
+            return prueb;
 
         } catch (Exception e) {
             return null;
@@ -433,9 +440,9 @@ public class BrainstormContext {
 
             eng.eval("sFiles = bst_process('CallProcess', 'process_combine_recordings', sFiles, [], ...\n"
                     + "    'condition', 'Combined');");
-            
+
             Struct prueba = (Struct) eng.getVariable("sFiles");
-            double in= (double) prueba.get("iStudy");
+            double in = (double) prueba.get("iStudy");
             System.out.println(in);
             this.reload();
             return in;
@@ -464,24 +471,38 @@ public class BrainstormContext {
 
         }
     }
-    
-    public void videoPowers(double iStudy, String videoFileName){
-        try{
-            eng.eval(String.format("[iNewFiles, OutputVideoFiles] = import_video(%1$s, %2$s)",iStudy,videoFileName ));
-        }catch(Exception e){
-            
+
+    public void videoPowers(double iStudy, String videoFileName) {
+        try {
+            eng.eval(String.format("[iNewFiles, OutputVideoFiles] = import_video(%1$s, %2$s)", iStudy, videoFileName));
+        } catch (Exception e) {
+
+        }
+    }
+
+    public void generarImagenes() {
+        try {
+//            eng.eval("images_fft_powers()");
+
+            eng.eval("peliFrequ('C:\\Users\\raco1\\OneDrive\\Desktop\\CODIGO TESIS\\carpeta')");
+        } catch (Exception e) {
+
         }
     }
 
     //Generar peliculas
     public void generateTimeSeries() {
         try {
+            String path = "C:\\Users\\raco1\\OneDrive\\Desktop\\Matlab\\Brainstorm\\brainstorm_db\\Roman_Etapa_A\\data\\RomanA\\@rawCombined\\videolink_video_frecuencias_peli_completa_02.mat";
             eng.eval(String.format("datas='%s'", this.getStudy().dataFileName()));
+            eng.eval(String.format("videoName='%s'", path));
+
+            eng.eval("prueba=bst_get('AnyFile',videoName)");
 
             eng.eval("eeg = view_timeseries(datas, 'EEG');");
+
 //            eng.eval("movegui(eeg,'northeast');");
 //            eng.eval("eeg.Position = [100, 500, 500, 400]");
-
             eng.eval("neulog = view_timeseries(datas, 'NEULOG');");
 //            eng.eval("neulog.Position = [700, 500, 500, 400];");
 //
@@ -490,15 +511,39 @@ public class BrainstormContext {
             eng.eval("figure_timeseries('SetDisplayMode', neulog, 'Butterfly');");
 
             eng.eval("mapa=view_topography(datas, 'EEG', '2DDisc')");
-            
-            eng.eval("pow=view_video(datas, PlayerType='VideoReader', isNewFigure=0)");
-            
-            eng.eval("arreglar(neulog,mapa,eeg)");
-            eng.eval("arrangeFiguresInGrid(neulog,mapa, eeg,pow)");
-           
-            
-            
 
+            eng.eval("pow=view_video(videoName, 'VideoReader', 0)");
+
+            eng.eval("arreglar(neulog,mapa,eeg)");
+//            eng.eval("arrangeFiguresInGrid(neulog,mapa, eeg,pow)");
+
+        } catch (Exception e) {
+
+        }
+    }
+
+    //Elimiar un protocolo el protocolo cargado o current protocol
+    public void deleteProtocol() {
+        try {
+            eng.eval("db_delete_protocol(0,1)");
+            this.resetContext();
+            this.setProtocol(this.currentProtocolIndex());
+        } catch (Exception e) {
+
+        }
+    }
+
+    public void resetContext() {
+        this.setSubject(null);
+        this.setProtocol(null);
+        this.setStudy(null);
+    }
+
+    public void deleteSubject() {
+        try {
+            eng.eval(String.format("db_delete_subjects(%s)", this.getSubject().subjectIndex));
+            this.resetContext();
+            this.setProtocol(this.currentProtocolIndex());
         } catch (Exception e) {
 
         }
@@ -510,6 +555,22 @@ public class BrainstormContext {
             eng.eval("db_reload_database('current')");
 //            eng.eval("bst_memory('UnloadAll','Forced')");
 //            eng.eval(String.format("db_reload_subjects(%s)", index));
+        } catch (Exception e) {
+
+        }
+    }
+
+    public void crearProtocolo() {
+        try {
+            eng.eval("gui_edit_protocol('create')");
+        } catch (Exception e) {
+
+        }
+    }
+
+    public void creatSujeto() {
+        try {
+            eng.eval("db_edit_subject()");
         } catch (Exception e) {
 
         }

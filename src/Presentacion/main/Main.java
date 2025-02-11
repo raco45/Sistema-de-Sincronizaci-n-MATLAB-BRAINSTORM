@@ -19,6 +19,7 @@ public class Main extends javax.swing.JFrame {
 
     private static Main main;
     public BrainstormContext bCon;
+    public Form_Dashboard form =null;
     ModelMenuItem studies;
 
     public Main() throws EngineException, InterruptedException {
@@ -28,7 +29,7 @@ public class Main extends javax.swing.JFrame {
         init();
     }
 
-    private void init() {
+    public void init() {
         bCon.currentProtocolIndex();
         bCon.loadProtocol();
         main = this;
@@ -53,7 +54,13 @@ public class Main extends javax.swing.JFrame {
                 // El indice 0 esta guardado para el primer evento del menu, este lo vamos a considerar como el evento que llama al "Inicio"
                 if (index == 0 && indexSubMenu == 0) {
                     System.out.println(index);
-                    showForm(new Form_Dashboard(main));
+                    if(form==null){
+                        form= new Form_Dashboard(main);
+                        showForm(form);
+                    }else{
+                         showForm(form);
+                    }
+                        
                     //Hay que hacer funciones que manden el cambion a la ventana Main, desde Dashboard.
                 } else {
                     //Aqui dependiento del evento llamaremos a un caso, tendremos "Recordings", "Sincronizacion", y otras opciones una vez este realizada la sincronizacion
@@ -63,7 +70,6 @@ public class Main extends javax.swing.JFrame {
                         case "Procesados":
                             if (indexSubMenu > 0) {
                                 bCon.setStudyContext(indexSubMenu);
-                                bCon.channelStudy();
                                 menu1.updateTittleStudy(bCon.getStudy().nombreStudy());
                             }
                             System.out.println(aux); // aux tiene el texto del nombre del dropdown
@@ -90,21 +96,26 @@ public class Main extends javax.swing.JFrame {
     }
 
     public void updateTitleProtocolo() {
-        menu1.updateTittleProtocol(bCon.getProtocol().nombreProtocolo());
+        try{
+            
+            menu1.updateTittleProtocol(bCon.getProtocol().nombreProtocolo());
+        }catch(Exception e){
+            menu1.updateTittleProtocol("Empty");
+        }
     }
 
     public void updateTitleSujeto() {
         try {
             menu1.updateTittleSujeto(bCon.getSubject().nombreSujeto());
         } catch (Exception e) {
-            menu1.updateTittleSujeto("Vacio");
+            menu1.updateTittleSujeto("Empty");
         }
     }
     public void updateTitleStudy() {
         try {
             menu1.updateTittleStudy(bCon.getStudy().nombreStudy());
         } catch (Exception e) {
-            menu1.updateTittleStudy("Vacio");
+            menu1.updateTittleStudy("Empty");
         }
     }
 
@@ -131,6 +142,7 @@ public class Main extends javax.swing.JFrame {
         body = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setResizable(false);
 
         background.setBackground(new java.awt.Color(245, 245, 245));
 
@@ -140,9 +152,11 @@ public class Main extends javax.swing.JFrame {
         panelMenu.setLayout(panelMenuLayout);
         panelMenuLayout.setHorizontalGroup(
             panelMenuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 226, Short.MAX_VALUE)
+            .addGap(0, 202, Short.MAX_VALUE)
             .addGroup(panelMenuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addComponent(menu1, javax.swing.GroupLayout.DEFAULT_SIZE, 226, Short.MAX_VALUE))
+                .addGroup(panelMenuLayout.createSequentialGroup()
+                    .addComponent(menu1, javax.swing.GroupLayout.DEFAULT_SIZE, 196, Short.MAX_VALUE)
+                    .addContainerGap()))
         );
         panelMenuLayout.setVerticalGroup(
             panelMenuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -161,16 +175,13 @@ public class Main extends javax.swing.JFrame {
             .addGroup(backgroundLayout.createSequentialGroup()
                 .addComponent(panelMenu, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(body, javax.swing.GroupLayout.DEFAULT_SIZE, 1092, Short.MAX_VALUE)
+                .addComponent(body, javax.swing.GroupLayout.DEFAULT_SIZE, 866, Short.MAX_VALUE)
                 .addContainerGap())
         );
         backgroundLayout.setVerticalGroup(
             backgroundLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(panelMenu, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(backgroundLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(body, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+            .addComponent(body, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
