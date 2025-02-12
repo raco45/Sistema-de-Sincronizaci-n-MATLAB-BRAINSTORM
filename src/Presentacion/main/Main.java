@@ -142,6 +142,7 @@ public class Main extends javax.swing.JFrame {
         body = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setAutoRequestFocus(false);
         setResizable(false);
 
         background.setBackground(new java.awt.Color(245, 245, 245));

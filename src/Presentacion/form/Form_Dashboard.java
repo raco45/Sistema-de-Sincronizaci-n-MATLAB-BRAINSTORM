@@ -187,7 +187,6 @@ public class Form_Dashboard extends javax.swing.JPanel {
             }
         });
 
-        
     }
 
     public String cambio() {
