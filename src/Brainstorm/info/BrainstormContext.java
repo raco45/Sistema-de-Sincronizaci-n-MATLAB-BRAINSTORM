@@ -35,6 +35,14 @@ public class BrainstormContext {
             e.printStackTrace();
         }
     }
+    
+    public void openGUI(){
+        try{
+            eng.eval("brainstorm start");
+        }catch(Exception e){
+            
+        }
+    }
 
     //Ruta del directorio de Brainstorm
     public String homeDirectory() {
