@@ -8,6 +8,9 @@ import com.mathworks.engine.EngineException;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
+import static java.awt.Frame.ICONIFIED;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.HashSet;
 import java.util.List;
 import java.util.logging.Level;
@@ -83,6 +86,10 @@ public class Form_Dashboard extends javax.swing.JPanel {
                             syncButton.setEnabled(true);
                             syncButton.getModel().setPressed(false);
                             syncButton.getModel().setArmed(false);
+                            sync.resetSync();
+                            flag = 0;
+                            labelEmotiv.setText("No file loaded");
+                            labelNeulog.setText("No file loaded");
                             JOptionPane.showMessageDialog(null, "Sincronización completada");
                         }
                     };
@@ -113,6 +120,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
                             sync.setRutaEmotiv(value);
                             sync.setRutaMarcadoresEmotiv(PreprocesarEmotiv.generarArchivoMarcadores(value));
                             sync.setRutaPowers(powers);
+                            labelEmotiv.setText("File Loaded");
                         } else {
                             JOptionPane.showMessageDialog(null, "Error de procesamiento");
                         }
@@ -140,6 +148,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
                             flag += 2;
                             sync.setRutaNeulog(value);
                             sync.setRutaMarcadoresNeulog(PreprocesarNeulog.generarArchivoMarcadores(value));
+                            labelNeulog.setText("File Loaded");
                         } else {
                             JOptionPane.showMessageDialog(null, "Error de procesamiento");
                         }
@@ -158,32 +167,101 @@ public class Form_Dashboard extends javax.swing.JPanel {
         });
 
         this.eliminarProtocolo.addActionListener(e -> {
-            // Crear un JLabel personalizado con texto rojo
-            JLabel mensaje = new JLabel("¿Estás seguro de realizar esta acción?");
-            mensaje.setForeground(Color.RED);
-            mensaje.setFont(new Font("Arial", Font.BOLD, 14));
+            if (bCon.protocol != null) {
+                // Crear un JLabel personalizado con texto rojo
+                JLabel mensaje = new JLabel(String.format("Do you want to delete Protocol: '%s'", bCon.protocol.nombreProtocolo()));
+                mensaje.setForeground(Color.RED);
+                mensaje.setFont(new Font("Arial", Font.BOLD, 14));
 
-            // Mostrar el JOptionPane con opciones Sí y No
-            int respuesta = JOptionPane.showConfirmDialog(
-                    main, // Componente padre
-                    mensaje, // Mensaje (puede ser un JLabel)
-                    "Advertencia", // Título de la ventana
-                    JOptionPane.YES_NO_OPTION, // Opciones disponibles
-                    JOptionPane.WARNING_MESSAGE // Tipo de mensaje
-            );
+                // Mostrar el JOptionPane con opciones Sí y No
+                int respuesta = JOptionPane.showConfirmDialog(
+                        main, // Componente padre
+                        mensaje, // Mensaje (puede ser un JLabel)
+                        "Warning", // Título de la ventana
+                        JOptionPane.YES_NO_OPTION, // Opciones disponibles
+                        JOptionPane.WARNING_MESSAGE // Tipo de mensaje
+                );
 
-            // Procesar la respuesta del usuario
-            if (respuesta == JOptionPane.YES_OPTION) {
-                bCon.deleteProtocol();
-                this.main.showForm(new Form_Dashboard(main));
-                this.main.updateTitleProtocolo();
-                this.main.updateTitleStudy();
-                this.main.updateTitleSujeto();
-                System.out.println("El usuario eligió 'Sí'.");
-            } else if (respuesta == JOptionPane.NO_OPTION) {
-                System.out.println("El usuario eligió 'No'.");
+                // Procesar la respuesta del usuario
+                if (respuesta == JOptionPane.YES_OPTION) {
+                    bCon.deleteProtocol();
+                    this.main.showForm(new Form_Dashboard(main));
+                    this.main.updateTitleProtocolo();
+                    this.main.updateTitleStudy();
+                    this.main.updateTitleSujeto();
+                    System.out.println("El usuario eligió 'Sí'.");
+                } else if (respuesta == JOptionPane.NO_OPTION) {
+                    System.out.println("El usuario eligió 'No'.");
+                } else {
+                    System.out.println("El usuario cerró el cuadro de diálogo.");
+                }
             } else {
-                System.out.println("El usuario cerró el cuadro de diálogo.");
+                JOptionPane.showMessageDialog(null, "No protocol selected");
+            }
+        });
+        this.deleteSubject.addActionListener(e -> {
+            if (bCon.subject != null) {
+                // Crear un JLabel personalizado con texto rojo
+                JLabel mensaje = new JLabel(String.format("Do you want to delete Subject: '%s'", bCon.subject.nombreSujeto()));
+                mensaje.setForeground(Color.RED);
+                mensaje.setFont(new Font("Arial", Font.BOLD, 14));
+
+                // Mostrar el JOptionPane con opciones Sí y No
+                int respuesta = JOptionPane.showConfirmDialog(
+                        main, // Componente padre
+                        mensaje, // Mensaje (puede ser un JLabel)
+                        "Warning", // Título de la ventana
+                        JOptionPane.YES_NO_OPTION, // Opciones disponibles
+                        JOptionPane.WARNING_MESSAGE // Tipo de mensaje
+                );
+
+                // Procesar la respuesta del usuario
+                if (respuesta == JOptionPane.YES_OPTION) {
+                    bCon.deleteSubject();
+                    this.main.showForm(new Form_Dashboard(main));
+                    this.main.updateTitleProtocolo();
+                    this.main.updateTitleStudy();
+                    this.main.updateTitleSujeto();
+                    System.out.println("El usuario eligió 'Sí'.");
+                } else if (respuesta == JOptionPane.NO_OPTION) {
+                    System.out.println("El usuario eligió 'No'.");
+                } else {
+                    System.out.println("El usuario cerró el cuadro de diálogo.");
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "No subject selected");
+            }
+        });
+        this.powerBoton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Condición para ejecutar la acción
+
+                if (bCon.study != null) {
+                    // Aquí pones el código que quieres ejecutar
+                    if (bCon.study.dataVideoFileName() != null) {
+                        int respuesta = JOptionPane.showConfirmDialog(null,
+                                "An FFT & Power file already exists.\nDo you want to regenerate them?",
+                                "Confirmation",
+                                JOptionPane.YES_NO_OPTION);
+
+                        if (respuesta == JOptionPane.YES_OPTION) {
+                            // Si elige "Sí", se ejecuta la acción
+                            bCon.generarImagenes();
+                            update();
+                        } else {
+                            // Si elige "No", se cancela la acción
+                            JOptionPane.showMessageDialog(null, "Nothing happen.");
+                        }
+                    } else {
+                        bCon.generarImagenes();
+                        update();
+                    }
+
+                } else {
+                    JOptionPane.showMessageDialog(null, "No study selected",
+                            "Warning", JOptionPane.WARNING_MESSAGE);
+                }
             }
         });
 
@@ -267,6 +345,13 @@ public class Form_Dashboard extends javax.swing.JPanel {
 
     }
 
+    public void update() {
+        init();
+        this.main.updateTitleProtocolo();
+        this.main.updateTitleStudy();
+        this.main.updateTitleSujeto();
+    }
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -279,15 +364,18 @@ public class Form_Dashboard extends javax.swing.JPanel {
         crearProtocolo = new javax.swing.JButton();
         eliminarProtocolo = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
+        deleteSubject = new javax.swing.JButton();
+        jSeparator2 = new javax.swing.JSeparator();
         jSeparator1 = new javax.swing.JSeparator();
-        jLabel1 = new javax.swing.JLabel();
-        neulogPath = new javax.swing.JLabel();
-        emotivPath = new javax.swing.JLabel();
+        syncLabel = new javax.swing.JLabel();
+        syncLabel1 = new javax.swing.JLabel();
         syncButton = new javax.swing.JButton();
         neulogFiles = new javax.swing.JButton();
         emotivFiles = new javax.swing.JButton();
         jButton1 = new javax.swing.JButton();
+        powerBoton = new javax.swing.JButton();
+        labelEmotiv = new javax.swing.JLabel();
+        labelNeulog = new javax.swing.JLabel();
 
         setOpaque(false);
         setPreferredSize(new java.awt.Dimension(879, 661));
@@ -301,70 +389,80 @@ public class Form_Dashboard extends javax.swing.JPanel {
         roundPanel1.setPreferredSize(new java.awt.Dimension(819, 451));
         roundPanel1.setRound(10);
 
-        crearProtocolo.setText("Nuevo Protocolo");
+        crearProtocolo.setText("New Protocol");
         crearProtocolo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 crearProtocoloActionPerformed(evt);
             }
         });
 
-        eliminarProtocolo.setText("Eliminar Protocolo");
+        eliminarProtocolo.setText("Delete Protocol");
         eliminarProtocolo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 eliminarProtocoloActionPerformed(evt);
             }
         });
 
-        jButton3.setText("Nuevo Sujeto");
+        jButton3.setText("New Subject");
         jButton3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton3ActionPerformed(evt);
             }
         });
 
-        jButton4.setText("Eliminar Sujeto");
-        jButton4.addActionListener(new java.awt.event.ActionListener() {
+        deleteSubject.setText("Delete Subject");
+        deleteSubject.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton4ActionPerformed(evt);
+                deleteSubjectActionPerformed(evt);
             }
         });
 
-        jLabel1.setFont(new java.awt.Font("SansSerif", 1, 24)); // NOI18N
-        jLabel1.setText("Sincronización");
+        jSeparator2.setOrientation(javax.swing.SwingConstants.VERTICAL);
 
-        neulogPath.setFont(new java.awt.Font("SansSerif", 1, 12)); // NOI18N
-        neulogPath.setText("Archivo Cargado");
+        syncLabel.setFont(new java.awt.Font("SansSerif", 1, 24)); // NOI18N
+        syncLabel.setText("Synchronization");
 
-        emotivPath.setFont(new java.awt.Font("SansSerif", 1, 12)); // NOI18N
-        emotivPath.setText("Archivo Cargado");
+        syncLabel1.setFont(new java.awt.Font("SansSerif", 1, 24)); // NOI18N
+        syncLabel1.setText("FFT & Powers");
 
-        syncButton.setText("Sincronizar");
+        syncButton.setText("SYNCHRONIZE");
         syncButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 syncButtonActionPerformed(evt);
             }
         });
 
-        neulogFiles.setText("Archivos GSR y FC");
+        neulogFiles.setText(" GSR & FC FILES");
         neulogFiles.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 neulogFilesActionPerformed(evt);
             }
         });
 
-        emotivFiles.setText("Archivo EEG");
+        emotivFiles.setText("EEG FILE");
         emotivFiles.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 emotivFilesActionPerformed(evt);
             }
         });
 
-        jButton1.setText("Actualizar");
+        jButton1.setText("Update");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
             }
         });
+
+        powerBoton.setText("GENERATE FFT & POWERS");
+        powerBoton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                powerBotonActionPerformed(evt);
+            }
+        });
+
+        labelEmotiv.setText("No file uploaded");
+
+        labelNeulog.setText("No file uploaded");
 
         javax.swing.GroupLayout roundPanel1Layout = new javax.swing.GroupLayout(roundPanel1);
         roundPanel1.setLayout(roundPanel1Layout);
@@ -384,29 +482,39 @@ public class Form_Dashboard extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton4))
+                    .addComponent(deleteSubject))
                 .addGap(222, 222, 222))
             .addComponent(jSeparator1)
             .addGroup(roundPanel1Layout.createSequentialGroup()
-                .addGap(26, 26, 26)
-                .addComponent(jLabel1)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(roundPanel1Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(roundPanel1Layout.createSequentialGroup()
-                        .addGap(36, 36, 36)
-                        .addComponent(emotivPath)
-                        .addGap(141, 141, 141)
-                        .addComponent(neulogPath))
+                        .addGap(26, 26, 26)
+                        .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(syncLabel)
+                            .addGroup(roundPanel1Layout.createSequentialGroup()
+                                .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(emotivFiles, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(neulogFiles, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(91, 91, 91)
+                                .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(labelNeulog)
+                                    .addComponent(labelEmotiv)))))
                     .addGroup(roundPanel1Layout.createSequentialGroup()
-                        .addComponent(emotivFiles, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(83, 83, 83)
-                        .addComponent(neulogFiles, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(syncButton, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(roundPanel1Layout.createSequentialGroup()
-                .addGap(37, 37, 37)
+                        .addGap(152, 152, 152)
+                        .addComponent(syncButton, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(59, 59, 59)
+                .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 12, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(roundPanel1Layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(syncLabel1)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, roundPanel1Layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(powerBoton)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, roundPanel1Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jButton1)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -424,24 +532,34 @@ public class Form_Dashboard extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(eliminarProtocolo)
-                    .addComponent(jButton4))
-                .addGap(52, 52, 52)
+                    .addComponent(deleteSubject))
+                .addGap(66, 66, 66)
                 .addComponent(jButton1)
-                .addGap(32, 32, 32)
+                .addGap(18, 18, 18)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 46, Short.MAX_VALUE)
-                .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(neulogFiles)
-                    .addComponent(emotivFiles))
-                .addGap(18, 18, Short.MAX_VALUE)
-                .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(neulogPath)
-                    .addComponent(emotivPath))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(syncButton, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(roundPanel1Layout.createSequentialGroup()
+                        .addComponent(syncLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(powerBoton)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(roundPanel1Layout.createSequentialGroup()
+                        .addComponent(syncLabel)
+                        .addGap(29, 29, 29)
+                        .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(emotivFiles)
+                            .addComponent(labelEmotiv))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(neulogFiles)
+                            .addComponent(labelNeulog))
+                        .addGap(33, 33, 33)
+                        .addComponent(syncButton, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap())
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, roundPanel1Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 198, javax.swing.GroupLayout.PREFERRED_SIZE))))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -466,22 +584,13 @@ public class Form_Dashboard extends javax.swing.JPanel {
                     .addComponent(card2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(card1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(roundPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 475, Short.MAX_VALUE)
+                .addComponent(roundPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 495, Short.MAX_VALUE)
                 .addGap(30, 30, 30))
         );
     }// </editor-fold>//GEN-END:initComponents
 
     private void syncButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_syncButtonActionPerformed
 
-//        try {
-//            if (flag == 2) {
-//                JOptionPane.showMessageDialog(null, "Falta un archivo por cargar");
-//            } else if (flag == 4) {
-//
-//            }
-//        } catch (Exception e) {
-//
-//        }
     }//GEN-LAST:event_syncButtonActionPerformed
 
     private void neulogFilesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_neulogFilesActionPerformed
@@ -497,47 +606,53 @@ public class Form_Dashboard extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_eliminarProtocoloActionPerformed
 
-    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+    private void deleteSubjectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteSubjectActionPerformed
         // TODO add your handling code here:
-        bCon.deleteSubject();
-    }//GEN-LAST:event_jButton4ActionPerformed
+    }//GEN-LAST:event_deleteSubjectActionPerformed
 
     private void crearProtocoloActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_crearProtocoloActionPerformed
         // TODO add your handling code here:
         bCon.crearProtocolo();
+        this.main.setState(ICONIFIED);
     }//GEN-LAST:event_crearProtocoloActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         // TODO add your handling code here:
         bCon.creatSujeto();
+        this.main.setState(ICONIFIED);
 
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
-        init();
-        this.main.updateTitleProtocolo();
-        this.main.updateTitleStudy();
-        this.main.updateTitleSujeto();
+
+        this.update();
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void powerBotonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_powerBotonActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_powerBotonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private Presentacion.Card card1;
     private Presentacion.Card card2;
     private javax.swing.JButton crearProtocolo;
+    private javax.swing.JButton deleteSubject;
     private javax.swing.JButton eliminarProtocolo;
     private javax.swing.JButton emotivFiles;
-    private javax.swing.JLabel emotivPath;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JSeparator jSeparator2;
+    private javax.swing.JLabel labelEmotiv;
+    private javax.swing.JLabel labelNeulog;
     private javax.swing.JButton neulogFiles;
-    private javax.swing.JLabel neulogPath;
+    private javax.swing.JButton powerBoton;
     private javax.swing.JComboBox<String> protocolList;
     private presentacion.swing.RoundPanel roundPanel1;
     private javax.swing.JComboBox<String> subjectList;
     private javax.swing.JButton syncButton;
+    private javax.swing.JLabel syncLabel;
+    private javax.swing.JLabel syncLabel1;
     // End of variables declaration//GEN-END:variables
 }

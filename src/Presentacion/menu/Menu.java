@@ -132,15 +132,15 @@ public class Menu extends JPanel {
     
     public void updateTittleStudy(String newTitle){
         JLabel aux=(JLabel) panelMenu.getComponent(4);
-        aux.setText("FILE: "+newTitle);
+        aux.setText("FILE: "+newTitle.replaceAll("@raw",""));
     }
     public void updateTittleProtocol(String title ){
         JLabel aux=(JLabel) panelMenu.getComponent(2);
-        aux.setText("PROTOCOLO: "+ title );
+        aux.setText("PROTOCOL: "+ title );
     }
     public void updateTittleSujeto(String title){
         JLabel aux=(JLabel) panelMenu.getComponent(3);
-        aux.setText("SUJETO: "+ title);
+        aux.setText("SUBJECT: "+ title);
     }
 
     public void addSpace(int size) {

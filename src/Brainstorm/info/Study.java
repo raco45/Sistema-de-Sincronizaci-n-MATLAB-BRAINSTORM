@@ -55,6 +55,15 @@ public class Study {
             return null;
         }
     }
+    public String channelFileName(){
+        try{
+            Struct channel = (Struct) this.study.get("Channel");
+            String name = (String) channel.get("FileName");
+            return name;
+        }catch(Exception e){
+            return null;
+        }
+    }
 
     /**
      * @return the studyIndex

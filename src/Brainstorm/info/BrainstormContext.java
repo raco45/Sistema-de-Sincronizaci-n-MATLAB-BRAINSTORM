@@ -340,6 +340,25 @@ public class BrainstormContext {
         }
     }
 
+    //Obtener el channel de un estudio
+    public void channelStudy() {
+        try {
+            eng.eval(String.format("channel=bst_get('ChannelForStudy',%s)", this.getStudy().studyIndex));
+            Struct fileName = (Struct) eng.getVariable("channel");
+            String name = (String) fileName.get("FileName");
+        } catch (InterruptedException ex) {
+            Logger.getLogger(BrainstormContext.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (MatlabSyntaxException ex) {
+            Logger.getLogger(BrainstormContext.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (CancellationException ex) {
+            Logger.getLogger(BrainstormContext.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (EngineException ex) {
+            Logger.getLogger(BrainstormContext.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ExecutionException ex) {
+            Logger.getLogger(BrainstormContext.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
     // Sirve para cambiar el tipo de data al correcto durante la sincronizacion. tipoSensor= 1 para FC, 0 para GSR
     public void changeDataType(String name) throws InterruptedException {
         try {
@@ -472,32 +491,36 @@ public class BrainstormContext {
         }
     }
 
-    public void videoPowers(double iStudy, String videoFileName) {
+    public void videoPowers( String videoFileName) {
         try {
-            eng.eval(String.format("[iNewFiles, OutputVideoFiles] = import_video(%1$s, %2$s)", iStudy, videoFileName));
+            eng.eval(String.format("[iNewFiles, OutputVideoFiles] = import_video(%1$s, '%2$s')", this.study.getStudyIndex(), videoFileName));
         } catch (Exception e) {
 
         }
     }
 
     public void generarImagenes() {
+        String filePath = this.homeDirectory() + "\\"+ this.protocol.nombreProtocolo()+"\\"+"data"+"\\";
+        String dataPath= filePath + "\\" + this.study.dataFileName();
+        String channelPath = filePath + "\\"+this.study.channelFileName();
+        String path = filePath+"\\"+this.subject.nombreSujeto()+"\\"+this.study.nombreStudy();
+        System.out.println(filePath);
+        System.out.println(dataPath);
+        System.out.println(channelPath);
         try {
-//            eng.eval("images_fft_powers()");
-
-            eng.eval("peliFrequ('C:\\Users\\raco1\\OneDrive\\Desktop\\CODIGO TESIS\\carpeta')");
+            eng.eval(String.format("movie_path=frequencies('%1$s','%2$s','%3$s')",path,dataPath,channelPath ));
+            String ruta = (String) eng.getVariable("movie_path");
+            System.out.println(ruta);
+            this.videoPowers(ruta);
         } catch (Exception e) {
-
+            System.out.println("Wopos");
         }
     }
 
     //Generar peliculas
     public void generateTimeSeries() {
         try {
-            String path = "C:\\Users\\raco1\\OneDrive\\Desktop\\Matlab\\Brainstorm\\brainstorm_db\\Roman_Etapa_A\\data\\RomanA\\@rawCombined\\videolink_video_frecuencias_peli_completa_02.mat";
             eng.eval(String.format("datas='%s'", this.getStudy().dataFileName()));
-            eng.eval(String.format("videoName='%s'", path));
-
-            eng.eval("prueba=bst_get('AnyFile',videoName)");
 
             eng.eval("eeg = view_timeseries(datas, 'EEG');");
 
@@ -511,11 +534,16 @@ public class BrainstormContext {
             eng.eval("figure_timeseries('SetDisplayMode', neulog, 'Butterfly');");
 
             eng.eval("mapa=view_topography(datas, 'EEG', '2DDisc')");
+            
+            if(this.study.dataVideoFileName()!=null){
+                String filePath = this.homeDirectory() + "\\"+ this.protocol.nombreProtocolo()+"\\"+"data"+"\\";
+                eng.eval(String.format("pow=view_video('%s', 'VideoReader', 0)",filePath+this.study.dataVideoFileName()));
+                
+                eng.eval("arrangeFiguresInGrid(neulog,mapa, eeg,pow)");
+            }else{
+                eng.eval("arreglar(neulog,mapa,eeg)");
+            }
 
-            eng.eval("pow=view_video(videoName, 'VideoReader', 0)");
-
-            eng.eval("arreglar(neulog,mapa,eeg)");
-//            eng.eval("arrangeFiguresInGrid(neulog,mapa, eeg,pow)");
 
         } catch (Exception e) {
 
@@ -563,6 +591,7 @@ public class BrainstormContext {
     public void crearProtocolo() {
         try {
             eng.eval("gui_edit_protocol('create')");
+            this.setProtocol(this.currentProtocolIndex());
         } catch (Exception e) {
 
         }

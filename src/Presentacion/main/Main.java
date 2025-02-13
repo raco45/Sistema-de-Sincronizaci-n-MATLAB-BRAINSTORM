@@ -37,11 +37,11 @@ public class Main extends javax.swing.JFrame {
         //Elementos del menu
         menu1.addTitle("MAIN");  //indice 1 en la lista de componentes del panelMenu
         menu1.addMenuItem(new ModelMenuItem(GoogleMaterialDesignIcon.DASHBOARD, "Dashboard"));// indice de evento 0 
-        menu1.addTitle("PROTOCOLO: "); // indice 2
-        menu1.addTitle("SUJETO: "); //Indice 3
+        menu1.addTitle("PROTOCOL: "); // indice 2
+        menu1.addTitle("SUBJECT: "); //Indice 3
         menu1.addTitle("FILE: "); // indice 4 en la lista de componentes del panelMenu
-        menu1.addMenuItem(new ModelMenuItem(null, "Procesados"));
-        menu1.addMenuItem(new ModelMenuItem(null, "Visualización","TimeSeries" ));
+        menu1.addMenuItem(new ModelMenuItem(null, "Ready Files"));
+        menu1.addMenuItem(new ModelMenuItem(null, "Visualization","TimeSeries" ));
         menu1.addMenuItemBottom(new ModelMenuItem(null, "Brainstorm" ));
         //Fin de elementos del menu
         menu1.updateTittleProtocol(bCon.currentProtocolName());
@@ -67,7 +67,7 @@ public class Main extends javax.swing.JFrame {
                     System.out.println("El indice es el: " + index);
                     String clave = aux;
                     switch (clave) {
-                        case "Procesados":
+                        case "Ready Files":
                             if (indexSubMenu > 0) {
                                 bCon.setStudyContext(indexSubMenu);
                                 menu1.updateTittleStudy(bCon.getStudy().nombreStudy());
@@ -76,7 +76,7 @@ public class Main extends javax.swing.JFrame {
                             System.out.println(indexSubMenu); //Sub indice de la lista, 
                             System.out.println(subKey); // subkey te arroja el nombre de el objeto seleccionado
                             
-                        case "Visualización":
+                        case "Visualization":
                             if(indexSubMenu==1){
                                 bCon.generateTimeSeries();
                             }
@@ -113,7 +113,8 @@ public class Main extends javax.swing.JFrame {
     }
     public void updateTitleStudy() {
         try {
-            menu1.updateTittleStudy(bCon.getStudy().nombreStudy());
+            String aux= bCon.getStudy().nombreStudy().replaceAll("@raw", "");
+            menu1.updateTittleStudy(aux);
         } catch (Exception e) {
             menu1.updateTittleStudy("Empty");
         }
@@ -121,9 +122,22 @@ public class Main extends javax.swing.JFrame {
 
     public void addMenuItem(String[] studiesList) {
         int index=menu1.removeMenuItem();
-        ModelMenuItem studies = new ModelMenuItem(null, "Procesados");
-        studies.setSubMenu(studiesList);
+        String[]aux=this.cleanStudies(studiesList);
+        ModelMenuItem studies = new ModelMenuItem(null, "Ready Files");
+        studies.setSubMenu(aux);
         menu1.addMenuItemAgain(studies,index);
+    }
+    
+    public String[] cleanStudies(String[] studiesList){
+        String[] clean=new String[studiesList.length];
+        int i =0;
+        for(String study: studiesList){
+            String aux= study.replaceAll("@raw", "");
+            clean[i]=aux;
+            i+=1;
+            System.out.println(aux);
+        }
+         return clean;   
     }
     
     // Agregar un WindowAdapter

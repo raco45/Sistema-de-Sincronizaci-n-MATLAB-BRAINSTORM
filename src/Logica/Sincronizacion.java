@@ -86,17 +86,6 @@ public class Sincronizacion {
             bCon.deleteStudy(this.neulogSync);
             
             bCon.reload();
-//            bCon.generarImagenes();
-            
-//            bCon.videoPowers(iStudy, this.getRutaPowers());
-            
-            
-            
-            
-            
-            
-            
-
         } catch (Exception e) {
 
         }
