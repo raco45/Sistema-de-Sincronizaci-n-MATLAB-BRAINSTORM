@@ -38,39 +38,6 @@ import javax.swing.JFileChooser;
  */
 public class PreprocesarEmotiv {
 
-    public static String traerArchivo() {
-
-        try {
-
-            String pythonScript = "./src/Logica/funciones_matlab/python/preprocessing.py"; // Ruta relativa al script
-            List<String> command = new ArrayList<>();
-            command.add("python"); // Comando para ejecutar Python
-            command.add(pythonScript); // Ruta al script Python
-
-            // Crear el proceso para ejecutar el script Python
-            ProcessBuilder pb = new ProcessBuilder(command);
-            pb.redirectErrorStream(true); // Combinar salida estándar y errores
-            Process process = pb.start();
-
-            // Leer la salida del script Python
-            try (var reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    System.out.println(line);
-                }
-            }
-
-            // Esperar a que el proceso termine
-            int exitCode = process.waitFor();
-            System.out.println("El script Python terminó con código de salida: " + exitCode);
-            return "";
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return null;
-        }
-    }
-
     public static String generarArchivoMarcadores(String inputCsv) throws IOException {
         // Obtener la carpeta padre del archivo CSV
         Path inputPath = Paths.get(inputCsv);

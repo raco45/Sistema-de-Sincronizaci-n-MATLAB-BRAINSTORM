@@ -65,7 +65,7 @@ public class Sincronizacion {
             this.neulogSync= (String) archivos[0].get("FileName");
             // Combinar archivos sincronizados. 
             
-            double iStudy =bCon.combineRecordings(emotivSync, neulogSync);
+            bCon.combineRecordings(emotivSync, neulogSync);
             
             //Obtener indice iStudy de los archivos  generados
             

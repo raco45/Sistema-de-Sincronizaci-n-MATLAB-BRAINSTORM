@@ -9,6 +9,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import static java.awt.Frame.ICONIFIED;
+import static java.awt.Frame.NORMAL;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashSet;
@@ -17,6 +18,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import logica.Sincronizacion;
 import presentacion.card.ModelCard;
@@ -91,6 +93,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
                             labelEmotiv.setText("No file loaded");
                             labelNeulog.setText("No file loaded");
                             JOptionPane.showMessageDialog(null, "Sincronización completada");
+                            update();
                         }
                     };
                     // Iniciar el trabajo en segundo plano
@@ -264,6 +267,35 @@ public class Form_Dashboard extends javax.swing.JPanel {
                 }
             }
         });
+//        crearProtocolo.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                // Desactivar el botón mientras Matlab está abierto
+//                crearProtocolo.setEnabled(false);
+//
+//                // Ejecutar Matlab en un hilo separado
+//                new Thread(() -> {
+//                    try {
+//                        // Iniciar conexión con Matlab si no está iniciada
+//                        main.setState(ICONIFIED);
+//                        // Ejecutar el comando de Matlab
+//                        bCon.crearProtocolo();
+//
+//                        // Esperar a que la ventana de Matlab se cierre
+//
+//                        // Volver al hilo de la interfaz y activar el botón
+//                        SwingUtilities.invokeLater(() -> {
+//                            crearProtocolo.setEnabled(true);
+//                            JOptionPane.showMessageDialog(null,
+//                                    "La ventana de Matlab se cerró.\nEjecutando función en Java...");
+//                            update();
+//                        });
+//                    } catch (Exception ex) {
+//                        ex.printStackTrace();
+//                    }
+//                }).start();
+//            }
+//        });
 
     }
 
@@ -346,7 +378,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
     }
 
     public void update() {
-        init();
+        this.main.showForm(new Form_Dashboard(main));
         this.main.updateTitleProtocolo();
         this.main.updateTitleStudy();
         this.main.updateTitleSujeto();
@@ -372,13 +404,13 @@ public class Form_Dashboard extends javax.swing.JPanel {
         syncButton = new javax.swing.JButton();
         neulogFiles = new javax.swing.JButton();
         emotivFiles = new javax.swing.JButton();
-        jButton1 = new javax.swing.JButton();
         powerBoton = new javax.swing.JButton();
         labelEmotiv = new javax.swing.JLabel();
         labelNeulog = new javax.swing.JLabel();
         jButton2 = new javax.swing.JButton();
         jSeparator3 = new javax.swing.JSeparator();
         syncLabel2 = new javax.swing.JLabel();
+        syncLabel3 = new javax.swing.JLabel();
 
         setOpaque(false);
         setPreferredSize(new java.awt.Dimension(879, 661));
@@ -423,7 +455,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
         jSeparator2.setOrientation(javax.swing.SwingConstants.VERTICAL);
 
         syncLabel.setFont(new java.awt.Font("SansSerif", 1, 24)); // NOI18N
-        syncLabel.setText("Context");
+        syncLabel.setText("Clean ");
 
         syncLabel1.setFont(new java.awt.Font("SansSerif", 1, 24)); // NOI18N
         syncLabel1.setText("FFT & Powers");
@@ -446,13 +478,6 @@ public class Form_Dashboard extends javax.swing.JPanel {
         emotivFiles.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 emotivFilesActionPerformed(evt);
-            }
-        });
-
-        jButton1.setText("Update");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
             }
         });
 
@@ -479,6 +504,9 @@ public class Form_Dashboard extends javax.swing.JPanel {
         syncLabel2.setFont(new java.awt.Font("SansSerif", 1, 24)); // NOI18N
         syncLabel2.setText("Synchronization");
 
+        syncLabel3.setFont(new java.awt.Font("SansSerif", 1, 24)); // NOI18N
+        syncLabel3.setText("Context");
+
         javax.swing.GroupLayout roundPanel1Layout = new javax.swing.GroupLayout(roundPanel1);
         roundPanel1.setLayout(roundPanel1Layout);
         roundPanel1Layout.setHorizontalGroup(
@@ -489,16 +517,19 @@ public class Form_Dashboard extends javax.swing.JPanel {
                     .addGroup(roundPanel1Layout.createSequentialGroup()
                         .addGap(26, 26, 26)
                         .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(emotivFiles, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(neulogFiles, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(91, 91, 91)
-                        .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(labelNeulog)
-                            .addComponent(labelEmotiv)))
+                            .addGroup(roundPanel1Layout.createSequentialGroup()
+                                .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(emotivFiles, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(neulogFiles, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(53, 53, 53)
+                                .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(labelNeulog)
+                                    .addComponent(labelEmotiv)))
+                            .addComponent(syncLabel2)))
                     .addGroup(roundPanel1Layout.createSequentialGroup()
                         .addGap(152, 152, 152)
                         .addComponent(syncButton, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(59, 59, 59)
+                .addGap(97, 97, 97)
                 .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 12, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(roundPanel1Layout.createSequentialGroup()
@@ -506,75 +537,73 @@ public class Form_Dashboard extends javax.swing.JPanel {
                         .addComponent(syncLabel1)
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, roundPanel1Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 110, Short.MAX_VALUE)
                         .addComponent(powerBoton)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                        .addContainerGap(115, Short.MAX_VALUE))))
             .addGroup(roundPanel1Layout.createSequentialGroup()
                 .addContainerGap()
+                .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(subjectList, 0, 240, Short.MAX_VALUE)
+                    .addComponent(protocolList, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(20, 20, 20)
                 .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(roundPanel1Layout.createSequentialGroup()
-                        .addGap(20, 20, 20)
-                        .addComponent(syncLabel))
-                    .addGroup(roundPanel1Layout.createSequentialGroup()
-                        .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(subjectList, 0, 240, Short.MAX_VALUE)
-                            .addComponent(protocolList, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGap(20, 20, 20)
-                        .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(eliminarProtocolo)
-                            .addComponent(crearProtocolo, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(deleteSubject, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                .addGap(34, 34, 34)
-                .addComponent(jSeparator3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(eliminarProtocolo)
+                    .addComponent(crearProtocolo, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(deleteSubject, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jSeparator3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(roundPanel1Layout.createSequentialGroup()
+                        .addGap(152, 152, 152)
+                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(roundPanel1Layout.createSequentialGroup()
+                        .addGap(26, 26, 26)
+                        .addComponent(syncLabel)))
+                .addGap(140, 140, 140))
             .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(roundPanel1Layout.createSequentialGroup()
                     .addGap(36, 36, 36)
-                    .addComponent(syncLabel2)
-                    .addContainerGap(608, Short.MAX_VALUE)))
+                    .addComponent(syncLabel3)
+                    .addContainerGap(703, Short.MAX_VALUE)))
         );
         roundPanel1Layout.setVerticalGroup(
             roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(roundPanel1Layout.createSequentialGroup()
-                .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                     .addGroup(roundPanel1Layout.createSequentialGroup()
                         .addContainerGap()
-                        .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(roundPanel1Layout.createSequentialGroup()
-                                .addComponent(syncLabel)
-                                .addGap(56, 56, 56)
-                                .addComponent(protocolList, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(73, 73, 73))
+                                .addGap(75, 75, 75)
+                                .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addGroup(roundPanel1Layout.createSequentialGroup()
+                                        .addComponent(protocolList, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(73, 73, 73))
+                                    .addGroup(roundPanel1Layout.createSequentialGroup()
+                                        .addComponent(crearProtocolo)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addComponent(eliminarProtocolo)
+                                        .addGap(61, 61, 61)))
+                                .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addGroup(roundPanel1Layout.createSequentialGroup()
+                                        .addComponent(subjectList, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(39, 39, 39))
+                                    .addGroup(roundPanel1Layout.createSequentialGroup()
+                                        .addComponent(jButton3)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addComponent(deleteSubject)
+                                        .addGap(24, 24, 24))))
                             .addGroup(roundPanel1Layout.createSequentialGroup()
-                                .addComponent(crearProtocolo)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(eliminarProtocolo)
-                                .addGap(61, 61, 61)))
-                        .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(roundPanel1Layout.createSequentialGroup()
-                                .addComponent(subjectList, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(39, 39, 39))
-                            .addGroup(roundPanel1Layout.createSequentialGroup()
-                                .addComponent(jButton3)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(deleteSubject)
-                                .addGap(24, 24, 24))))
+                                .addComponent(jSeparator3, javax.swing.GroupLayout.PREFERRED_SIZE, 266, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))))
                     .addGroup(roundPanel1Layout.createSequentialGroup()
-                        .addGap(74, 74, 74)
-                        .addComponent(jButton2)
+                        .addGap(18, 18, 18)
+                        .addComponent(syncLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButton1)
-                        .addGap(64, 64, 64))
-                    .addGroup(roundPanel1Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jSeparator3, javax.swing.GroupLayout.PREFERRED_SIZE, 266, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
+                        .addComponent(jButton2)
+                        .addGap(125, 125, 125)))
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -584,7 +613,8 @@ public class Form_Dashboard extends javax.swing.JPanel {
                         .addComponent(powerBoton)
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(roundPanel1Layout.createSequentialGroup()
-                        .addGap(61, 61, 61)
+                        .addComponent(syncLabel2)
+                        .addGap(29, 29, 29)
                         .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(emotivFiles)
                             .addComponent(labelEmotiv))
@@ -595,14 +625,12 @@ public class Form_Dashboard extends javax.swing.JPanel {
                         .addGap(33, 33, 33)
                         .addComponent(syncButton, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addContainerGap())
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, roundPanel1Layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 198, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 198, javax.swing.GroupLayout.PREFERRED_SIZE)))
             .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, roundPanel1Layout.createSequentialGroup()
-                    .addContainerGap(304, Short.MAX_VALUE)
-                    .addComponent(syncLabel2)
-                    .addGap(156, 156, 156)))
+                .addGroup(roundPanel1Layout.createSequentialGroup()
+                    .addGap(16, 16, 16)
+                    .addComponent(syncLabel3)
+                    .addContainerGap(444, Short.MAX_VALUE)))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -655,22 +683,58 @@ public class Form_Dashboard extends javax.swing.JPanel {
 
     private void crearProtocoloActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_crearProtocoloActionPerformed
         // TODO add your handling code here:
-        bCon.crearProtocolo();
-        this.main.setState(ICONIFIED);
+        String nombre = JOptionPane.showInputDialog(null,
+                "Por favor, ingresa tu nombre:",
+                "Solicitud de Nombre",
+                JOptionPane.QUESTION_MESSAGE);
+
+        // Verifica si el usuario no presionó "Cancelar"
+        if (nombre != null) {
+            // Muestra el nombre ingresado
+            nombre = nombre.replaceAll("[^a-zA-Z0-9]", "_");
+            bCon.createProtocol(nombre);
+            this.update();
+        } else {
+            // El usuario presionó "Cancelar"
+            JOptionPane.showMessageDialog(null,
+                    "No ingresaste ningún nombre.",
+                    "Operación Cancelada",
+                    JOptionPane.WARNING_MESSAGE);
+        }
     }//GEN-LAST:event_crearProtocoloActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         // TODO add your handling code here:
-        bCon.creatSujeto();
-        this.main.setState(ICONIFIED);
+        String nombre = JOptionPane.showInputDialog(null,
+                "Por favor, ingresa tu nombre:",
+                "Solicitud de Nombre",
+                JOptionPane.QUESTION_MESSAGE);
+
+        // Verifica si el usuario no presionó "Cancelar"
+        if (nombre != null) {
+            // Muestra el nombre ingresado
+            nombre = nombre.replaceAll("[^a-zA-Z0-9]", "_");
+            this.main.setState(ICONIFIED);
+            double aux = bCon.createSujeto(nombre);
+            if (aux <= 0) {
+                this.main.setState(NORMAL);
+                JOptionPane.showMessageDialog(null,
+                        "Fail to create Subject",
+                        "Subject name already use",
+                        JOptionPane.WARNING_MESSAGE);
+            } else {
+                this.main.setState(NORMAL);
+                this.update();
+            }
+        } else {
+            // El usuario presionó "Cancelar"
+            JOptionPane.showMessageDialog(null,
+                    "No ingresaste ningún nombre.",
+                    "Operación Cancelada",
+                    JOptionPane.WARNING_MESSAGE);
+        }
 
     }//GEN-LAST:event_jButton3ActionPerformed
-
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
-
-        this.update();
-    }//GEN-LAST:event_jButton1ActionPerformed
 
     private void powerBotonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_powerBotonActionPerformed
         // TODO add your handling code here:
@@ -688,7 +752,6 @@ public class Form_Dashboard extends javax.swing.JPanel {
     private javax.swing.JButton deleteSubject;
     private javax.swing.JButton eliminarProtocolo;
     private javax.swing.JButton emotivFiles;
-    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JSeparator jSeparator1;
@@ -705,5 +768,6 @@ public class Form_Dashboard extends javax.swing.JPanel {
     private javax.swing.JLabel syncLabel;
     private javax.swing.JLabel syncLabel1;
     private javax.swing.JLabel syncLabel2;
+    private javax.swing.JLabel syncLabel3;
     // End of variables declaration//GEN-END:variables
 }

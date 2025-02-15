@@ -28,7 +28,7 @@ public class PreprocesarNeulog {
 
         File inputFile = fileChooser.getSelectedFile();
         String inputFilePath = inputFile.getAbsolutePath();
-        String outputFilePath = inputFile.getParent() + File.separator + "archivo_filtrado_neulog.csv";
+        String outputFilePath = inputFile.getParent() + File.separator + "archivo_neulog_GSR_FC.csv";
 
         try (BufferedReader br = new BufferedReader(new FileReader(inputFilePath));
                 BufferedWriter bw = new BufferedWriter(new FileWriter(outputFilePath))) {

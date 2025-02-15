@@ -10,9 +10,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 public class BrainstormContext {
 
@@ -35,12 +37,12 @@ public class BrainstormContext {
             e.printStackTrace();
         }
     }
-    
-    public void openGUI(){
-        try{
+
+    public void openGUI() {
+        try {
             eng.eval("brainstorm start");
-        }catch(Exception e){
-            
+        } catch (Exception e) {
+
         }
     }
 
@@ -49,7 +51,6 @@ public class BrainstormContext {
         try {
             eng.eval("homeDirectory=bst_get('BrainstormDbDir')");
             String ruta = (String) eng.getVariable("homeDirectory");
-            System.out.println(ruta);
             return ruta;
         } catch (Exception e) {
             return "";
@@ -126,8 +127,6 @@ public class BrainstormContext {
         try {
             eng.eval(String.format("indexProtocol=bst_get('Protocol','%s')", protocolName));
             double indice = (double) eng.getVariable("indexProtocol");
-
-            System.out.println("El indice de " + protocolName + " es " + indice);
             return indice;
         } catch (Exception e) {
             System.out.println("Vacio");
@@ -140,7 +139,6 @@ public class BrainstormContext {
         try {
             eng.eval("indexProtocol=bst_get('iProtocol')");
             double indice = (double) eng.getVariable("indexProtocol");
-            System.out.println("Indice del protocolo: " + indice);
             return indice;
         } catch (IllegalStateException | InterruptedException | ExecutionException e) {
             return 0;
@@ -177,7 +175,6 @@ public class BrainstormContext {
             eng.eval("currentStudy=bst_get('Study')");
             Struct study = eng.getVariable("currentStudy");
             String name = (String) study.get("Name");
-            System.out.println(name.replaceAll("@raw", ""));
             return name.replaceAll("@raw", "");
 
         } catch (Exception e) {
@@ -215,9 +212,6 @@ public class BrainstormContext {
                 if (nameSubject.contains(subject)) {
                     Study subjectStudy = new Study(aux, estudio, subject);
                     estudios.add(subjectStudy);
-                    System.out.println(nameAux);
-                    System.out.println(nameSubject);
-                    System.out.println(aux);
                 }
                 aux += 1;
             }
@@ -240,9 +234,9 @@ public class BrainstormContext {
                 String nameSubject = (String) estudio.get("BrainStormSubject");
                 if (nameSubject.contains(subject)) {
                     estudios[aux] = nameAux;
-                    System.out.println(nameAux);
-                    System.out.println(nameSubject);
-                    System.out.println(aux);
+//                    System.out.println(nameAux);
+//                    System.out.println(nameSubject);
+//                    System.out.println(aux);
                     aux += 1;
                 }
             }
@@ -272,7 +266,7 @@ public class BrainstormContext {
             eng.eval("protocolSubject=bst_get('ProtocolSubjects')");
             Struct sujetos = (Struct) eng.getVariable("protocolSubject");
             Struct defaul = (Struct) sujetos.get("DefaultSubject");
-            System.out.println(defaul.get("Name"));
+//            System.out.println(defaul.get("Name"));
             double capa = this.numberSubjects();
             String[] lista = new String[(int) capa];
             String nameAux = "";
@@ -288,7 +282,7 @@ public class BrainstormContext {
                     nameAux = (String) sujeto.get("Name");
                     lista[aux] = nameAux;
                     aux += 1;
-                    System.out.println("prueba " + nameAux);
+//                    System.out.println("prueba " + nameAux);
                 }
                 return lista;
             }
@@ -304,7 +298,7 @@ public class BrainstormContext {
         try {
             eng.eval("number=bst_get('SubjectCount')");
             double number = (double) eng.getVariable("number");
-            System.out.println("Numero de sujetos " + number);
+//            System.out.println("Numero de sujetos " + number);
             return number;
         } catch (Exception e) {
             return 0;
@@ -315,7 +309,7 @@ public class BrainstormContext {
     public void getSubjectFileName(String fileName) {
         try {
             eng.eval(String.format("sujeto=bst_get('Subject','%s', 1)", fileName));
-            System.out.println("Logrado");
+//            System.out.println("Logrado");
         } catch (Exception e) {
             Struct aux = new Struct();
             e.printStackTrace();
@@ -442,8 +436,8 @@ public class BrainstormContext {
     public Struct[] syncEvents(String dataNameNeulog, String dataNameEmotiv) {
         try {
             eng.eval(String.format("sFiles = {...\n"
-                    + "    '%1$s', ...\n"
-                    + "    '%2$s'};", dataNameNeulog, dataNameEmotiv));
+                    + "    '%1s', ...\n"
+                    + "    '%2s'};", dataNameNeulog, dataNameEmotiv));
 
             eng.eval("sFiles = bst_process('CallProcess', 'process_sync_recordings', sFiles, [], ...\n"
                     + "    'src',          '100', ...\n"
@@ -459,7 +453,7 @@ public class BrainstormContext {
     }
 
     //Combine recordings sincronizadas
-    public double combineRecordings(String dataNeulog, String dataEmotiv) {
+    public void combineRecordings(String dataNeulog, String dataEmotiv) {
         try {
             eng.eval(String.format("sFiles = {...\n"
                     + "    '%1$s', ...\n"
@@ -472,9 +466,7 @@ public class BrainstormContext {
             double in = (double) prueba.get("iStudy");
             System.out.println(in);
             this.reload();
-            return in;
         } catch (Exception e) {
-            return 0;
         }
     }
 
@@ -499,7 +491,7 @@ public class BrainstormContext {
         }
     }
 
-    public void videoPowers( String videoFileName) {
+    public void videoPowers(String videoFileName) {
         try {
             eng.eval(String.format("[iNewFiles, OutputVideoFiles] = import_video(%1$s, '%2$s')", this.study.getStudyIndex(), videoFileName));
         } catch (Exception e) {
@@ -508,15 +500,15 @@ public class BrainstormContext {
     }
 
     public void generarImagenes() {
-        String filePath = this.homeDirectory() + "\\"+ this.protocol.nombreProtocolo()+"\\"+"data"+"\\";
-        String dataPath= filePath + "\\" + this.study.dataFileName();
-        String channelPath = filePath + "\\"+this.study.channelFileName();
-        String path = filePath+"\\"+this.subject.nombreSujeto()+"\\"+this.study.nombreStudy();
+        String filePath = this.homeDirectory() + "\\" + this.protocol.nombreProtocolo() + "\\" + "data" + "\\";
+        String dataPath = filePath + "\\" + this.study.dataFileName();
+        String channelPath = filePath + "\\" + this.study.channelFileName();
+        String path = filePath + "\\" + this.subject.nombreSujeto() + "\\" + this.study.nombreStudy();
         System.out.println(filePath);
         System.out.println(dataPath);
         System.out.println(channelPath);
         try {
-            eng.eval(String.format("movie_path=frequencies('%1$s','%2$s','%3$s')",path,dataPath,channelPath ));
+            eng.eval(String.format("movie_path=frequencies('%1$s','%2$s','%3$s')", path, dataPath, channelPath));
             String ruta = (String) eng.getVariable("movie_path");
             System.out.println(ruta);
             this.videoPowers(ruta);
@@ -530,11 +522,11 @@ public class BrainstormContext {
         try {
             eng.eval(String.format("datas='%s'", this.getStudy().dataFileName()));
 
+            eng.eval("neulog = view_timeseries(datas, 'NEULOG');");
             eng.eval("eeg = view_timeseries(datas, 'EEG');");
 
 //            eng.eval("movegui(eeg,'northeast');");
 //            eng.eval("eeg.Position = [100, 500, 500, 400]");
-            eng.eval("neulog = view_timeseries(datas, 'NEULOG');");
 //            eng.eval("neulog.Position = [700, 500, 500, 400];");
 //
             eng.eval("figure_timeseries('SetDisplayMode', eeg, 'Column');");
@@ -542,16 +534,15 @@ public class BrainstormContext {
             eng.eval("figure_timeseries('SetDisplayMode', neulog, 'Butterfly');");
 
             eng.eval("mapa=view_topography(datas, 'EEG', '2DDisc')");
-            
-            if(this.study.dataVideoFileName()!=null){
-                String filePath = this.homeDirectory() + "\\"+ this.protocol.nombreProtocolo()+"\\"+"data"+"\\";
-                eng.eval(String.format("pow=view_video('%s', 'VideoReader', 0)",filePath+this.study.dataVideoFileName()));
-                
-                eng.eval("arrangeFiguresInGrid(neulog,mapa, eeg,pow)");
-            }else{
+
+            if (this.study.dataVideoFileName() != null) {
+                String filePath = this.homeDirectory() + "\\" + this.protocol.nombreProtocolo() + "\\" + "data" + "\\";
+                eng.eval(String.format("pow=view_video('%s', 'VideoReader', 0)", filePath + this.study.dataVideoFileName()));
+
+                eng.eval("organizarFiguras(eeg,neulog,mapa,pow)");
+            } else {
                 eng.eval("arreglar(neulog,mapa,eeg)");
             }
-
 
         } catch (Exception e) {
 
@@ -596,19 +587,54 @@ public class BrainstormContext {
         }
     }
 
-    public void crearProtocolo() {
+    public int crearProtocolo() {
         try {
-            eng.eval("gui_edit_protocol('create')");
+            eng.eval("iProtocol=gui_edit_protocol('create')");
+            int aux = (int) eng.getVariable("iProtocol");
             this.setProtocol(this.currentProtocolIndex());
+            return aux;
         } catch (Exception e) {
-
+            return 0;
         }
     }
 
-    public void creatSujeto() {
+    public void createProtocol(String protocolName) {
         try {
-            eng.eval("db_edit_subject()");
+            eng.eval(String.format("ProtocolName = file_standardize('%s');", protocolName));
+            eng.eval("sProtocol = db_template('ProtocolInfo');");
+            eng.eval(String.format("    sProtocol.Comment           = '%s';", protocolName));
+            eng.eval(String.format("sProtocol.SUBJECTS          = fullfile('%1s', '%2s', 'anat');", this.homeDirectory(), protocolName));
+            eng.eval(String.format("sProtocol.STUDIES           = fullfile('%1s', '%2s', 'data');", this.homeDirectory(), protocolName));
+            eng.eval("sProtocol.UseDefaultAnat    = 1;");
+            eng.eval("sProtocol.UseDefaultChannel = 0;");
+            eng.eval("iProtocol = db_edit_protocol('create', sProtocol);");
+
+            double aux = (double) eng.getVariable("iProtocol");
+            System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+            System.out.println("aux");
+            System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+            if (aux <= 0) {
+                JOptionPane.showMessageDialog(null, "Could not create Protocol");
+            } else {
+                this.setProtocol(aux);
+                eng.eval("    sTemplate = bst_get('AnatomyDefaults', 'ICBM152');");
+                eng.eval("    db_set_template(0, sTemplate(1), 0);");
+            }
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public double createSujeto(String nombreSubject) {
+        try {
+            eng.eval(String.format("[sSubject,iSubject]=db_add_subject('%s', [], 1, 0)",nombreSubject));
+            eng.eval("bst_memory('UnloadAll', 'Forced');");
+            eng.eval("db_reload_subjects(iSubject)");
+            eng.eval("db_save()");
+            double aux= (double) eng.getVariable("iSubject");
+            return aux;
+        } catch (Exception e) {
+            return -1;
 
         }
     }
