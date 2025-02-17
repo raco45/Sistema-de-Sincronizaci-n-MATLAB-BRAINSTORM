@@ -53,6 +53,11 @@
   </Layout>
   <SubComponents>
     <Component class="Presentacion.Card" name="card1">
+      <Properties>
+        <Property name="icon" type="javaswingdev.GoogleMaterialDesignIcon" editor="org.netbeans.modules.form.editors.EnumEditor">
+          <Value id="PRIORITY_HIGH"/>
+        </Property>
+      </Properties>
     </Component>
     <Component class="Presentacion.Card" name="card2">
       <Properties>
@@ -63,7 +68,7 @@
           <Color blue="aa" green="a6" red="1a" type="rgb"/>
         </Property>
         <Property name="icon" type="javaswingdev.GoogleMaterialDesignIcon" editor="org.netbeans.modules.form.editors.EnumEditor">
-          <Value id="PIE_CHART"/>
+          <Value id="PEOPLE"/>
         </Property>
       </Properties>
     </Component>

@@ -410,9 +410,11 @@ public class Form_Dashboard extends javax.swing.JPanel {
         setOpaque(false);
         setPreferredSize(new java.awt.Dimension(879, 661));
 
+        card1.setIcon(javaswingdev.GoogleMaterialDesignIcon.PRIORITY_HIGH);
+
         card2.setColor1(new java.awt.Color(95, 211, 226));
         card2.setColor2(new java.awt.Color(26, 166, 170));
-        card2.setIcon(javaswingdev.GoogleMaterialDesignIcon.PIE_CHART);
+        card2.setIcon(javaswingdev.GoogleMaterialDesignIcon.PEOPLE);
 
         roundPanel1.setBackground(new java.awt.Color(255, 255, 255));
         roundPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -679,8 +681,8 @@ public class Form_Dashboard extends javax.swing.JPanel {
     private void crearProtocoloActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_crearProtocoloActionPerformed
         // TODO add your handling code here:
         String nombre = JOptionPane.showInputDialog(null,
-                "Por favor, ingresa tu nombre:",
-                "Solicitud de Nombre",
+                "Enter Protocol Name:",
+                "Protocol Name",
                 JOptionPane.QUESTION_MESSAGE);
 
         // Verifica si el usuario no presionó "Cancelar"
@@ -692,41 +694,45 @@ public class Form_Dashboard extends javax.swing.JPanel {
         } else {
             // El usuario presionó "Cancelar"
             JOptionPane.showMessageDialog(null,
-                    "No ingresaste ningún nombre.",
-                    "Operación Cancelada",
+                    "No protocol was created",
+                    "canceled operation",
                     JOptionPane.WARNING_MESSAGE);
         }
     }//GEN-LAST:event_crearProtocoloActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         // TODO add your handling code here:
-        String nombre = JOptionPane.showInputDialog(null,
-                "Por favor, ingresa tu nombre:",
-                "Solicitud de Nombre",
-                JOptionPane.QUESTION_MESSAGE);
+        if (bCon.getProtocol() != null) {
+            String nombre = JOptionPane.showInputDialog(null,
+                    "Enter Subject Name:",
+                    "Subject Name",
+                    JOptionPane.QUESTION_MESSAGE);
 
-        // Verifica si el usuario no presionó "Cancelar"
-        if (nombre != null) {
-            // Muestra el nombre ingresado
-            nombre = nombre.replaceAll("[^a-zA-Z0-9]", "_");
-            this.main.setState(ICONIFIED);
-            double aux = bCon.createSujeto(nombre);
-            if (aux <= 0) {
-                this.main.setState(NORMAL);
-                JOptionPane.showMessageDialog(null,
-                        "Fail to create Subject",
-                        "Subject name already use",
-                        JOptionPane.WARNING_MESSAGE);
+            // Verifica si el usuario no presionó "Cancelar"
+            if (nombre != null) {
+                // Muestra el nombre ingresado
+                nombre = nombre.replaceAll("[^a-zA-Z0-9]", "_");
+                this.main.setState(ICONIFIED);
+                double aux = bCon.createSujeto(nombre);
+                if (aux <= 0) {
+                    this.main.setState(NORMAL);
+                    JOptionPane.showMessageDialog(null,
+                            "Fail to create Subject",
+                            "Subject name already use",
+                            JOptionPane.WARNING_MESSAGE);
+                } else {
+                    this.main.setState(NORMAL);
+                    this.update();
+                }
             } else {
-                this.main.setState(NORMAL);
-                this.update();
+                // El usuario presionó "Cancelar"
+                JOptionPane.showMessageDialog(null,
+                        "No Subject was created",
+                        "canceled operation",
+                        JOptionPane.WARNING_MESSAGE);
             }
-        } else {
-            // El usuario presionó "Cancelar"
-            JOptionPane.showMessageDialog(null,
-                    "No ingresaste ningún nombre.",
-                    "Operación Cancelada",
-                    JOptionPane.WARNING_MESSAGE);
+        }else{
+            JOptionPane.showMessageDialog(null, "You must select a Protocol");
         }
 
     }//GEN-LAST:event_jButton3ActionPerformed
