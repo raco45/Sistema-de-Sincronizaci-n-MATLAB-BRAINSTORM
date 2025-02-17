@@ -19,7 +19,7 @@ public class Main extends javax.swing.JFrame {
 
     private static Main main;
     public BrainstormContext bCon;
-    public Form_Dashboard form =null;
+    public Form_Dashboard form = null;
     ModelMenuItem studies;
 
     public Main() throws EngineException, InterruptedException {
@@ -30,6 +30,7 @@ public class Main extends javax.swing.JFrame {
     }
 
     public void init() {
+        bCon.addPath();
         bCon.currentProtocolIndex();
         bCon.loadProtocol();
         main = this;
@@ -41,8 +42,8 @@ public class Main extends javax.swing.JFrame {
         menu1.addTitle("SUBJECT: "); //Indice 3
         menu1.addTitle("FILE: "); // indice 4 en la lista de componentes del panelMenu
         menu1.addMenuItem(new ModelMenuItem(null, "Ready Files"));
-        menu1.addMenuItem(new ModelMenuItem(null, "Visualization","TimeSeries" ));
-        menu1.addMenuItemBottom(new ModelMenuItem(null, "Brainstorm" ));
+        menu1.addMenuItem(new ModelMenuItem(null, "Visualization", "Graphics"));
+        menu1.addMenuItemBottom(new ModelMenuItem(null, "Brainstorm"));
         //Fin de elementos del menu
         menu1.updateTittleProtocol(bCon.currentProtocolName());
         menu1.updateTittleSujeto(bCon.currentSujectName());
@@ -54,32 +55,32 @@ public class Main extends javax.swing.JFrame {
                 // El indice 0 esta guardado para el primer evento del menu, este lo vamos a considerar como el evento que llama al "Inicio"
                 if (index == 0 && indexSubMenu == 0) {
                     System.out.println(index);
-                    if(form==null){
-                        form= new Form_Dashboard(main);
+                    if (form == null) {
+                        form = new Form_Dashboard(main);
                         showForm(form);
-                    }else{
-                         showForm(form);
+                    } else {
+                        showForm(form);
                     }
-                        
+
                     //Hay que hacer funciones que manden el cambion a la ventana Main, desde Dashboard.
                 } else {
                     //Aqui dependiento del evento llamaremos a un caso, tendremos "Recordings", "Sincronizacion", y otras opciones una vez este realizada la sincronizacion
                     System.out.println("El indice es el: " + index);
                     String clave = aux;
-                    switch (clave) {
-                        case "Ready Files":
-                            if (indexSubMenu > 0) {
-                                bCon.setStudyContext(indexSubMenu);
-                                menu1.updateTittleStudy(bCon.getStudy().nombreStudy());
-                            }
-                            System.out.println(aux); // aux tiene el texto del nombre del dropdown
-                            System.out.println(indexSubMenu); //Sub indice de la lista, 
-                            System.out.println(subKey); // subkey te arroja el nombre de el objeto seleccionado
-                            
-                        case "Visualization":
-                            if(indexSubMenu==1){
-                                bCon.generateTimeSeries();
-                            }
+                    if (clave.equals("Ready Files")) {
+
+                        if (indexSubMenu > 0 && subKey!="") {
+                            bCon.setStudyContext(indexSubMenu+2);
+                            menu1.updateTittleStudy(bCon.getStudy().nombreStudy());
+                        }
+                        System.out.println(aux); // aux tiene el texto del nombre del dropdown
+                        System.out.println(indexSubMenu); //Sub indice de la lista, 
+                        System.out.println(subKey); // subkey te arroja el nombre de el objeto seleccionado
+                    } else if (clave.equals("Visualization")) {
+                        if (indexSubMenu == 1) {
+                            bCon.generateTimeSeries();
+
+                        }
 
                     }
                 }
@@ -96,10 +97,10 @@ public class Main extends javax.swing.JFrame {
     }
 
     public void updateTitleProtocolo() {
-        try{
-            
+        try {
+
             menu1.updateTittleProtocol(bCon.getProtocol().nombreProtocolo());
-        }catch(Exception e){
+        } catch (Exception e) {
             menu1.updateTittleProtocol("Empty");
         }
     }
@@ -111,9 +112,10 @@ public class Main extends javax.swing.JFrame {
             menu1.updateTittleSujeto("Empty");
         }
     }
+
     public void updateTitleStudy() {
         try {
-            String aux= bCon.getStudy().nombreStudy().replaceAll("@raw", "");
+            String aux = bCon.getStudy().nombreStudy().replaceAll("@raw", "");
             menu1.updateTittleStudy(aux);
         } catch (Exception e) {
             menu1.updateTittleStudy("Empty");
@@ -121,27 +123,35 @@ public class Main extends javax.swing.JFrame {
     }
 
     public void addMenuItem(String[] studiesList) {
-        int index=menu1.removeMenuItem();
-        String[]aux=this.cleanStudies(studiesList);
+        int index = menu1.removeMenuItem();
+        String[] aux = this.cleanStudies(studiesList);
         ModelMenuItem studies = new ModelMenuItem(null, "Ready Files");
         studies.setSubMenu(aux);
-        menu1.addMenuItemAgain(studies,index);
+        menu1.addMenuItemAgain(studies, index);
     }
-    
-    public String[] cleanStudies(String[] studiesList){
-        String[] clean=new String[studiesList.length];
-        int i =0;
-        for(String study: studiesList){
-            String aux= study.replaceAll("@raw", "");
-            clean[i]=aux;
-            i+=1;
-            System.out.println(aux);
-        }
-         return clean;   
-    }
-    
-    // Agregar un WindowAdapter
 
+    public String[] cleanStudies(String[] studiesList) {
+        if(studiesList.length -2 <=0){
+            String[] clean = {""};
+            return clean;
+        }
+        String[] clean = new String[studiesList.length-2];
+        int i = 0;
+        for (String study : studiesList) {
+            if (study.equals("@default_study") || study.equals("@intra")) {
+
+            } else {
+
+                String aux = study.replaceAll("@raw", "");
+                clean[i] = aux;
+                i += 1;
+                System.out.println(aux);
+            }
+        }
+        return clean;
+    }
+
+    // Agregar un WindowAdapter
     public static Main getMain() {
         return main;
     }

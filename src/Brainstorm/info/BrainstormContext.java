@@ -253,7 +253,7 @@ public class BrainstormContext {
 //            estudios.get(index);
 //            eng.eval(String.format("study=bst_get('Study',%s)", index));
 //            Struct estudio = (Struct) eng.getVariable("study");
-            this.setStudy((Study) estudios.get(index - 1));
+            this.setStudy((Study) estudios.get(index-1));
 //            this.setStudy(new Study(index, estudio,this.getSubject().nombreSujeto()));
         } catch (Exception e) {
 
@@ -521,31 +521,56 @@ public class BrainstormContext {
     public void generateTimeSeries() {
         try {
             eng.eval(String.format("datas='%s'", this.getStudy().dataFileName()));
-
-            eng.eval("neulog = view_timeseries(datas, 'NEULOG');");
-            eng.eval("eeg = view_timeseries(datas, 'EEG');");
+            eng.eval("neulog = view_timeseries(datas, 'NEULOG',[],'NewFigure')");
+            eng.eval("eeg = view_timeseries(datas, 'EEG', [], 'NewFigure')");
 
 //            eng.eval("movegui(eeg,'northeast');");
 //            eng.eval("eeg.Position = [100, 500, 500, 400]");
 //            eng.eval("neulog.Position = [700, 500, 500, 400];");
 //
-            eng.eval("figure_timeseries('SetDisplayMode', eeg, 'Column');");
-//
-            eng.eval("figure_timeseries('SetDisplayMode', neulog, 'Butterfly');");
+//            eng.eval("figure_timeseries('SetDisplayMode', eeg, 'Column');");
+////
+//            eng.eval("figure_timeseries('SetDisplayMode', neulog, 'Butterfly');");
+            eng.eval("panel_record('SetDisplayMode', eeg, 'Column');");
+            eng.eval("panel_record('SetDisplayMode', neulog, 'Butterfly');");
 
             eng.eval("mapa=view_topography(datas, 'EEG', '2DDisc')");
-
-            if (this.study.dataVideoFileName() != null) {
+            
+            if (this.study.isVideo()) {
+                String videoName= this.study.dataVideoFileName();
                 String filePath = this.homeDirectory() + "\\" + this.protocol.nombreProtocolo() + "\\" + "data" + "\\";
-                eng.eval(String.format("pow=view_video('%s', 'VideoReader', 0)", filePath + this.study.dataVideoFileName()));
+                eng.eval(String.format("pow=view_video('%s', 'VideoReader', 0)", filePath + videoName));
 
-                eng.eval("organizarFiguras(eeg,neulog,mapa,pow)");
+                eng.eval("organizarFiguras(eeg,mapa,pow,neulog)");
             } else {
+                System.out.println("prueb");
                 eng.eval("arreglar(neulog,mapa,eeg)");
             }
 
         } catch (Exception e) {
 
+        }
+    }
+
+    public void addPath() {
+        try {
+            // Obtiene la ruta del directorio actual y agrega la carpeta de scripts
+            String ruta = System.getProperty("user.dir") + "/src/presentacion/Graphics";
+            ruta = ruta.replace("\\", "/"); // Ajuste para Windows
+
+            // Comando de MATLAB para verificar si ya está en el path
+            String verificarPath = "any(strcmp(strsplit(path, ';'), '" + ruta + "'))";
+            boolean enPath = eng.feval("eval", verificarPath);
+
+            // Si no está en el path, lo agrega
+            if (!enPath) {
+                eng.feval("addpath", ruta);
+                System.out.println("Ruta agregada al path de MATLAB: " + ruta);
+            } else {
+                System.out.println("La ruta ya está en el path de MATLAB.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -627,11 +652,11 @@ public class BrainstormContext {
 
     public double createSujeto(String nombreSubject) {
         try {
-            eng.eval(String.format("[sSubject,iSubject]=db_add_subject('%s', [], 1, 0)",nombreSubject));
+            eng.eval(String.format("[sSubject,iSubject]=db_add_subject('%s', [], 1, 0)", nombreSubject));
             eng.eval("bst_memory('UnloadAll', 'Forced');");
             eng.eval("db_reload_subjects(iSubject)");
             eng.eval("db_save()");
-            double aux= (double) eng.getVariable("iSubject");
+            double aux = (double) eng.getVariable("iSubject");
             return aux;
         } catch (Exception e) {
             return -1;

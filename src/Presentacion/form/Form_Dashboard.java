@@ -76,7 +76,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
                         @Override
                         protected Void doInBackground() throws Exception {
                             // Aquí va la lógica de sincronización
-                            System.out.println("Sincronizando...");
+                            System.out.println("Sync...");
                             sync.sincronizar(); // Tu lógica de sincronización
                             Thread.sleep(2000); // Simula un trabajo de 2 segundos
                             return null;
@@ -92,7 +92,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
                             flag = 0;
                             labelEmotiv.setText("No file loaded");
                             labelNeulog.setText("No file loaded");
-                            JOptionPane.showMessageDialog(null, "Sincronización completada");
+                            JOptionPane.showMessageDialog(null, "Synchronization completed");
                             update();
                         }
                     };
@@ -102,8 +102,8 @@ public class Form_Dashboard extends javax.swing.JPanel {
                     // Mostrar mensaje de advertencia si no se cumple la condición
                     JOptionPane.showMessageDialog(
                             null,
-                            "No se cumplen las condiciones para la sincronización.",
-                            "Advertencia",
+                            "Synchronization conditions are not met",
+                            "Warning",
                             JOptionPane.WARNING_MESSAGE
                     );
                 }
@@ -125,16 +125,16 @@ public class Form_Dashboard extends javax.swing.JPanel {
                             sync.setRutaPowers(powers);
                             labelEmotiv.setText("File Loaded");
                         } else {
-                            JOptionPane.showMessageDialog(null, "Error de procesamiento");
+                            JOptionPane.showMessageDialog(null, "Processing error");
                         }
                     } catch (Exception e) {
-                        JOptionPane.showMessageDialog(null, "Error de procesamiento");
+                        JOptionPane.showMessageDialog(null, "Processing error");
                     }
                 } else {
                     JOptionPane.showMessageDialog(
                             null,
-                            "No se cumplen las condiciones para realizar esta acción.",
-                            "Advertencia",
+                            "The conditions to perform this action are not met.",
+                            "Warning",
                             JOptionPane.WARNING_MESSAGE
                     );
                 }
@@ -153,16 +153,16 @@ public class Form_Dashboard extends javax.swing.JPanel {
                             sync.setRutaMarcadoresNeulog(PreprocesarNeulog.generarArchivoMarcadores(value));
                             labelNeulog.setText("File Loaded");
                         } else {
-                            JOptionPane.showMessageDialog(null, "Error de procesamiento");
+                            JOptionPane.showMessageDialog(null, "Processing error");
                         }
                     } catch (Exception e) {
-                        JOptionPane.showMessageDialog(null, "Error de procesamiento");
+                        JOptionPane.showMessageDialog(null, "Processing error");
                     }
                 } else {
                     JOptionPane.showMessageDialog(
                             null,
-                            "No se cumplen las condiciones para realizar esta acción.",
-                            "Advertencia",
+                            "The conditions to perform this action are not met.",
+                            "Warning",
                             JOptionPane.WARNING_MESSAGE
                     );
                 }
@@ -242,7 +242,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
 
                 if (bCon.study != null) {
                     // Aquí pones el código que quieres ejecutar
-                    if (bCon.study.dataVideoFileName() != null) {
+                    if (bCon.study.isVideo()) {
                         int respuesta = JOptionPane.showConfirmDialog(null,
                                 "An FFT & Power file already exists.\nDo you want to regenerate them?",
                                 "Confirmation",
@@ -267,40 +267,35 @@ public class Form_Dashboard extends javax.swing.JPanel {
                 }
             }
         });
-//        crearProtocolo.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                // Desactivar el botón mientras Matlab está abierto
-//                crearProtocolo.setEnabled(false);
-//
-//                // Ejecutar Matlab en un hilo separado
-//                new Thread(() -> {
-//                    try {
-//                        // Iniciar conexión con Matlab si no está iniciada
-//                        main.setState(ICONIFIED);
-//                        // Ejecutar el comando de Matlab
-//                        bCon.crearProtocolo();
-//
-//                        // Esperar a que la ventana de Matlab se cierre
-//
-//                        // Volver al hilo de la interfaz y activar el botón
-//                        SwingUtilities.invokeLater(() -> {
-//                            crearProtocolo.setEnabled(true);
-//                            JOptionPane.showMessageDialog(null,
-//                                    "La ventana de Matlab se cerró.\nEjecutando función en Java...");
-//                            update();
-//                        });
-//                    } catch (Exception ex) {
-//                        ex.printStackTrace();
-//                    }
-//                }).start();
-//            }
-//        });
 
-    }
+        this.cleanBoton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Condición para ejecutar la acción
 
-    public String cambio() {
-        return "Prueba";
+                if (bCon.study != null) {
+                    // Aquí pones el código que quieres ejecutar
+                    int respuesta = JOptionPane.showConfirmDialog(null,
+                            "Do you want to open Brainstorm GUI\n to clean the data?",
+                            "Confirmation",
+                            JOptionPane.YES_NO_OPTION);
+
+                    if (respuesta == JOptionPane.YES_OPTION) {
+                        // Si elige "Sí", se ejecuta la acción
+                        bCon.openGUI();
+                        main.setState(ICONIFIED);
+                    } else {
+                        // Si elige "No", se cancela la acción
+                        JOptionPane.showMessageDialog(null, "Nothing happen.");
+                    }
+
+                } else {
+                    JOptionPane.showMessageDialog(null, "No study selected",
+                            "Warning", JOptionPane.WARNING_MESSAGE);
+                }
+            }
+        });
+
     }
 
     public void actualizar() {
@@ -407,7 +402,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
         powerBoton = new javax.swing.JButton();
         labelEmotiv = new javax.swing.JLabel();
         labelNeulog = new javax.swing.JLabel();
-        jButton2 = new javax.swing.JButton();
+        cleanBoton = new javax.swing.JButton();
         jSeparator3 = new javax.swing.JSeparator();
         syncLabel2 = new javax.swing.JLabel();
         syncLabel3 = new javax.swing.JLabel();
@@ -492,10 +487,10 @@ public class Form_Dashboard extends javax.swing.JPanel {
 
         labelNeulog.setText("No file uploaded");
 
-        jButton2.setText("Clean Data");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        cleanBoton.setText("Clean Data");
+        cleanBoton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                cleanBotonActionPerformed(evt);
             }
         });
 
@@ -557,7 +552,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
                 .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(roundPanel1Layout.createSequentialGroup()
                         .addGap(152, 152, 152)
-                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(cleanBoton, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(roundPanel1Layout.createSequentialGroup()
                         .addGap(26, 26, 26)
                         .addComponent(syncLabel)))
@@ -602,7 +597,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
                         .addGap(18, 18, 18)
                         .addComponent(syncLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButton2)
+                        .addComponent(cleanBoton)
                         .addGap(125, 125, 125)))
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -740,19 +735,18 @@ public class Form_Dashboard extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_powerBotonActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+    private void cleanBotonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cleanBotonActionPerformed
         // TODO add your handling code here:
-        this.bCon.openGUI();
-    }//GEN-LAST:event_jButton2ActionPerformed
+    }//GEN-LAST:event_cleanBotonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private Presentacion.Card card1;
     private Presentacion.Card card2;
+    private javax.swing.JButton cleanBoton;
     private javax.swing.JButton crearProtocolo;
     private javax.swing.JButton deleteSubject;
     private javax.swing.JButton eliminarProtocolo;
     private javax.swing.JButton emotivFiles;
-    private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
