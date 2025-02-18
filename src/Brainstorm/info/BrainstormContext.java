@@ -534,7 +534,7 @@ public class BrainstormContext {
     public void generateTimeSeries() {
         try {
             eng.eval(String.format("datas='%s'", this.getStudy().dataFileName()));
-            this.scaleValues();
+//            this.scaleValues();
             eng.eval("neulog = view_timeseries(datas, 'NEULOG',[],'NewFigure')");
             eng.eval("eeg = view_timeseries(datas, 'EEG', [], 'NewFigure')");
 
