@@ -49,17 +49,6 @@ public class Menu extends JPanel {
         scroll.setViewportBorder(null);
         add(scroll);
         
-//        addTitle("COMPONENT");// inidice 5
-//        addMenuItem(new ModelMenuItem(GoogleMaterialDesignIcon.WHATSHOT, "UI Kit", "Accordion", "Alerts", "Badges", "Breadcrumbs", "Buttons", "Button group"));
-//        addMenuItem(new ModelMenuItem(GoogleMaterialDesignIcon.DIRECTIONS_BIKE, "Advanced UI", "Cropper", "Owl Carousel", "Sweet Alert"));
-//        addMenuItem(new ModelMenuItem(GoogleMaterialDesignIcon.DVR, "Forms", "Basic Elements", "Advanced Elements", "SEditors", "Wizard"));
-//        addMenuItem(new ModelMenuItem(GoogleMaterialDesignIcon.PIE_CHART_OUTLINED, "Charts", "Apex", "Flot", "Peity", "Sparkline"));
-//        addMenuItem(new ModelMenuItem(GoogleMaterialDesignIcon.VIEW_LIST, "Table", "Basic Tables", "Data Table"));
-//        addMenuItem(new ModelMenuItem(GoogleMaterialDesignIcon.INSERT_EMOTICON, "Icons", "Feather Icons", "Flag Icons", "Mdi Icons"));
-//        addTitle("PAGES"); // Indice 6
-//        addMenuItem(new ModelMenuItem(GoogleMaterialDesignIcon.INBOX, "Special Pages", "Blank page", "Faq", "Invoice", "Profile", "Pricing", "Timeline"));
-//        addMenuItem(new ModelMenuItem(GoogleMaterialDesignIcon.LOCK_OUTLINE, "Authentication", "Login", "Register"));
-//        addMenuItem(new ModelMenuItem(GoogleMaterialDesignIcon.ERROR_OUTLINE, "Error", "404", "500"));
     }
 
     private JScrollPane createScroll() {
@@ -127,19 +116,23 @@ public class Menu extends JPanel {
         label.setBorder(new EmptyBorder(15, 20, 5, 5));
         label.setFont(label.getFont().deriveFont(Font.BOLD));
         label.setForeground(new Color(170, 170, 170));
+        label.setToolTipText(title);
         panelMenu.add(label);
     }
     
     public void updateTittleStudy(String newTitle){
         JLabel aux=(JLabel) panelMenu.getComponent(4);
+        aux.setToolTipText(newTitle.replaceAll("@raw",""));
         aux.setText("FILE: "+newTitle.replaceAll("@raw",""));
     }
     public void updateTittleProtocol(String title ){
         JLabel aux=(JLabel) panelMenu.getComponent(2);
+        aux.setToolTipText(title);
         aux.setText("PROTOCOL: "+ title );
     }
     public void updateTittleSujeto(String title){
         JLabel aux=(JLabel) panelMenu.getComponent(3);
+        aux.setToolTipText(title);
         aux.setText("SUBJECT: "+ title);
     }
 

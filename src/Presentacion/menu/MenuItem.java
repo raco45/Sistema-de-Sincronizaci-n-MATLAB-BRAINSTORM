@@ -47,7 +47,7 @@ public class MenuItem extends JPanel {
         setOpaque(false);
         setForeground(new Color(170, 170, 170));
         setLayout(new MigLayout("wrap,fillx,inset 0", "[fill]", "[fill,35!]" + (hasSubMenu ? "0[fill,30!]" : "")));
-        Item menu = new Item(true, 0);
+        Item menu = new Item(true, 0, itemName);
         menu.setGoogleIcon(item.getIcon());
         menu.setText("  " + item.getMenuName());
         menu.addMouseListener(new MouseAdapter() {
@@ -82,7 +82,7 @@ public class MenuItem extends JPanel {
         add(menu);
         int subIndex = 0;
         for (String subMenu : item.getSubMenu()) {
-            Item sMenu = new Item(false, ++subIndex);
+            Item sMenu = new Item(false, ++subIndex,subMenu);
             sMenu.setText(subMenu);
             sMenu.addActionListener(new ActionListener() {
                 @Override

@@ -30,9 +30,10 @@ public class Item extends JButton {
     private boolean mouseEnter;
     private float alpha;
 
-    public Item(boolean mainMenu, int index) {
+    public Item(boolean mainMenu, int index, String name) {
         this.mainMenu = mainMenu;
         this.index = index;
+        this.setToolTipText(name);
         init();
     }
 
