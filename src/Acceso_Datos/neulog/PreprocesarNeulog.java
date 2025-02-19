@@ -17,7 +17,7 @@ public class PreprocesarNeulog {
 
     public static String traerArchivo() {
         JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Selecciona el archivo CSV");
+        fileChooser.setDialogTitle("Select CSV file");
 
         int userSelection = fileChooser.showOpenDialog(null);
 
@@ -28,7 +28,7 @@ public class PreprocesarNeulog {
 
         File inputFile = fileChooser.getSelectedFile();
         String inputFilePath = inputFile.getAbsolutePath();
-        String outputFilePath = inputFile.getParent() + File.separator + "archivo_neulog_GSR_FC.csv";
+        String outputFilePath = inputFile.getParent() + File.separator + "file_neulog_GSR_FC.csv";
 
         try (BufferedReader br = new BufferedReader(new FileReader(inputFilePath));
                 BufferedWriter bw = new BufferedWriter(new FileWriter(outputFilePath))) {
@@ -70,13 +70,13 @@ public class PreprocesarNeulog {
         }
     }
 
-    public static String generarArchivoMarcadores(String ruta) {
+    public static String generarArchivoMarcadores(String ruta, String markerName) {
         // Pedir al usuario que ingrese un número
-        String input = JOptionPane.showInputDialog("Ingrese un número:");
+        String input = JOptionPane.showInputDialog("Add start time:");
 
         // Validar que el usuario haya ingresado un número
         if (input == null || input.isEmpty() || !input.matches("\\d+")) {
-            JOptionPane.showMessageDialog(null, "Debe ingresar un número válido.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Not a valid number.", "Error", JOptionPane.ERROR_MESSAGE);
             return null;
         }
 
@@ -88,17 +88,17 @@ public class PreprocesarNeulog {
             String rutaSinArchivo = archivo.getParent();
 
             // Crear el archivo con el formato especificado
-            String nombreArchivo = "archivo_" + numero + ".txt";
+            String nombreArchivo = "marker_file_" + numero + ".txt";
             String rutaCompleta = rutaSinArchivo + "\\" + nombreArchivo; // Usar "\" para Windows
 
             FileWriter writer = new FileWriter(rutaCompleta);
-            writer.write("100, " + numero + ", 0");
+            writer.write(String.format("%s, ",markerName) + numero + ", 0");
             writer.close();
 
             return rutaCompleta; // Retornar la ruta completa del archivo generado
 
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, "Error al generar el archivo: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Failed to generate File: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             return null;
         }
     }

@@ -20,8 +20,9 @@ public class Sincronizacion {
     public String emotivSync;
     public String neulogSync;
     public String rutaPowers;
-    
     public String combine;
+    public String markerName;
+            
     private BrainstormContext bCon;
 
     public Sincronizacion(String emotiv, String neulog, String markerEmotiv, String markerNeulog) {
@@ -100,6 +101,7 @@ public class Sincronizacion {
         this.setRutaNeulog("");
         this.setRutaMarcadoresEmotiv("");
         this.setRutaMarcadoresNeulog("");
+        this.setMarkerName("");
     }
     /**
      * @return the rutaEmotiv
@@ -211,6 +213,20 @@ public class Sincronizacion {
      */
     public void setRutaPowers(String rutaPowers) {
         this.rutaPowers = rutaPowers;
+    }
+
+    /**
+     * @return the markerName
+     */
+    public String getMarkerName() {
+        return markerName;
+    }
+
+    /**
+     * @param markerName the markerName to set
+     */
+    public void setMarkerName(String markerName) {
+        this.markerName = markerName;
     }
 
 }

@@ -1,331 +1,280 @@
 function movie_path = frequencies(output_folder, sFile, channelFile)
-    % Convert from raw to CSV
+    % Convert raw to CSV
     try
         csvPath = conversor_raw2csv(sFile, channelFile);
     catch ME
-        errordlg('error', 'CSV Conversion Error');
+        errordlg('CSV Conversion Error', 'Error');
         error('Error in conversor_raw2csv: %s', ME.message);
     end
 
-    % freqs function execution
+    % If the conversor returns a empty characters, it stops the execution  
+    if isempty(csvPath)
+        errordlg('CSV conversion was cancelled or returned empty. Stopping execution', 'Error');
+        error('CSV conversion was cancelled or returned empty. Stopping execution');
+    end
+
+    % freqs execution
     try
         [output_folder, fps, name_movie_complete] = freqs(output_folder, csvPath);
     catch ME
-        errordlg('error', 'Error in freqs function');
+        errordlg('Error in freqs function', 'Error');
         error('Error during freqs execution: %s', ME.message);
     end
 
-    % peli_freqs function execution
+    % If freqs returns empty values, stop the execution 
+    if isempty(output_folder) || isempty(fps) || isempty(name_movie_complete)
+         errordlg('Execution of freqs function was cancelled or returned empty values. Stopping execution', 'Error');
+         error('Execution of freqs function was cancelled or returned empty values. Stopping execution');
+    end
+
+    % peli_freqs execution
     try
         movie_path = peli_freqs(output_folder, fps, name_movie_complete);
     catch ME
-        errordlg('error', 'Error in peli_freqs function');
+        errordlg('Error in peli_freqs function', 'Error');
         error('Error during peli_freqs execution: %s', ME.message);
     end
+
+    if isempty(movie_path)
+         errordlg('Function peli_freqs returned an empty movie path. Stopping execution', 'Error');
+         error('peli_freqs returned an empty movie path. Stopping execution');      
+    end
 end
-
-
 
 
 function [output_folder, fps, name_movie_complete] = freqs(output_folder, csvPath)
     set(0, 'DefaultFigureRenderer', 'painters');
 
-    %% 1. Verify and assign csv file
+    %% 1. Verify and assign CSV file  
     if ~exist(csvPath, 'file')
+        errordlg('CSV file not found', 'Error');
         error('CSV file not found: %s', csvPath);
     end
     csv_filename = csvPath;
     
-    %% 2. Verify the output folder
+    %% 2. Verify output folder  
     if ~exist(output_folder, 'dir')
+        errordlg('Output folder not found', 'Error');
         error('Output folder not found: %s', output_folder);
     end
     outputFolder = output_folder;
     
-    %% 3. Request the window value for X-axis of the FFT
-    isValidInput = false; % Flag to validate the input
-    
+    %% 3. Request the maximum value for the X-axis for the FFT 
+    isValidInput = false;
     while ~isValidInput
-        answer = inputdlg('Enter the maximum value for the FFT X-axis (<=200):', ...
-                          'X-axis Window', 1, {'45'});
-        
-        if isempty(answer)  % If the user cancels or provides empty input
-            disp('No value was provided. Exiting.');
-            return;
+        answer = inputdlg('Enter the maximum value for the FFT X-axis (<=62.5):', ...
+                          'X-axis Window', 1, {'62.5'});
+        if isempty(answer)
+             errordlg('User cancelled input for X-axis Window. Stopping execution', 'Error');
+             error('User cancelled input for X-axis Window. Stopping execution');           
         end
-        
-        xAxisWindow = str2double(answer{1});  % Convert to a number
-        
-        % Validate that conversion is successful and the number is in the allowed range
+        xAxisWindow = str2double(answer{1});
         if isnan(xAxisWindow)
-            warndlg('Invalid input. Please enter a numeric value.', 'Input Error');
-        elseif xAxisWindow <= 0 || xAxisWindow > 200
-            warndlg('The value must be greater than 0 and less than or equal to 200.', 'Input Error');
+            warndlg('Invalid input. Please enter a numeric value', 'Input Error');
+        elseif xAxisWindow <= 4 || xAxisWindow > 62.5
+            warndlg('The value must be greater than 4 and less than or equal to 62.5', 'Input Error');
         else
-            isValidInput = true; % Exit the loop if the input is valid
+            isValidInput = true;
         end
     end
     
-    %% 4. Request the movie name
+    %% 4. Request movie name
     name_movie = inputdlg({'Enter movie name: '}, 'Movie', [1 50], {strcat('movie_', answer{1}, 'Hz')});
     if isempty(name_movie)
-        disp('No movie name provided. Exiting.');
-        return;
-    end
-    if contains(name_movie{1},'.') || contains(name_movie{1},',')
-        error('Invalid Name');
+        errordlg('User cancelled input for movie name. Stopping execution', 'Error');
+        error('User cancelled input for movie name. Stopping execution');
     end
     name_movie_finish = strrep(name_movie{1}, ' ', '_');
-    name_movie_complete = strcat(name_movie_finish, '.avi');
-
-    %% 5. Parameters for read csv file
+    name_movie_finish2 = strrep(name_movie_finish, '.', '_');
+    name_movie_complete = strcat(name_movie_finish2, '.avi');
+    
+    %% 5. Parameters to read CSV file  
     cols_to_use = {'Time','AF3','F7','F3','FC5','T7','P7','O1','O2','P8','T8','FC6','F4','F8','AF4'};
     electrodes = {'AF3','F7','F3','FC5','T7','P7','O1','O2','P8','T8','FC6','F4','F8','AF4'};
     
-    % Sample frequency fs
-    fs = 2 * xAxisWindow;      
+    % Real Sample Rate (Ts ≈ 0.008 s)
+    fs = 125;  % 1/0.008 ≈ 125 Hz
+    % effectiveXAxisWindow is limited to fs/2 to avoid aliasing 
+    effectiveXAxisWindow = min(xAxisWindow, fs/2);
     
-    %% 6. Define the FFT parameters 
-    nfft = 256;                  % Number of points for the FFT 
-    window_type = hann(nfft);    % Hanning window 
-    noverlap = 128;              % Number of samples  
-
-    %% 7. Set the power bands according to xAxisWindow
-    if xAxisWindow > 30
+    %% 6. FFT and window time parameters  
+    % It is fix the size window to 32 samples (~0.25 s) and it is used a pass of 16 samples (~0.125 s)
+    window_size = 32;  % 32 samples
+    step = 16;         % Steps of 16 samples
+    % For the FFT, we use zero-padding to improve the resolution (nfft = 128), but the window keep being of 32 samples 
+    nfft = 128;       
+    window_type = hann(window_size);  
+    noverlap = 0;  % Each FFT is calculated with exactly 32 samples  
+    
+    %% 7. Define the power bands according to effectiveXAxisWindow
+    if effectiveXAxisWindow > 30
         bands.Theta   = [4, 8];
         bands.Alpha   = [8, 13];
         bands.BetaL   = [13, 20];
         bands.BetaH   = [20, 30];
-        bands.Gamma   = [30, xAxisWindow];
+        bands.Gamma   = [30, effectiveXAxisWindow];
         categories    = {'Theta','Alpha','BetaL','BetaH','Gamma'};
-    elseif xAxisWindow > 20
+    elseif effectiveXAxisWindow > 20
         bands.Theta   = [4, 8];
         bands.Alpha   = [8, 13];
         bands.BetaL   = [13, 20];
-        bands.BetaH   = [20, xAxisWindow];  % BetaH from 20 to xAxisWindow
+        bands.BetaH   = [20, effectiveXAxisWindow];
         categories    = {'Theta','Alpha','BetaL','BetaH'};
-    elseif xAxisWindow > 13
+    elseif effectiveXAxisWindow > 13
         bands.Theta   = [4, 8];
         bands.Alpha   = [8, 13];
-        bands.BetaL   = [13, xAxisWindow];    % BetaL from 13 to xAxisWindow
+        bands.BetaL   = [13, effectiveXAxisWindow];
         categories    = {'Theta','Alpha','BetaL'};
-    elseif xAxisWindow > 8
+    elseif effectiveXAxisWindow > 8
         bands.Theta   = [4, 8];
-        bands.Alpha   = [8, xAxisWindow];      % Alpha from 8 to xAxisWindow
+        bands.Alpha   = [8, effectiveXAxisWindow];
         categories    = {'Theta','Alpha'};
-    elseif xAxisWindow > 4
-        bands.Theta   = [4, xAxisWindow];        % Only Theta available
+    elseif effectiveXAxisWindow > 4
+        bands.Theta   = [4, effectiveXAxisWindow];
         categories    = {'Theta'};
     else
+        errordlg('xAxisWindow must be greater than 4.', 'Error');
         error('xAxisWindow must be greater than 4.');
     end
 
-    % Colors for the bars 
+    % Colors bars
     bar_colors.Theta = 'blue';
     bar_colors.Alpha = 'green';
     bar_colors.BetaL = 'orange';
     bar_colors.BetaH = 'red';
     bar_colors.Gamma = 'yellow';
     
-    %% 8. Read and filter data
+    %% 8. Read and filter the data
     data = readtable(csv_filename);
     data = data(:, cols_to_use);
-    time_data = data.Time;  
-    
-    %% 9. Set the sliding window
-    window_size = 256;            % Segment size
-    step = window_size - noverlap;  
+    time_data = data.Time; 
+    % The number of rows (N) determines the windows
     N = height(data);
-    window_starts = 1:step:(N - window_size + 1);
+    % Calculate the number of completed windows (it is descarted the last rows that dont reach 32 samples)
+    num_windows = floor((N - window_size) / step) + 1;
+    % Start window vector (in number rows)
+    window_starts = 1:step:(num_windows-1)*step+1;
     
-    %% 10. Figure settings
+    %% 9. Figure settings
     hFig = figure('Name', 'FFT and Band Powers', 'NumberTitle', 'off', ...
                   'MenuBar', 'none', 'ToolBar', 'none', ...
                   'DockControls', 'off', ...
                   'Position', [100, 100, 800, 600]);
               
-    %% 11. States initialization and interpolation parameters
+    %% 10. Animation loop (each window is a frame)
+    % It is iterated window per window; in each step the FFT is calculated and the power bands
     window_index = 1;
+    imageCount = 1;
+    % Create power bars and FFT graphic once
+    % Inicial state:
     current_state = compute_state(window_index);
-    if length(window_starts) >= 2
-        next_state = compute_state(window_index+1);
-    else
-        next_state = current_state;
-    end
-    n_interp = 8;  % 8 frames per transition (0.125 s por frame)
     
-    %% 12. Figure settings with two subplots
-    clf(hFig);
-    % Upper subplot: graphic bar of power bands
+    % Create the bars graphic 
     ax_power = subplot(2,1,1, 'Parent', hFig);
     catOrder = categorical(categories, categories, 'Ordinal', true);
-    initial_values = zeros(1, numel(categories));
-    for i = 1:numel(categories)
-        initial_values(i) = current_state.bands.(categories{i});
-    end
-    b = bar(ax_power, catOrder, initial_values, 'FaceColor','flat');
+    b = bar(ax_power, catOrder, cell2mat(struct2cell(current_state.bands))', 'FaceColor','flat');
     for i = 1:numel(categories)
         b.CData(i,:) = rgbFromColorName(bar_colors.(categories{i}));
     end
     ylabel(ax_power, 'Band Power (µV²/Hz)');
-    title(ax_power, sprintf('Powers on time: %.2fs', current_state.t_center));
-    if max(initial_values) > 0
-        ylim(ax_power, [0, 1.2*max(initial_values)]);
-    else
-        ylim(ax_power, [0, 1]);
-    end
+    title(ax_power, sprintf('Powers on time: %.3fs', current_state.t_center));
+    ylim(ax_power, [0, 1.2*max(cell2mat(struct2cell(current_state.bands)))]);
     
-    % Lower subplot: log10(FFT) graphic
+    % Create the FFT graphic
     ax_fft = subplot(2,1,2, 'Parent', hFig);
     hold(ax_fft, 'on');
     cmap = lines(numel(electrodes));
     fft_lines = struct();
-    segment_init = current_state.segment;
     for i = 1:numel(electrodes)
         electrode = electrodes{i};
-        signal = segment_init{:, electrode};
-        [pxx, f] = pwelch(signal, window_type, noverlap, nfft, fs);
-        valid_freq = f <= xAxisWindow;
-        f_filtered = f(valid_freq);
-        pxx_filtered = pxx(valid_freq);
-        log_psd = log10(max(pxx_filtered, 1e-12));
-        hLine = plot(ax_fft, f_filtered, log_psd, 'LineWidth',1.2, 'Color', cmap(i,:));
+        [pxx, f] = pwelch(current_state.segment{:, electrode}, window_type, noverlap, nfft, fs);
+        valid_freq = f <= effectiveXAxisWindow;
+        hLine = plot(ax_fft, f(valid_freq), log10(max(pxx(valid_freq), 1e-12)), 'LineWidth',1.2, 'Color', cmap(i,:));
         fft_lines.(electrode) = hLine;
     end
     hold(ax_fft, 'off');
     xlabel(ax_fft, 'Frequency (Hz)');
     ylabel(ax_fft, 'Amplitude (µV)');
-    title(ax_fft, sprintf('log₁₀(FFT) from %.2fs to %.2fs', current_state.t_start, current_state.t_end));
-    xlim(ax_fft, [0, xAxisWindow]);
-    xticks(ax_fft, 0:4:xAxisWindow);
+    title(ax_fft, sprintf('log₁₀(FFT) from %.3fs to %.3fs', current_state.t_start, current_state.t_end));
+    xlim(ax_fft, [0, effectiveXAxisWindow]);
+    xticks(ax_fft, 0:4:effectiveXAxisWindow);
     grid(ax_fft, 'on');
     legend(ax_fft, electrodes, 'Location','eastoutside', 'FontSize',8);
     
-    %% 13. Counter initialization to capture images
-    imageCount = 1;
-    
-    %Repeat the firsts 8 frames from initial state
-    for i = 1:8
-        if ishandle(hFig)
-            try
-                exportgraphics(hFig, fullfile(outputFolder, sprintf('frame_%05d.png', imageCount)), 'Resolution', 200);
-                imageCount = imageCount + 1;
-            catch er
-                warning('Error exporting initial frame: %s', E.message);
-            end
-            drawnow;
-        end
-    end
-    
-    %% 14. Animation loop (Avoid duplicated frames)  
-    while ishandle(hFig)
-        %Generate only n_interp frames (without repeating the intial frame) 
-        for frame = 1:n_interp
-            if ~ishandle(hFig)
-                error('Figure closed.');
-            end
-            
-            alpha = frame / n_interp;  % alpha varies from 1/n_interp to 1
-            % Bars power interpolation   
-            current_values = zeros(1, numel(categories));
-            for i = 1:numel(categories)
-                cat = categories{i};
-                v_current = current_state.bands.(cat);
-                v_next = next_state.bands.(cat);
-                current_values(i) = (1 - alpha)*v_current + alpha*v_next;
-            end
-            b.YData = current_values;
-            if max(current_values) > 0
-                ylim(ax_power, [0, 1.2 * max(current_values)]);
-            else
-                ylim(ax_power, [0, 1]);
-            end
-            
-            % Time interpolation 
-            t_start_interp = (1 - alpha)*current_state.t_start + alpha*next_state.t_start;
-            t_end_interp   = (1 - alpha)*current_state.t_end   + alpha*next_state.t_end;
-            t_center_interp = (1 - alpha)*current_state.t_center + alpha*next_state.t_center;
-            
-            title(ax_power, sprintf('Powers on time: %.2fs', t_center_interp));
-            title(ax_fft, sprintf('log₁₀(FFT) from %.2fs to %.2fs', t_start_interp, t_end_interp));
-            
-            % Recalculate FFT for the interpolated frame    
-            for i = 1:numel(electrodes)
-                electrode = electrodes{i};
-                signal1 = current_state.segment{:, electrode};
-                signal2 = next_state.segment{:, electrode};
-                interp_signal = (1 - alpha)*signal1 + alpha*signal2;
-                [pxx, f] = pwelch(interp_signal, window_type, noverlap, nfft, fs);
-                valid_freq = f <= xAxisWindow;
-                f_filtered = f(valid_freq);
-                pxx_filtered = pxx(valid_freq);
-                log_psd = log10(max(pxx_filtered, 1e-12));
-                set(fft_lines.(electrode), 'XData', f_filtered, 'YData', log_psd);
-            end
-            xlim(ax_fft, [0, xAxisWindow]);
-            xticks(ax_fft, 0:4:xAxisWindow);
-            
-            drawnow;
-            
-            if ishandle(hFig)
-                try
-                    exportgraphics(hFig, fullfile(outputFolder, sprintf('frame_%05d.png', imageCount)), 'Resolution', 200);
-                    imageCount = imageCount + 1;
-                catch er
-                    warning('Error when exporting the image: %s', E.message);
-                end
-            end
-        end
-
-        % Update states for the next window    
-        window_index = window_index + 1;
-        if window_index > length(window_starts)
-            break;
-        end
-        current_state = next_state;
-        if window_index < length(window_starts)
-            next_state = compute_state(window_index+1);
+    % Main loop. Each iteration process a complete window
+    while ishandle(hFig) && (window_index <= num_windows)
+        % Calculate the current window
+        current_state = compute_state(window_index);
+        
+        % Update the times (each window steps 0.125 s)
+        t_start_disp = (window_index - 1) * 0.125;
+        t_end_disp   = t_start_disp + 0.25;
+        t_center_disp = t_start_disp + 0.125;
+        
+        % Update the bars graphic with the power bands of the initial state 
+        power_values = cell2mat(struct2cell(current_state.bands))';
+        set(b, 'YData', power_values);
+        title(ax_power, sprintf('Powers on time: %.3fs', t_center_disp));
+        if max(power_values) > 0
+            ylim(ax_power, [0, 1.2*max(power_values)]);
         else
-            next_state = current_state;
+            ylim(ax_power, [0, 1]);
         end
+        
+        % Update the FFT graphic for each electrode 
+        for i = 1:numel(electrodes)
+            electrode = electrodes{i};
+            [pxx, f] = pwelch(current_state.segment{:, electrode}, window_type, noverlap, nfft, fs);
+            valid_freq = f <= effectiveXAxisWindow;
+            log_psd = log10(max(pxx(valid_freq), 1e-12));
+            set(fft_lines.(electrode), 'XData', f(valid_freq), 'YData', log_psd);
+        end
+        title(ax_fft, sprintf('log₁₀(FFT) from %.3fs to %.3fs', t_start_disp, t_end_disp));
+        drawnow;
+        try
+            exportgraphics(hFig, fullfile(outputFolder, sprintf('frame_%05d.png', imageCount)), 'Resolution', 200);
+            imageCount = imageCount + 1;
+        catch er
+            warning(er.message);
+        end
+        
+        window_index = window_index + 1;
+
+        % Verify if the figure was closed during the animation
+        if ~ishandle(hFig)
+            errordlg('Figure closed', 'Error');
+            error('La figura fue cerrada por el usuario. Ejecución terminada.');
+        end
+
     end
 
-    % Repeat the last frame 8 times
-    for i = 1:8
-        if ishandle(hFig)
-            try
-                exportgraphics(hFig, fullfile(outputFolder, sprintf('frame_%05d.png', imageCount)), 'Resolution', 200);
-                imageCount = imageCount + 1;
-            catch er
-                warning('Error exporting final frame: %s', E.message);
-            end
-            drawnow;
-        end
-    end
-    
+
     final_time = time_data(end);
     final_frames = imageCount - 1;
-    
-    fps = round(final_frames/final_time, 4);
-
+    fps = round(final_frames / final_time, 4);
     if ishandle(hFig)
         close(hFig);
     end
     
-    %% Nested function 
+    %% Nested functions
     function state = compute_state(win_idx)
-        start_idx = window_starts(win_idx);
-        end_idx = start_idx + window_size - 1;
-        segment = data(start_idx:end_idx, :);
-        bands_struct = compute_band_powers(segment);
-        t_start = segment.Time(1);
-        t_end = segment.Time(end);
-        t_center = (t_start + t_end) / 2;
-        state.bands = bands_struct;
+        % Calculate the start index using the window_starts vector
+        win_start_idx = window_starts(win_idx);
+        win_end_idx = win_start_idx + window_size - 1;
+        if win_end_idx > N
+            errordlg('Not enough data for a complete window', 'Error');
+            error('Not enough data for a complete window at window %d.', win_idx);
+        end
+        segment = data(win_start_idx:win_end_idx, :);
+        % Assume the first sample according to t = 0 s.
+        t_start = (win_idx - 1) * 0.125;
+        t_end = t_start + 0.25;
+        t_center = t_start + 0.125;
         state.t_start = t_start;
         state.t_end = t_end;
         state.t_center = t_center;
         state.segment = segment;
+        state.bands = compute_band_powers(segment);
     end
 
     function avg_band_powers = compute_band_powers(segment)
@@ -341,14 +290,15 @@ function [output_folder, fps, name_movie_complete] = freqs(output_folder, csvPat
                 band_name = categories{k};
                 band_range = bands.(band_name);
                 idx = f >= band_range(1) & f <= band_range(2);
-                power = trapz(f(idx), pxx(idx));
-                if isempty(avg_band_powers.(band_name))
-                    avg_band_powers.(band_name) = power;
+                if sum(idx) >= 2
+                    power = trapz(f(idx), pxx(idx));
                 else
-                    avg_band_powers.(band_name) = [avg_band_powers.(band_name), power];
+                    power = 0;
                 end
+                avg_band_powers.(band_name) = [avg_band_powers.(band_name), power];
             end
         end
+        % Mean each window, give a unique value per band
         for k = 1:numel(categories)
             band_name = categories{k};
             avg_band_powers.(band_name) = mean(avg_band_powers.(band_name));
@@ -372,6 +322,8 @@ function [output_folder, fps, name_movie_complete] = freqs(output_folder, csvPat
         end
     end
 end
+
+
 
 function movie_path = peli_freqs(folderPath,fps,name_movie_complete)
     % Specify the path of the folder that contains the frames   
@@ -415,10 +367,7 @@ end
 
 
 function fullPath_csv = conversor_raw2csv(sFile,channelFile)
-    %PATHS EXAMPLES
-    %sFile = 'C:\Users\Usuario\OneDrive\Documentos\brainstorm_db\Roman_febrero\data\Roman1/@rawsenales_EtapaA_arreglados_desde_colab_22-08_band_notch_cutstim/data_0raw_senales_EtapaA_arreglados_desde_colab_22-08_band_notch_cutstim.mat';
-    %channelFile = 'C:\Users\Usuario\OneDrive\Documentos\brainstorm_db\Roman_febrero\data\Roman1/@rawsenales_EtapaA_arreglados_desde_colab_22-08_band_notch_cutstim/channel.mat'
-
+  
     % conversor_raw2csv: Export a CSV file the data channels specified, using the electrodes names got of the file "channel.mat"
     %
     % Entries:
@@ -427,19 +376,19 @@ function fullPath_csv = conversor_raw2csv(sFile,channelFile)
     
     %% 1. Load the channel file (channel.mat)
     if ~exist(channelFile, 'file')
+        errordlg('Not found the Channel file ', 'Error');
         error('Not found the file %s', channelFile);
     end
     channelsData = load(channelFile);
     
     if ~isfield(channelsData, 'Channel')
-        error('The channel.mat do not contain the Channel field')
+        errordlg('The channel.mat do not contain the Channel field', 'Error');
+        error('The channel.mat do not contain the Channel field')      
     end
 
     channelStruct = channelsData.Channel;
-    disp(channelStruct)
     % Extract the list of channel names (and others)
     channelNames = {channelStruct.Name};
-    disp(channelNames)
     %% 2. Define the channels (electrodes) required
     desiredChannels = {'AF3', 'F7', 'F3', 'FC5', 'T7', 'P7', ...
                        'O1', 'O2', 'P8', 'T8', 'FC6', 'F4', 'F8', 'AF4'};
@@ -448,13 +397,16 @@ function fullPath_csv = conversor_raw2csv(sFile,channelFile)
     [isFound, idxDesired] = ismember(desiredChannels, channelNames);
     if ~all(isFound)
         missing = desiredChannels(~isFound);
+        errordlg('Not found all the channels', 'Error');
         error('Not found the following channels in channel.mat: %s', strjoin(missing, ', '));
+        
     end
     
     %% 3. Load the raw file and extract the according data
     % in_bst function load the raw file
     DataMat = in_bst(sFile);
     if ~isfield(DataMat, 'F') || ~isfield(DataMat, 'Time')
+        errordlg('The raw file does not contain the F or Time fields', 'Error');
         error('The raw file does not contain the F or Time fields');
     end
     
@@ -480,8 +432,6 @@ function fullPath_csv = conversor_raw2csv(sFile,channelFile)
     % Define the name of the output CSV file
     csvFileName = 'cleaned_file.csv';
     writetable(T, csvFileName);
-    
-    disp(['Data exported to: ', csvFileName]);
     
     % Get the path of the generated file  
     fullPath_csv = fullfile(pwd, csvFileName);

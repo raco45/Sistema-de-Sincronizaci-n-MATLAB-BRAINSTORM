@@ -42,7 +42,7 @@ public class PreprocesarEmotiv {
         // Obtener la carpeta padre del archivo CSV
         Path inputPath = Paths.get(inputCsv);
         Path parentDir = inputPath.getParent();
-        String outputTxt = parentDir.resolve("output.txt").toString();
+        String outputTxt = parentDir.resolve("marker_file_emotiv.txt").toString();
 
         // Abrir los archivos para lectura y escritura
         try (BufferedReader br = new BufferedReader(new FileReader(inputCsv));
@@ -572,6 +572,32 @@ public class PreprocesarEmotiv {
         value = value * factor;
         long tmp = Math.round(value);
         return (double) tmp / factor;
+    }
+
+    public static String extractFirstElementFromFile(String filePath) {
+        BufferedReader reader = null;
+        try {
+            // Abrir el archivo
+            reader = new BufferedReader(new FileReader(filePath));
+            // Leer la primera línea
+            String firstLine = reader.readLine();
+            // Separar por comas y obtener el primer valor
+            if (firstLine != null) {
+                String firstElement = firstLine.split(",")[0].trim();
+                return firstElement;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (reader != null) {
+                    reader.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return null; // Si no se encuentra ningún valor
     }
 
 }

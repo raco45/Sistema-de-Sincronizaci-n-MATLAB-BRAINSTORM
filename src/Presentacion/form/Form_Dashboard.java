@@ -121,8 +121,11 @@ public class Form_Dashboard extends javax.swing.JPanel {
                             JOptionPane.showMessageDialog(null, value);
                             flag += 2;
                             sync.setRutaEmotiv(value);
-                            sync.setRutaMarcadoresEmotiv(PreprocesarEmotiv.generarArchivoMarcadores(value));
+                            String markerPath = PreprocesarEmotiv.generarArchivoMarcadores(value);
+                            sync.setRutaMarcadoresEmotiv(markerPath);
+                            sync.setMarkerName(PreprocesarEmotiv.extractFirstElementFromFile(markerPath));
                             sync.setRutaPowers(powers);
+                            System.out.println(sync.getMarkerName());
                             labelEmotiv.setText("File Loaded");
                         } else {
                             JOptionPane.showMessageDialog(null, "Processing error");
@@ -143,20 +146,28 @@ public class Form_Dashboard extends javax.swing.JPanel {
         this.neulogFiles.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 if (bCon.getSubject() != null) {
-                    System.out.println("Condición cumplida. Ejecutando acción...");
-                    try {
-                        String value = PreprocesarNeulog.traerArchivo();
-                        if (value != null) {
-                            JOptionPane.showMessageDialog(null, value);
-                            flag += 2;
-                            sync.setRutaNeulog(value);
-                            sync.setRutaMarcadoresNeulog(PreprocesarNeulog.generarArchivoMarcadores(value));
-                            labelNeulog.setText("File Loaded");
-                        } else {
+                    if (flag == 2) {
+                        try {
+                            String value = PreprocesarNeulog.traerArchivo();
+                            if (value != null) {
+                                JOptionPane.showMessageDialog(null, value);
+                                flag += 2;
+                                sync.setRutaNeulog(value);
+                                sync.setRutaMarcadoresNeulog(PreprocesarNeulog.generarArchivoMarcadores(value, sync.getMarkerName()));
+                                labelNeulog.setText("File Loaded");
+                            } else {
+                                JOptionPane.showMessageDialog(null, "Processing error");
+                            }
+                        } catch (Exception e) {
                             JOptionPane.showMessageDialog(null, "Processing error");
                         }
-                    } catch (Exception e) {
-                        JOptionPane.showMessageDialog(null, "Processing error");
+                    } else {
+                        JOptionPane.showMessageDialog(
+                                null,
+                                "The EMOTIV file must be loaded to proceed.",
+                                "Warning",
+                                JOptionPane.WARNING_MESSAGE
+                        );
                     }
                 } else {
                     JOptionPane.showMessageDialog(
@@ -731,7 +742,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
                         "canceled operation",
                         JOptionPane.WARNING_MESSAGE);
             }
-        }else{
+        } else {
             JOptionPane.showMessageDialog(null, "You must select a Protocol");
         }
 
