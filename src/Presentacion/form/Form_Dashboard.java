@@ -5,25 +5,22 @@ import Acceso_Datos.neulog.PreprocesarNeulog;
 import brainstorm.BrainstormStart;
 import brainstorm.info.BrainstormContext;
 import com.mathworks.engine.EngineException;
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import static java.awt.Frame.ICONIFIED;
-import static java.awt.Frame.NORMAL;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashSet;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.ImageIcon;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import logica.Sincronizacion;
 import presentacion.card.ModelCard;
 import presentacion.main.Main;
-import presentacion.menu.Menu;
 
 public class Form_Dashboard extends javax.swing.JPanel {
 
@@ -31,6 +28,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
     private Main main;
     private Sincronizacion sync;
     private int flag;
+
 
     public Form_Dashboard(Main main) {
         try {
@@ -48,13 +46,31 @@ public class Form_Dashboard extends javax.swing.JPanel {
     }
 
     private void init() {
-        card1.setData(new ModelCard(null, null, null, bCon.currentProtocolName(), "Protocol"));
-        card2.setData(new ModelCard(null, null, null, bCon.currentSujectName(), "Subject"));
+        if (bCon.getProtocol() != null) {
+            card1.setData(new ModelCard(null, null, null, bCon.getProtocol().nombreProtocolo(), "Protocol"));
+            if (bCon.getSubject() != null) {
+                card2.setData(new ModelCard(null, null, null, bCon.getSubject().nombreSujeto(), "Subject"));
+            }
+        } else {
+            card1.setData(new ModelCard(null, null, null, "", "Protocol"));
+            card2.setData(new ModelCard(null, null, null, "", "Subject"));
+        }
 //        card3.setData(new ModelCard(null, null, null, bCon.currentStudyName(), "Study"));
         this.llenar();
         this.llenarSujetos();
-        this.protocolList.setSelectedIndex(-1);
-        this.subjectList.setSelectedIndex(-1);
+
+        if (bCon.getProtocol() != null) {
+            int aux = this.findIndex(this.protocolList, bCon.getProtocol().nombreProtocolo());
+            this.protocolList.setSelectedIndex(aux);
+        } else {
+            this.protocolList.setSelectedIndex(-1);
+        }
+        if (bCon.getSubject() != null) {
+            int aux = this.findIndex(this.subjectList, this.bCon.getSubject().nombreSujeto());
+            this.subjectList.setSelectedIndex(aux);
+        } else {
+            this.subjectList.setSelectedIndex(-1);
+        }
 
         this.protocolList.addActionListener(e -> {
             String seleccion = (String) this.protocolList.getSelectedItem();
@@ -143,7 +159,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
                 }
             }
         });
-        this.neulogFiles.addActionListener(new java.awt.event.ActionListener() {
+        this.neulogFIle.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 if (bCon.getSubject() != null) {
                     if (flag == 2) {
@@ -151,10 +167,10 @@ public class Form_Dashboard extends javax.swing.JPanel {
                             String value = PreprocesarNeulog.traerArchivo();
                             if (value != null) {
                                 JOptionPane.showMessageDialog(null, value);
-                                flag += 2;
                                 sync.setRutaNeulog(value);
                                 sync.setRutaMarcadoresNeulog(PreprocesarNeulog.generarArchivoMarcadores(value, sync.getMarkerName()));
                                 labelNeulog.setText("File Loaded");
+                                flag += 2;
                             } else {
                                 JOptionPane.showMessageDialog(null, "Processing error");
                             }
@@ -216,7 +232,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
         this.deleteSubject.addActionListener(e -> {
             if (bCon.subject != null) {
                 // Crear un JLabel personalizado con texto rojo
-                JLabel mensaje = new JLabel(String.format("Do you want to delete Subject: '%s'", bCon.subject.nombreSujeto()));
+                JLabel mensaje = new JLabel(String.format("Do you want to delete a Stage: '%s'", bCon.subject.nombreSujeto()));
                 mensaje.setForeground(Color.RED);
                 mensaje.setFont(new Font("Arial", Font.BOLD, 14));
 
@@ -243,7 +259,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
                     System.out.println("El usuario cerró el cuadro de diálogo.");
                 }
             } else {
-                JOptionPane.showMessageDialog(null, "No subject selected");
+                JOptionPane.showMessageDialog(null, "No stage selected");
             }
         });
         this.powerBoton.addActionListener(new ActionListener() {
@@ -295,6 +311,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
                         // Si elige "Sí", se ejecuta la acción
                         bCon.openGUI();
                         main.setState(ICONIFIED);
+                        main.flagBrainStorm=1;
                     } else {
                         // Si elige "No", se cancela la acción
                         JOptionPane.showMessageDialog(null, "Nothing happen.");
@@ -312,11 +329,18 @@ public class Form_Dashboard extends javax.swing.JPanel {
     public void actualizar() {
         card1.setData(new ModelCard(null, null, null, bCon.currentProtocolName(), "Protocol"));
         card2.setData(new ModelCard(null, null, null, bCon.currentSujectName(), "Subject"));
-//        card3.setData(new ModelCard(null, null, null, "", "Study"));
-
         this.main.updateTitleProtocolo();
         this.actionListenerSujetos();
         this.llenarSujetos();
+    }
+
+    public int findIndex(JComboBox<String> combo, String string) {
+        for (int i = 0; i < combo.getItemCount(); i++) {
+            if (combo.getItemAt(i).equals(string)) {
+                return i; // Se encontró la palabra, se devuelve su índice
+            }
+        }
+        return -1; // La palabra no se encontró en el JComboBox
     }
 
     public void actualizatStudyCard() {
@@ -348,13 +372,13 @@ public class Form_Dashboard extends javax.swing.JPanel {
         card2.setData(new ModelCard(null, null, null, sujeto, "Subject"));
     }
 
-    public String[] protocolList() {
+    public String[] protocolLista() {
         return bCon.protocolList();
     }
 
     public void llenar() {
-        for (String opcion : this.protocolList()) {
-//            this.protocolList.addItem(opcion);
+        for (String opcion : this.protocolLista()) {
+//            this.protocolLista.addItem(opcion);
             if (bCon.protocolIndex(opcion) == 0) {
                 System.out.println("Empty");
             } else {
@@ -378,6 +402,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
             for (String opcion : sujetos) {
                 this.subjectList.addItem(opcion);
             }
+            this.actionListenerSujetos();
         }
 //        bCon.protocolStudies();
 
@@ -388,6 +413,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
         this.main.updateTitleProtocolo();
         this.main.updateTitleStudy();
         this.main.updateTitleSujeto();
+//        this.main.addMenuItem(bCon.subjectStudiesArray(bCon.getSubject().nombreSujeto()));
     }
 
     @SuppressWarnings("unchecked")
@@ -404,7 +430,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
         newSubject = new javax.swing.JButton();
         deleteSubject = new javax.swing.JButton();
         syncButton = new javax.swing.JButton();
-        neulogFiles = new javax.swing.JButton();
+        neulogFIle = new javax.swing.JButton();
         emotivFiles = new javax.swing.JButton();
         labelEmotiv = new javax.swing.JLabel();
         labelNeulog = new javax.swing.JLabel();
@@ -421,11 +447,11 @@ public class Form_Dashboard extends javax.swing.JPanel {
         setOpaque(false);
         setPreferredSize(new java.awt.Dimension(879, 661));
 
-        card1.setIcon(javaswingdev.GoogleMaterialDesignIcon.PRIORITY_HIGH);
+        card1.setIcon(new ImageIcon("test\\images\\cerebro4.png"));
 
         card2.setColor1(new java.awt.Color(95, 211, 226));
         card2.setColor2(new java.awt.Color(26, 166, 170));
-        card2.setIcon(javaswingdev.GoogleMaterialDesignIcon.PEOPLE);
+        card2.setIcon(new ImageIcon("test\\images\\cerebro4.png"));
 
         roundPanel1.setBackground(new java.awt.Color(255, 255, 255));
         roundPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -452,14 +478,14 @@ public class Form_Dashboard extends javax.swing.JPanel {
             }
         });
 
-        newSubject.setText("New Subject");
+        newSubject.setText("New Stage");
         newSubject.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 newSubjectActionPerformed(evt);
             }
         });
 
-        deleteSubject.setText("Delete Subject");
+        deleteSubject.setText("Delete Stage");
         deleteSubject.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 deleteSubjectActionPerformed(evt);
@@ -473,10 +499,10 @@ public class Form_Dashboard extends javax.swing.JPanel {
             }
         });
 
-        neulogFiles.setText(" GSR & FC FILES");
-        neulogFiles.addActionListener(new java.awt.event.ActionListener() {
+        neulogFIle.setText(" GSR &  BPM FILES");
+        neulogFIle.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                neulogFilesActionPerformed(evt);
+                neulogFIleActionPerformed(evt);
             }
         });
 
@@ -515,13 +541,17 @@ public class Form_Dashboard extends javax.swing.JPanel {
                             .addGroup(javax.swing.GroupLayout.Alignment.LEADING, roundPanel1Layout.createSequentialGroup()
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 56, Short.MAX_VALUE)
                                 .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(neulogFiles, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(neulogFIle, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(emotivFiles, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 40, Short.MAX_VALUE)
                                 .addComponent(labelEmotiv))
                             .addComponent(syncLabel3, javax.swing.GroupLayout.Alignment.LEADING))))
                 .addContainerGap(57, Short.MAX_VALUE))
             .addComponent(jSeparator3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(roundPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(syncLabel2)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(roundPanel1Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -535,15 +565,8 @@ public class Form_Dashboard extends javax.swing.JPanel {
                         .addGroup(javax.swing.GroupLayout.Alignment.LEADING, roundPanel1Layout.createSequentialGroup()
                             .addComponent(newSubject, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                            .addComponent(deleteSubject, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(roundPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(syncLabel2)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, roundPanel1Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(syncButton, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(deleteSubject, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(syncButton, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         roundPanel1Layout.setVerticalGroup(
@@ -573,7 +596,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 28, Short.MAX_VALUE)
                 .addGroup(roundPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(labelNeulog)
-                    .addComponent(neulogFiles))
+                    .addComponent(neulogFIle))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 27, Short.MAX_VALUE)
                 .addComponent(syncButton, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(22, Short.MAX_VALUE))
@@ -613,18 +636,19 @@ public class Form_Dashboard extends javax.swing.JPanel {
                 .addGap(0, 0, Short.MAX_VALUE)
                 .addComponent(powerBoton)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, roundPanel2Layout.createSequentialGroup()
-                .addComponent(jSeparator1)
-                .addContainerGap())
             .addGroup(roundPanel2Layout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(roundPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(syncLabel)
+                    .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(roundPanel2Layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(cleanBoton, javax.swing.GroupLayout.PREFERRED_SIZE, 171, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(syncLabel1))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addContainerGap()
+                        .addGroup(roundPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(syncLabel)
+                            .addGroup(roundPanel2Layout.createSequentialGroup()
+                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addComponent(cleanBoton, javax.swing.GroupLayout.PREFERRED_SIZE, 171, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(syncLabel1))
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         roundPanel2Layout.setVerticalGroup(
             roundPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -676,9 +700,9 @@ public class Form_Dashboard extends javax.swing.JPanel {
 
     }//GEN-LAST:event_syncButtonActionPerformed
 
-    private void neulogFilesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_neulogFilesActionPerformed
+    private void neulogFIleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_neulogFIleActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_neulogFilesActionPerformed
+    }//GEN-LAST:event_neulogFIleActionPerformed
 
     private void emotivFilesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_emotivFilesActionPerformed
         // TODO add your handling code here:
@@ -719,30 +743,28 @@ public class Form_Dashboard extends javax.swing.JPanel {
         // TODO add your handling code here:
         if (bCon.getProtocol() != null) {
             String nombre = JOptionPane.showInputDialog(null,
-                    "Enter Subject Name:",
-                    "Subject Name",
+                    "Enter Stage Name:",
+                    "Stage Name",
                     JOptionPane.QUESTION_MESSAGE);
 
             // Verifica si el usuario no presionó "Cancelar"
             if (nombre != null) {
                 // Muestra el nombre ingresado
                 nombre = nombre.replaceAll("[^a-zA-Z0-9]", "_");
-                this.main.setState(ICONIFIED);
                 double aux = bCon.createSujeto(nombre);
                 if (aux <= 0) {
-                    this.main.setState(NORMAL);
                     JOptionPane.showMessageDialog(null,
-                            "Fail to create Subject",
-                            "Subject name already use",
+                            "Fail to create Stage",
+                            "Stage name already use",
                             JOptionPane.WARNING_MESSAGE);
                 } else {
-                    this.main.setState(NORMAL);
+                    bCon.setSubject((int)aux);
                     this.update();
                 }
             } else {
                 // El usuario presionó "Cancelar"
                 JOptionPane.showMessageDialog(null,
-                        "No Subject was created",
+                        "No Stage was created",
                         "canceled operation",
                         JOptionPane.WARNING_MESSAGE);
             }
@@ -776,7 +798,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
     private javax.swing.JSeparator jSeparator3;
     private javax.swing.JLabel labelEmotiv;
     private javax.swing.JLabel labelNeulog;
-    private javax.swing.JButton neulogFiles;
+    private javax.swing.JButton neulogFIle;
     private javax.swing.JButton newSubject;
     private javax.swing.JButton powerBoton;
     private javax.swing.JComboBox<String> protocolList;

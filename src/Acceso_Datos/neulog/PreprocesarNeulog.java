@@ -28,7 +28,7 @@ public class PreprocesarNeulog {
 
         File inputFile = fileChooser.getSelectedFile();
         String inputFilePath = inputFile.getAbsolutePath();
-        String outputFilePath = inputFile.getParent() + File.separator + "file_neulog_GSR_FC.csv";
+        String outputFilePath = inputFile.getParent() + File.separator + "file_neulog_GSR_BPM.csv";
 
         try (BufferedReader br = new BufferedReader(new FileReader(inputFilePath));
                 BufferedWriter bw = new BufferedWriter(new FileWriter(outputFilePath))) {
@@ -70,17 +70,35 @@ public class PreprocesarNeulog {
         }
     }
 
-    public static String generarArchivoMarcadores(String ruta, String markerName) {
+    public static String generarArchivoMarcadores(String ruta, String markerName) throws IOException {
         // Pedir al usuario que ingrese un número
-        String input = JOptionPane.showInputDialog("Add start time:");
+        int numero = 0;
+        while (true) {
+            String input="";
+            String lastNumber = getLastTimeValue(ruta);
+            try{
+                input = JOptionPane.showInputDialog("Add start time (seconds):");
+                
+            }catch(Exception e){
+                continue;
+            }
 
-        // Validar que el usuario haya ingresado un número
-        if (input == null || input.isEmpty() || !input.matches("\\d+")) {
-            JOptionPane.showMessageDialog(null, "Not a valid number.", "Error", JOptionPane.ERROR_MESSAGE);
-            return null;
+            // Validar que el usuario haya ingresado un número
+            if (input == null || input.isEmpty() || !input.matches("\\d+")) {
+                JOptionPane.showMessageDialog(null, "Not a valid number.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+
+            double ultimoNumero = Double.parseDouble(lastNumber);
+            numero = Integer.parseInt(input);
+
+            if (numero >= ultimoNumero) {
+                JOptionPane.showMessageDialog(null, "You can't input a time bigger than the recording time", "Error", JOptionPane.ERROR_MESSAGE);
+            }else if(numero<=0){
+                JOptionPane.showMessageDialog(null, "You can't input a time lower or equal to zero", "Error", JOptionPane.ERROR_MESSAGE);
+            }else{
+                break;
+            }
         }
-
-        int numero = Integer.parseInt(input);
 
         try {
             // Eliminar la parte del nombre del archivo de la ruta
@@ -92,7 +110,7 @@ public class PreprocesarNeulog {
             String rutaCompleta = rutaSinArchivo + "\\" + nombreArchivo; // Usar "\" para Windows
 
             FileWriter writer = new FileWriter(rutaCompleta);
-            writer.write(String.format("%s, ",markerName) + numero + ", 0");
+            writer.write(String.format("%s, ", markerName) + numero + ", 0");
             writer.close();
 
             return rutaCompleta; // Retornar la ruta completa del archivo generado
@@ -101,5 +119,23 @@ public class PreprocesarNeulog {
             JOptionPane.showMessageDialog(null, "Failed to generate File: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             return null;
         }
+    }
+
+    public static String getLastTimeValue(String filePath) throws IOException {
+        String lastTimeValue = null;
+
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            // Saltar la primera línea (encabezados) si existe
+            br.readLine();
+            while ((line = br.readLine()) != null) {
+                String[] values = line.split(",");
+                if (values.length > 0) {
+                    lastTimeValue = values[0];
+                }
+            }
+        }
+
+        return lastTimeValue;
     }
 }

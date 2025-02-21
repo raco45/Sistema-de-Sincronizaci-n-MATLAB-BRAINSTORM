@@ -51,8 +51,8 @@ public class Sincronizacion {
             
             
             //Asignar marcadores a archivos de senales
-            Struct dataNeulog = bCon.cargarMarcadores(dataFileNameNeulog, getRutaMarcadoresNeulog(), "100");
-            Struct dataEmotiv = bCon.cargarMarcadores(dataFileNameEmotiv, getRutaMarcadoresEmotiv(), "100");
+            Struct dataNeulog = bCon.cargarMarcadores(dataFileNameNeulog, getRutaMarcadoresNeulog(), this.markerName);
+            Struct dataEmotiv = bCon.cargarMarcadores(dataFileNameEmotiv, getRutaMarcadoresEmotiv(), this.markerName);
             
             String dataNeulogFileName = (String) dataNeulog.get("FileName");
             String dataEmotivFileName = (String) dataEmotiv.get("FileName");

@@ -11,11 +11,12 @@ import java.awt.geom.RoundRectangle2D;
 import javaswingdev.GoogleMaterialDesignIcon;
 import javaswingdev.GoogleMaterialIcon;
 import javaswingdev.GradientType;
+import javax.swing.ImageIcon;
 import presentacion.card.ModelCard;
 
 public class Card extends javax.swing.JPanel {
 
-    private GoogleMaterialDesignIcon icon;
+    private ImageIcon icon;
 
     public Card() {
         initComponents();
@@ -25,15 +26,16 @@ public class Card extends javax.swing.JPanel {
     private void init() {
         setOpaque(false);
         setBackground(Color.WHITE);
-        setIcon(GoogleMaterialDesignIcon.AUTORENEW);
+//        setIcon(GoogleMaterialDesignIcon.AUTORENEW);
     }
 
-    public void setIcon(GoogleMaterialDesignIcon icon) {
+    public void setIcon(ImageIcon icon) {
         this.icon = icon;
-        lbIcon.setIcon(new GoogleMaterialIcon(icon, GradientType.DIAGONAL_1, new Color(191, 191, 191), Color.WHITE, 32).toIcon());
+        lbIcon.setIcon(icon);
+//        lbIcon.setIcon(new GoogleMaterialIcon(icon, GradientType.DIAGONAL_1, new Color(191, 191, 191), Color.WHITE, 32).toIcon());
     }
 
-    public GoogleMaterialDesignIcon getIcon() {
+    public ImageIcon getIcon() {
         return icon;
     }
 

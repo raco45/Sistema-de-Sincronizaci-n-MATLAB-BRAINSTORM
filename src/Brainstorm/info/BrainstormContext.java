@@ -521,7 +521,7 @@ public class BrainstormContext {
         System.out.println(dataPath);
         System.out.println(channelPath);
         try {
-            eng.eval(String.format("movie_path=frequencies('%1$s','%2$s','%3$s')", path, dataPath, channelPath));
+            eng.eval(String.format("movie_path=frequencies_128Hz('%1$s','%2$s','%3$s')", path, dataPath, channelPath));
             String ruta = (String) eng.getVariable("movie_path");
             System.out.println(ruta);
             this.videoPowers(ruta);

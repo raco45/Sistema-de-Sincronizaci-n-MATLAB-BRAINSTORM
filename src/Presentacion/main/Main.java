@@ -10,6 +10,7 @@ import java.awt.event.WindowEvent;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javaswingdev.GoogleMaterialDesignIcon;
+import javax.swing.JOptionPane;
 import presentacion.form.Form_Dashboard;
 import presentacion.form.Form_Empty;
 import presentacion.menu.EventMenuSelected;
@@ -20,12 +21,14 @@ public class Main extends javax.swing.JFrame {
     private static Main main;
     public BrainstormContext bCon;
     public Form_Dashboard form = null;
+    public int flagBrainStorm;
     ModelMenuItem studies;
 
     public Main() throws EngineException, InterruptedException {
         bCon = BrainstormStart.getInstance();
         bCon.startBrainstorm();
         initComponents();
+        this.flagBrainStorm=0;
         init();
     }
 
@@ -39,7 +42,7 @@ public class Main extends javax.swing.JFrame {
         menu1.addTitle("MAIN");  //indice 1 en la lista de componentes del panelMenu
         menu1.addMenuItem(new ModelMenuItem(GoogleMaterialDesignIcon.DASHBOARD, "Dashboard"));// indice de evento 0 
         menu1.addTitle("PROTOCOL: "); // indice 2
-        menu1.addTitle("SUBJECT: "); //Indice 3
+        menu1.addTitle("STAGE: "); //Indice 3
         menu1.addTitle("FILE: "); // indice 4 en la lista de componentes del panelMenu
         menu1.addMenuItem(new ModelMenuItem(null, "Ready Files"));
         menu1.addMenuItem(new ModelMenuItem(null, "Visualization", "Graphics"));
@@ -81,7 +84,16 @@ public class Main extends javax.swing.JFrame {
                             bCon.generateTimeSeries();
 
                         }
-
+                    }else if(clave.equals("Brainstorm")){
+                        if(flagBrainStorm==1){
+                            bCon.startBrainstorm();
+                            JOptionPane.showMessageDialog(null, "Starting Brainstorm engine",
+                            "Warning", JOptionPane.WARNING_MESSAGE);
+                            flagBrainStorm=0;
+                        }else{
+                            JOptionPane.showMessageDialog(null, "Brainstorm engine already started",
+                            "Warning", JOptionPane.WARNING_MESSAGE);
+                        }
                     }
                 }
             }

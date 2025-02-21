@@ -58,8 +58,8 @@
   <SubComponents>
     <Component class="Presentacion.Card" name="card1">
       <Properties>
-        <Property name="icon" type="javaswingdev.GoogleMaterialDesignIcon" editor="org.netbeans.modules.form.editors.EnumEditor">
-          <Value id="PRIORITY_HIGH"/>
+        <Property name="icon" type="javax.swing.ImageIcon" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection code="new ImageIcon(&quot;test\\images\\cerebro4.png&quot;)" type="code"/>
         </Property>
       </Properties>
     </Component>
@@ -71,8 +71,8 @@
         <Property name="color2" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="aa" green="a6" red="1a" type="rgb"/>
         </Property>
-        <Property name="icon" type="javaswingdev.GoogleMaterialDesignIcon" editor="org.netbeans.modules.form.editors.EnumEditor">
-          <Value id="PEOPLE"/>
+        <Property name="icon" type="javax.swing.ImageIcon" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection code="new ImageIcon(&quot;test\\images\\cerebro4.png&quot;)" type="code"/>
         </Property>
       </Properties>
     </Component>
@@ -107,7 +107,7 @@
                               <Group type="102" alignment="0" attributes="0">
                                   <EmptySpace pref="56" max="32767" attributes="0"/>
                                   <Group type="103" groupAlignment="0" attributes="0">
-                                      <Component id="neulogFiles" min="-2" pref="155" max="-2" attributes="0"/>
+                                      <Component id="neulogFIle" min="-2" pref="155" max="-2" attributes="0"/>
                                       <Component id="emotivFiles" min="-2" pref="155" max="-2" attributes="0"/>
                                   </Group>
                                   <EmptySpace pref="40" max="32767" attributes="0"/>
@@ -120,6 +120,11 @@
                   <EmptySpace pref="57" max="32767" attributes="0"/>
               </Group>
               <Component id="jSeparator3" alignment="1" max="32767" attributes="0"/>
+              <Group type="102" alignment="0" attributes="0">
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Component id="syncLabel2" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="32767" attributes="0"/>
+              </Group>
               <Group type="102" attributes="0">
                   <EmptySpace max="32767" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
@@ -137,17 +142,8 @@
                               <Component id="deleteSubject" min="-2" pref="110" max="-2" attributes="0"/>
                           </Group>
                       </Group>
+                      <Component id="syncButton" alignment="0" min="-2" pref="112" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace max="32767" attributes="0"/>
-              </Group>
-              <Group type="102" alignment="0" attributes="0">
-                  <EmptySpace max="-2" attributes="0"/>
-                  <Component id="syncLabel2" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace max="32767" attributes="0"/>
-              </Group>
-              <Group type="102" alignment="1" attributes="0">
-                  <EmptySpace max="32767" attributes="0"/>
-                  <Component id="syncButton" min="-2" pref="112" max="-2" attributes="0"/>
                   <EmptySpace max="32767" attributes="0"/>
               </Group>
           </Group>
@@ -182,7 +178,7 @@
                   <EmptySpace pref="28" max="32767" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="labelNeulog" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="neulogFiles" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="neulogFIle" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace pref="27" max="32767" attributes="0"/>
                   <Component id="syncButton" min="-2" pref="32" max="-2" attributes="0"/>
@@ -233,7 +229,7 @@
         </Component>
         <Component class="javax.swing.JButton" name="newSubject">
           <Properties>
-            <Property name="text" type="java.lang.String" value="New Subject"/>
+            <Property name="text" type="java.lang.String" value="New Stage"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="newSubjectActionPerformed"/>
@@ -241,7 +237,7 @@
         </Component>
         <Component class="javax.swing.JButton" name="deleteSubject">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Delete Subject"/>
+            <Property name="text" type="java.lang.String" value="Delete Stage"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="deleteSubjectActionPerformed"/>
@@ -255,12 +251,12 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="syncButtonActionPerformed"/>
           </Events>
         </Component>
-        <Component class="javax.swing.JButton" name="neulogFiles">
+        <Component class="javax.swing.JButton" name="neulogFIle">
           <Properties>
-            <Property name="text" type="java.lang.String" value=" GSR &amp; FC FILES"/>
+            <Property name="text" type="java.lang.String" value=" GSR &amp;  BPM FILES"/>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="neulogFilesActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="neulogFIleActionPerformed"/>
           </Events>
         </Component>
         <Component class="javax.swing.JButton" name="emotivFiles">
@@ -336,21 +332,23 @@
                   <Component id="powerBoton" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="32767" attributes="0"/>
               </Group>
-              <Group type="102" alignment="1" attributes="0">
-                  <Component id="jSeparator1" max="32767" attributes="0"/>
-                  <EmptySpace max="-2" attributes="0"/>
-              </Group>
               <Group type="102" attributes="0">
-                  <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="syncLabel" min="-2" max="-2" attributes="0"/>
-                      <Group type="102" alignment="0" attributes="0">
+                      <Component id="jSeparator1" alignment="1" max="32767" attributes="0"/>
+                      <Group type="102" attributes="0">
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Component id="syncLabel" min="-2" max="-2" attributes="0"/>
+                              <Group type="102" alignment="0" attributes="0">
+                                  <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                                  <Component id="cleanBoton" min="-2" pref="171" max="-2" attributes="0"/>
+                              </Group>
+                              <Component id="syncLabel1" alignment="0" min="-2" max="-2" attributes="0"/>
+                          </Group>
                           <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-                          <Component id="cleanBoton" min="-2" pref="171" max="-2" attributes="0"/>
                       </Group>
-                      <Component id="syncLabel1" alignment="0" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace max="32767" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
