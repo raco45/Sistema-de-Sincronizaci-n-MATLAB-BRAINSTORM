@@ -1,4 +1,27 @@
-function movie_path = frequencies(output_folder, sFile, channelFile)
+function movie_path = frequencies(parent_folder, sFile, channelFile)
+% Crear la subcarpeta 'powers' dentro de la carpeta parent
+    output_folder = fullfile(parent_folder, 'powers');
+    if ~isfolder(output_folder)
+        mkdir(output_folder);
+        fprintf('Carpeta creada: %s\n', output_folder);
+    else
+        % Si la carpeta ya existe, verificar si está vacía
+        archivos = dir(output_folder);
+        % Filtrar '.' y '..' para ver si hay archivos
+        archivos = archivos(~ismember({archivos.name}, {'.', '..'}));
+        
+        % Si hay archivos, eliminarlos
+        if ~isempty(archivos)
+            fprintf('La carpeta %s ya existe y no está vacía. Se procederá a vaciarla.\n', output_folder);
+            for k = 1:length(archivos)
+                archivo_actual = fullfile(output_folder, archivos(k).name);
+                delete(archivo_actual);
+            end
+            fprintf('Carpeta %s vaciada exitosamente.\n', output_folder);
+        else
+            fprintf('La carpeta %s ya existe pero está vacía. No se realizó ninguna acción.\n', output_folder);
+        end
+    end
     % Convert raw to CSV
     try
         csvPath = conversor_raw2csv(sFile, channelFile);
@@ -64,11 +87,15 @@ function [output_folder, fps, name_movie_complete] = freqs(output_folder, csvPat
     while ~isValidInput
         answer = inputdlg('Enter the maximum value for the FFT X-axis (<=62.5):', ...
                           'X-axis Window', 1, {'62.5'});
+
+        disp(answer);
+
         if isempty(answer)
              errordlg('User cancelled input for X-axis Window. Stopping execution', 'Error');
              error('User cancelled input for X-axis Window. Stopping execution');           
         end
         xAxisWindow = str2double(answer{1});
+        disp(xAxisWindow);
         if isnan(xAxisWindow)
             warndlg('Invalid input. Please enter a numeric value', 'Input Error');
         elseif xAxisWindow <= 4 || xAxisWindow > 62.5
