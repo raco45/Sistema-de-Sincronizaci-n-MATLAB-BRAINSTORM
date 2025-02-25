@@ -16,19 +16,26 @@ import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
+/**
+ * Clase creada para acceder a todas las funciones de Brainstorm
+ *
+ * @author raco1
+ */
 public class BrainstormContext {
-    
+
     private MatlabEngine eng;
     private Boolean isBrainstorm = false;
     public Protocolo protocol;
     public Subject subject;
     public Study study;
-    
+
     public BrainstormContext(MatlabEngine eng) {
         this.eng = eng;
     }
 
-    //Iniciar la libreria Brainstorm
+    /**
+     * Funcion para iniciar Brainstorm en segundo plano
+     */
     public void startBrainstorm() {
         try {
             eng.eval("brainstorm nogui;", null, null);
@@ -37,16 +44,23 @@ public class BrainstormContext {
             e.printStackTrace();
         }
     }
-    
+
+    /**
+     * Inicia la interfaz de brainstorm
+     */
     public void openGUI() {
         try {
             eng.eval("brainstorm start");
         } catch (Exception e) {
-            
+
         }
     }
 
-    //Ruta del directorio de Brainstorm
+    /**
+     * Accede a la ruta de la bd de Brainstorm
+     *
+     * @return Retorna la ruta con la Bd de brainstorm
+     */
     public String homeDirectory() {
         try {
             eng.eval("homeDirectory=bst_get('BrainstormDbDir')");
@@ -57,7 +71,11 @@ public class BrainstormContext {
         }
     }
 
-    //Se encarga de colocar y cargar el nuevo protocolo elegido
+    /**
+     * Se encarga de cargar un protocolo recibiendo el indice del protocolo.
+     *
+     * @param index
+     */
     public void setProtocol(double index) {
         try {
             eng.eval(String.format("bst_set('iProtocol',%s)", index));
@@ -72,7 +90,11 @@ public class BrainstormContext {
         }
     }
 
-    //Se encarga de colocar un sujeto seleccionado
+    /**
+     * Se encarga de cargar un sujeto recibiendo el indice del sujeto.
+     *
+     * @param iSubject
+     */
     public void setSubject(int iSubject) {
         try {
             if (iSubject > 0) {
@@ -86,7 +108,6 @@ public class BrainstormContext {
             } else {
                 this.setSubject(null);
             }
-
 //            eng.eval("protocolSubject=bst_get('ProtocolSubjects')");
 //            Struct sujetos = (Struct) eng.getVariable("protocolSubject");
         } catch (IllegalStateException | InterruptedException | ExecutionException e) {
@@ -101,7 +122,7 @@ public class BrainstormContext {
             double loaded = (double) eng.getVariable("loaded");
             System.out.println("loaded" + loaded);
         } catch (Exception e) {
-            
+
         }
     }
 
@@ -144,7 +165,7 @@ public class BrainstormContext {
             return 0;
         }
     }
-    
+
     public String currentProtocolName() {
         try {
             eng.eval("infoProtocol=bst_get('ProtocolInfo')");
@@ -156,7 +177,7 @@ public class BrainstormContext {
             return "";
         }
     }
-    
+
     public String currentSujectName() {
         try {
             eng.eval("currentSubject=bst_get('Subject')");
@@ -176,7 +197,7 @@ public class BrainstormContext {
             Struct study = eng.getVariable("currentStudy");
             String name = (String) study.get("Name");
             return name.replaceAll("@raw", "");
-            
+
         } catch (Exception e) {
             e.printStackTrace();
             return "";
@@ -190,7 +211,7 @@ public class BrainstormContext {
             Struct infoEstudios = (Struct) eng.getVariable("infoStudies");
             Struct[] detalleEstudios = (Struct[]) infoEstudios.get("Study"); // Array de estudios
             eng.eval("estudios=bst_get('StudyCount')");
-            
+
             return detalleEstudios;
         } catch (Exception e) {
             Struct[] lista = {};
@@ -256,7 +277,7 @@ public class BrainstormContext {
             this.setStudy((Study) estudios.get(index - 1));
 //            this.setStudy(new Study(index, estudio,this.getSubject().nombreSujeto()));
         } catch (Exception e) {
-            
+
         }
     }
 
@@ -286,7 +307,7 @@ public class BrainstormContext {
                 }
                 return lista;
             }
-            
+
         } catch (Exception e) {
             String[] lista = {""};
             return lista;
@@ -323,22 +344,22 @@ public class BrainstormContext {
             int aux = 1;
             Struct[] protocolStudies = this.protocolStudies();
             for (Struct study : protocolStudies) {
-                
+
                 Struct data = (Struct) study.get("Data");
                 if (data != null) {
                     String nameAux = (String) data.get("FileName");
                     System.out.println(nameAux);
                     if (nameAux.equals(fileName)) {
                         eng.eval(String.format("errFolders = db_delete_studies( %s )", aux));
-                        
+
                     }
                 }
-                
+
                 aux += 1;
             }
-            
+
         } catch (Exception e) {
-            
+
         }
     }
 
@@ -385,9 +406,9 @@ public class BrainstormContext {
     public String reviewRawFile(String ruta) {
         try {
             eng.eval("sFiles=[]");
-            
+
             eng.eval("bst_report('Start',sFiles)");
-            
+
             String s1 = this.subject.nombreSujeto();
             eng.eval(String.format("sFiles = bst_process('CallProcess', 'process_import_data_raw', sFiles, [], ...\n"
                     + "    'subjectname',    '%1$s', ...\n"
@@ -395,7 +416,7 @@ public class BrainstormContext {
                     + "    'channelreplace', 1, ...\n"
                     + "    'channelalign',   1, ...\n"
                     + "    'evtmode',        'value')", s1, ruta));
-            
+
             this.subjectStudiesArray(s1);
             this.reload();
             Struct prueb = eng.getVariable("sFiles");
@@ -417,35 +438,36 @@ public class BrainstormContext {
                     + "    'evtfile', {RawFiles{1}, 'CSV-TIME'}, ...\n"
                     + "    'evtname', 'New', ...\n"
                     + "    'delete',  0);");
-            
+
             eng.eval(String.format("sFiles = bst_process('CallProcess', 'process_evt_simple', sFiles, [], ...\n"
                     + "    'eventname', '%s', ...\n"
                     + "    'method',    'start');", eventName));
-            
+
             Struct prueb = eng.getVariable("sFiles");
             String dataName = (String) prueb.get("FileName");
             this.reload();
             return prueb;
-            
+
         } catch (Exception e) {
             return null;
         }
     }
 
     //Sincronizar eventos. Recibe el data file name de los archivos a sincronizar. Me va a lanzar un array de struct, tengo que sacar los dos dataFileName de ahi
-    public Struct[] syncEvents(String dataNameNeulog, String dataNameEmotiv) {
+    public Struct[] syncEvents(String dataNameNeulog, String dataNameEmotiv, String markerName) {
         try {
             eng.eval(String.format("sFiles = {...\n"
                     + "    '%1s', ...\n"
                     + "    '%2s'};", dataNameNeulog, dataNameEmotiv));
-            
-            eng.eval("sFiles = bst_process('CallProcess', 'process_sync_recordings', sFiles, [], ...\n"
-                    + "    'src',          '100', ...\n"
-                    + "    'method',       'xcorr'); ");
+
+            eng.eval(String.format(
+            "sFiles = bst_process('CallProcess', 'process_sync_recordings', sFiles, [], ...\n"
+                    + "    'src',          '%s', ...\n"
+                    + "    'method',       'xcorr'); ",markerName));
             
             Struct[] files = (Struct[]) eng.getVariable("sFiles");
             return files;
-            
+
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -458,10 +480,10 @@ public class BrainstormContext {
             eng.eval(String.format("sFiles = {...\n"
                     + "    '%1$s', ...\n"
                     + "    '%2$s'};", dataNeulog, dataEmotiv));
-            
+
             eng.eval("sFiles = bst_process('CallProcess', 'process_combine_recordings', sFiles, [], ...\n"
                     + "    'condition', 'Combined');");
-            
+
             Struct prueba = (Struct) eng.getVariable("sFiles");
             double in = (double) prueba.get("iStudy");
             System.out.println(in);
@@ -478,7 +500,7 @@ public class BrainstormContext {
             String archivoPos = "test\\positionsFile\\emotiv_epoc.pos";
             eng.eval(String.format("RawFiles = {...\n"
                     + "    '%s'}", archivoPos));
-            
+
             eng.eval("sFiles = bst_process('CallProcess', 'process_channel_addloc', sFiles, [], ...\n"
                     + "    'channelfile', {RawFiles{1}, 'POLHEMUS'}, ...\n"
                     + "    'usedefault',  '', ...  % \n"
@@ -487,18 +509,18 @@ public class BrainstormContext {
                     + "    'mrifile',     {'', ''}, ...\n"
                     + "    'fiducials',   [])");
         } catch (Exception e) {
-            
+
         }
     }
-    
+
     public void videoPowers(String videoFileName) {
         try {
             eng.eval(String.format("[iNewFiles, OutputVideoFiles] = import_video(%1$s, '%2$s')", this.study.getStudyIndex(), videoFileName));
         } catch (Exception e) {
-            
+
         }
     }
-    
+
     public void scaleValues() {
         try {
             eng.eval(String.format("sFiles = {...\n"
@@ -511,8 +533,8 @@ public class BrainstormContext {
             System.out.println("No exitoso");
         }
     }
-    
-    public void generarImagenes() {
+
+    public void generarImagenes() throws InterruptedException, ExecutionException {
         String filePath = this.homeDirectory() + "\\" + this.protocol.nombreProtocolo() + "\\" + "data" + "\\";
         String dataPath = filePath + "\\" + this.study.dataFileName();
         String channelPath = filePath + "\\" + this.study.channelFileName();
@@ -525,7 +547,7 @@ public class BrainstormContext {
             String ruta = (String) eng.getVariable("movie_path");
             System.out.println(ruta);
             this.videoPowers(ruta);
-        } catch (Exception e) {
+        } catch (MatlabExecutionException e) {
             System.out.println("Wopos");
         }
     }
@@ -547,25 +569,25 @@ public class BrainstormContext {
 //            eng.eval("figure_timeseries('SetDisplayMode', neulog, 'Butterfly');");
             eng.eval("panel_record('SetDisplayMode', eeg, 'Column');");
             eng.eval("panel_record('SetDisplayMode', neulog, 'Butterfly');");
-            
+
             eng.eval("mapa=view_topography(datas, 'EEG', '2DDisc')");
-            
+
             if (this.study.isVideo()) {
                 String videoName = this.study.dataVideoFileName();
                 String filePath = this.homeDirectory() + "\\" + this.protocol.nombreProtocolo() + "\\" + "data" + "\\";
                 eng.eval(String.format("pow=view_video('%s', 'VideoReader', 0)", filePath + videoName));
-                
+
                 eng.eval("organizarFiguras(eeg,mapa,pow,neulog)");
             } else {
                 System.out.println("prueb");
                 eng.eval("arreglar(neulog,mapa,eeg)");
             }
-            
+
         } catch (Exception e) {
-            
+
         }
     }
-    
+
     public void addPath() {
         try {
             // Obtiene la ruta del directorio actual y agrega la carpeta de scripts
@@ -595,23 +617,23 @@ public class BrainstormContext {
             this.resetContext();
             this.setProtocol(this.currentProtocolIndex());
         } catch (Exception e) {
-            
+
         }
     }
-    
+
     public void resetContext() {
         this.setSubject(null);
         this.setProtocol(null);
         this.setStudy(null);
     }
-    
+
     public void deleteSubject() {
         try {
             eng.eval(String.format("db_delete_subjects(%s)", this.getSubject().subjectIndex));
             this.resetContext();
             this.setProtocol(this.currentProtocolIndex());
         } catch (Exception e) {
-            
+
         }
     }
 
@@ -622,10 +644,10 @@ public class BrainstormContext {
 //            eng.eval("bst_memory('UnloadAll','Forced')");
 //            eng.eval(String.format("db_reload_subjects(%s)", index));
         } catch (Exception e) {
-            
+
         }
     }
-    
+
     public int crearProtocolo() {
         try {
             eng.eval("iProtocol=gui_edit_protocol('create')");
@@ -636,7 +658,7 @@ public class BrainstormContext {
             return 0;
         }
     }
-    
+
     public void createProtocol(String protocolName) {
         try {
             eng.eval(String.format("ProtocolName = file_standardize('%s');", protocolName));
@@ -647,7 +669,7 @@ public class BrainstormContext {
             eng.eval("sProtocol.UseDefaultAnat    = 1;");
             eng.eval("sProtocol.UseDefaultChannel = 0;");
             eng.eval("iProtocol = db_edit_protocol('create', sProtocol);");
-            
+
             double aux = (double) eng.getVariable("iProtocol");
             System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
             System.out.println("aux");
@@ -663,7 +685,7 @@ public class BrainstormContext {
             e.printStackTrace();
         }
     }
-    
+
     public double createSujeto(String nombreSubject) {
         try {
             eng.eval(String.format("[sSubject,iSubject]=db_add_subject('%s', [], 1, 0)", nombreSubject));
@@ -674,14 +696,14 @@ public class BrainstormContext {
             return aux;
         } catch (Exception e) {
             return -1;
-            
+
         }
     }
-    
+
     public int closeBrainstorm() {
         try {
             eng.eval("brainstorm stop");
-            
+
         } catch (InterruptedException ex) {
             Logger.getLogger(BrainstormContext.class.getName()).log(Level.SEVERE, null, ex);
         } catch (MatlabSyntaxException ex) {
@@ -751,5 +773,5 @@ public class BrainstormContext {
     public void setStudy(Study study) {
         this.study = study;
     }
-    
+
 }

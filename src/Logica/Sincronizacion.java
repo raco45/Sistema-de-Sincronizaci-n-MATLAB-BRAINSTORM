@@ -60,7 +60,7 @@ public class Sincronizacion {
             
             
             // Sincronizar eventos
-            Struct[] archivos= bCon.syncEvents(dataNeulogFileName, dataEmotivFileName);
+            Struct[] archivos= bCon.syncEvents(dataNeulogFileName, dataEmotivFileName, markerName);
             
             this.emotivSync= (String) archivos[1].get("FileName");
             this.neulogSync= (String) archivos[0].get("FileName");

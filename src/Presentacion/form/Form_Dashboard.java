@@ -2,6 +2,7 @@ package presentacion.form;
 
 import Acceso_Datos.emotiv.PreprocesarEmotiv;
 import Acceso_Datos.neulog.PreprocesarNeulog;
+
 import brainstorm.BrainstormStart;
 import brainstorm.info.BrainstormContext;
 import com.mathworks.engine.EngineException;
@@ -11,6 +12,7 @@ import static java.awt.Frame.ICONIFIED;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
@@ -168,7 +170,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
                             if (value != null) {
                                 JOptionPane.showMessageDialog(null, value);
                                 sync.setRutaNeulog(value);
-                                sync.setRutaMarcadoresNeulog(PreprocesarNeulog.generarArchivoMarcadores(value, sync.getMarkerName()));
+                                sync.setRutaMarcadoresNeulog(PreprocesarNeulog.generarArchivoMarcadores(value, sync.getMarkerName(),sync.rutaMarcadoresEmotiv));
                                 labelNeulog.setText("File Loaded");
                                 flag += 2;
                             } else {
@@ -276,15 +278,27 @@ public class Form_Dashboard extends javax.swing.JPanel {
                                 JOptionPane.YES_NO_OPTION);
 
                         if (respuesta == JOptionPane.YES_OPTION) {
-                            // Si elige "Sí", se ejecuta la acción
-                            bCon.generarImagenes();
+                            try {
+                                // Si elige "Sí", se ejecuta la acción
+                                bCon.generarImagenes();
+                            } catch (InterruptedException ex) {
+                                Logger.getLogger(Form_Dashboard.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (ExecutionException ex) {
+                                Logger.getLogger(Form_Dashboard.class.getName()).log(Level.SEVERE, null, ex);
+                            }
                             update();
                         } else {
                             // Si elige "No", se cancela la acción
                             JOptionPane.showMessageDialog(null, "Nothing happen.");
                         }
                     } else {
-                        bCon.generarImagenes();
+                        try {
+                            bCon.generarImagenes();
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(Form_Dashboard.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (ExecutionException ex) {
+                            Logger.getLogger(Form_Dashboard.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                         update();
                     }
 
@@ -447,11 +461,11 @@ public class Form_Dashboard extends javax.swing.JPanel {
         setOpaque(false);
         setPreferredSize(new java.awt.Dimension(879, 661));
 
-        card1.setIcon(new ImageIcon("test\\images\\cerebro4.png"));
+        card1.setIcon(new ImageIcon("test\\images\\brain.png"));
 
         card2.setColor1(new java.awt.Color(95, 211, 226));
         card2.setColor2(new java.awt.Color(26, 166, 170));
-        card2.setIcon(new ImageIcon("test\\images\\cerebro4.png"));
+        card2.setIcon(new ImageIcon("test\\images\\person.png"));
 
         roundPanel1.setBackground(new java.awt.Color(255, 255, 255));
         roundPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -637,18 +651,15 @@ public class Form_Dashboard extends javax.swing.JPanel {
                 .addComponent(powerBoton)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(roundPanel2Layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(roundPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(syncLabel)
                     .addGroup(roundPanel2Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(roundPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(syncLabel)
-                            .addGroup(roundPanel2Layout.createSequentialGroup()
-                                .addGap(0, 0, Short.MAX_VALUE)
-                                .addComponent(cleanBoton, javax.swing.GroupLayout.PREFERRED_SIZE, 171, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(syncLabel1))
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addContainerGap())
+                        .addGap(0, 113, Short.MAX_VALUE)
+                        .addComponent(cleanBoton, javax.swing.GroupLayout.PREFERRED_SIZE, 171, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(syncLabel1))
+                .addContainerGap(119, Short.MAX_VALUE))
+            .addComponent(jSeparator1)
         );
         roundPanel2Layout.setVerticalGroup(
             roundPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)

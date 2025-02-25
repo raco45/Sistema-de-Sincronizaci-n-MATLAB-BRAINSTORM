@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package Acceso_Datos.emotiv;
 
 import org.apache.commons.csv.CSVFormat;
@@ -574,6 +570,12 @@ public class PreprocesarEmotiv {
         return (double) tmp / factor;
     }
 
+    
+    /**
+     * Extrae el primer elemento de un archivo CSV
+     * @param filePath
+     * @return Retorna el primer elemento del archivo en filePath
+     */
     public static String extractFirstElementFromFile(String filePath) {
         BufferedReader reader = null;
         try {
