@@ -1,17 +1,14 @@
-package presentacion.main;
+package Presentacion.Main1;
 
 import brainstorm.BrainstormStart;
 import brainstorm.info.BrainstormContext;
 import com.mathworks.engine.EngineException;
-import com.mathworks.engine.MatlabEngine;
 import java.awt.Component;
-import static java.awt.SystemColor.menu;
-import java.awt.event.WindowEvent;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javaswingdev.GoogleMaterialDesignIcon;
+import javax.swing.JOptionPane;
 import presentacion.form.Form_Dashboard;
-import presentacion.form.Form_Empty;
 import presentacion.menu.EventMenuSelected;
 import presentacion.menu.ModelMenuItem;
 
@@ -19,29 +16,32 @@ public class Main extends javax.swing.JFrame {
 
     private static Main main;
     public BrainstormContext bCon;
+    public Form_Dashboard form = null;
+    public int flagBrainStorm;
     ModelMenuItem studies;
 
     public Main() throws EngineException, InterruptedException {
         bCon = BrainstormStart.getInstance();
         bCon.startBrainstorm();
         initComponents();
+        this.flagBrainStorm = 0;
         init();
     }
 
-    private void init() {
+    public void init() {
+        bCon.addPath();
         bCon.currentProtocolIndex();
         bCon.loadProtocol();
         main = this;
-//        System.out.println(bCon.protocolStudies()[1]);
         //Elementos del menu
         menu1.addTitle("MAIN");  //indice 1 en la lista de componentes del panelMenu
         menu1.addMenuItem(new ModelMenuItem(GoogleMaterialDesignIcon.DASHBOARD, "Dashboard"));// indice de evento 0 
-        menu1.addTitle("PROTOCOLO: "); // indice 2
-        menu1.addTitle("SUJETO: "); //Indice 3
+        menu1.addTitle("PROTOCOL: "); // indice 2
+        menu1.addTitle("STAGE: "); //Indice 3
         menu1.addTitle("FILE: "); // indice 4 en la lista de componentes del panelMenu
-        menu1.addMenuItem(new ModelMenuItem(null, "Procesados"));
-        menu1.addMenuItem(new ModelMenuItem(null, "Visualización","Grafica 1", "Grafica 2","Grafica3"  ));
-        menu1.addMenuItemBottom(new ModelMenuItem(null, "Brainstorm" ));
+        menu1.addMenuItem(new ModelMenuItem(null, "Ready Files"));
+        menu1.addMenuItem(new ModelMenuItem(null, "Visualization", "Graphics"));
+        menu1.addMenuItemBottom(new ModelMenuItem(null, "Reset Dashboard"));
         //Fin de elementos del menu
         menu1.updateTittleProtocol(bCon.currentProtocolName());
         menu1.updateTittleSujeto(bCon.currentSujectName());
@@ -53,23 +53,54 @@ public class Main extends javax.swing.JFrame {
                 // El indice 0 esta guardado para el primer evento del menu, este lo vamos a considerar como el evento que llama al "Inicio"
                 if (index == 0 && indexSubMenu == 0) {
                     System.out.println(index);
-                    showForm(new Form_Dashboard(main));
+                    if (form == null) {
+                        form = new Form_Dashboard(main);
+                        showForm(form);
+                    } else {
+                        showForm(form);
+                    }
+
                     //Hay que hacer funciones que manden el cambion a la ventana Main, desde Dashboard.
                 } else {
                     //Aqui dependiento del evento llamaremos a un caso, tendremos "Recordings", "Sincronizacion", y otras opciones una vez este realizada la sincronizacion
                     System.out.println("El indice es el: " + index);
                     String clave = aux;
-                    switch (clave) {
-                        case "Procesados":
-                            if (indexSubMenu > 0) {
-                                bCon.setStudyContext(indexSubMenu);
-                                bCon.channelStudy();
-                                menu1.updateTittleStudy(bCon.getStudy().nombreStudy());
-                            }
-                            System.out.println(aux); // aux tiene el texto del nombre del dropdown
-                            System.out.println(indexSubMenu); //Sub indice de la lista, 
-                            System.out.println(subKey); // subkey te arroja el nombre de el objeto seleccionado
+                    if (clave.equals("Ready Files")) {
 
+                        if (indexSubMenu > 0 && subKey != "") {
+                            bCon.setStudyContext(indexSubMenu + 2);
+                            menu1.updateTittleStudy(bCon.getStudy().nombreStudy());
+                        }
+                        System.out.println(aux); // aux tiene el texto del nombre del dropdown
+                        System.out.println(indexSubMenu); //Sub indice de la lista, 
+                        System.out.println(subKey); // subkey te arroja el nombre de el objeto seleccionado
+                    } else if (clave.equals("Visualization")) {
+                        if (indexSubMenu == 1) {
+                            bCon.generateTimeSeries();
+
+                        }
+                    } else if (clave.equals("Reset Dashboard")) {
+                        if (flagBrainStorm == 1) {
+                            bCon.startBrainstorm();
+                            form.reset();
+                            JOptionPane.showMessageDialog(null, "Starting Brainstorm engine",
+                                    "Warning", JOptionPane.WARNING_MESSAGE);
+                            flagBrainStorm = 0;
+                        } else {
+                            int respuesta = JOptionPane.showConfirmDialog(null, "Do you want to reload the dashboard?", "Confirmation", JOptionPane.YES_NO_OPTION);
+
+                            if (respuesta == JOptionPane.YES_OPTION) {
+                                // Aquí va el código que se ejecutará si el usuario elige "Sí"
+                                form.reset();
+                                JOptionPane.showMessageDialog(null, "Complete");
+                                // Puedes agregar aquí cualquier otra acción que quieras realizar
+                            } else {
+                                // Aquí puedes agregar código si quieres hacer algo cuando el usuario elige "No"
+                                // En este caso, no haremos nada, así que podemos dejarlo en blanco
+//                                JOptionPane.showMessageDialog(null, "Acción cancelada.");
+                            }
+
+                        }
                     }
                 }
             }
@@ -85,33 +116,61 @@ public class Main extends javax.swing.JFrame {
     }
 
     public void updateTitleProtocolo() {
-        menu1.updateTittleProtocol(bCon.getProtocol().nombreProtocolo());
+        try {
+
+            menu1.updateTittleProtocol(bCon.getProtocol().nombreProtocolo());
+        } catch (Exception e) {
+            menu1.updateTittleProtocol("Empty");
+        }
     }
 
     public void updateTitleSujeto() {
         try {
             menu1.updateTittleSujeto(bCon.getSubject().nombreSujeto());
         } catch (Exception e) {
-            menu1.updateTittleSujeto("Vacio");
+            menu1.updateTittleSujeto("Empty");
         }
     }
+
     public void updateTitleStudy() {
         try {
-            menu1.updateTittleStudy(bCon.getStudy().nombreStudy());
+            String aux = bCon.getStudy().nombreStudy().replaceAll("@raw", "");
+            menu1.updateTittleStudy(aux);
         } catch (Exception e) {
-            menu1.updateTittleStudy("Vacio");
+            menu1.updateTittleStudy("Empty");
         }
     }
 
     public void addMenuItem(String[] studiesList) {
-        int index=menu1.removeMenuItem();
-        ModelMenuItem studies = new ModelMenuItem(null, "Procesados");
-        studies.setSubMenu(studiesList);
-        menu1.addMenuItemAgain(studies,index);
+        int index = menu1.removeMenuItem();
+        String[] aux = this.cleanStudies(studiesList);
+        ModelMenuItem studies = new ModelMenuItem(null, "Ready Files");
+        studies.setSubMenu(aux);
+        menu1.addMenuItemAgain(studies, index);
     }
-    
-    // Agregar un WindowAdapter
 
+    public String[] cleanStudies(String[] studiesList) {
+        if (studiesList.length - 2 <= 0) {
+            String[] clean = {""};
+            return clean;
+        }
+        String[] clean = new String[studiesList.length - 2];
+        int i = 0;
+        for (String study : studiesList) {
+            if (study.equals("@default_study") || study.equals("@intra")) {
+
+            } else {
+
+                String aux = study.replaceAll("@raw", "");
+                clean[i] = aux;
+                i += 1;
+                System.out.println(aux);
+            }
+        }
+        return clean;
+    }
+
+    // Agregar un WindowAdapter
     public static Main getMain() {
         return main;
     }
@@ -126,6 +185,7 @@ public class Main extends javax.swing.JFrame {
         body = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setAutoRequestFocus(false);
 
         background.setBackground(new java.awt.Color(245, 245, 245));
 
@@ -135,9 +195,11 @@ public class Main extends javax.swing.JFrame {
         panelMenu.setLayout(panelMenuLayout);
         panelMenuLayout.setHorizontalGroup(
             panelMenuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 226, Short.MAX_VALUE)
+            .addGap(0, 202, Short.MAX_VALUE)
             .addGroup(panelMenuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addComponent(menu1, javax.swing.GroupLayout.DEFAULT_SIZE, 226, Short.MAX_VALUE))
+                .addGroup(panelMenuLayout.createSequentialGroup()
+                    .addComponent(menu1, javax.swing.GroupLayout.DEFAULT_SIZE, 196, Short.MAX_VALUE)
+                    .addContainerGap()))
         );
         panelMenuLayout.setVerticalGroup(
             panelMenuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -156,16 +218,13 @@ public class Main extends javax.swing.JFrame {
             .addGroup(backgroundLayout.createSequentialGroup()
                 .addComponent(panelMenu, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(body, javax.swing.GroupLayout.DEFAULT_SIZE, 1092, Short.MAX_VALUE)
+                .addComponent(body, javax.swing.GroupLayout.DEFAULT_SIZE, 866, Short.MAX_VALUE)
                 .addContainerGap())
         );
         backgroundLayout.setVerticalGroup(
             backgroundLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(panelMenu, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(backgroundLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(body, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+            .addComponent(body, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());

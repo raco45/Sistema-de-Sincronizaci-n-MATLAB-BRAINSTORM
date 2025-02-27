@@ -14,6 +14,8 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import net.miginfocom.swing.MigLayout;
 import org.jdesktop.animation.timing.Animator;
@@ -22,7 +24,8 @@ import org.jdesktop.animation.timing.TimingTargetAdapter;
 public class MenuItem extends JPanel {
 
     private final List<EventMenuSelected> events = new ArrayList<>();
-    private final int index;;
+    private final int index;
+    ;
     private final String itemName;
     private final boolean hasSubMenu;
     private Animator animator;
@@ -31,7 +34,7 @@ public class MenuItem extends JPanel {
 
     public MenuItem(ModelMenuItem item, int index, MigLayout layout) {
         this.index = index;
-        this.itemName=item.getMenuName();
+        this.itemName = item.getMenuName();
         this.hasSubMenu = item.getSubMenu().length > 0;
         init(item);
         if (hasSubMenu) {
@@ -44,13 +47,14 @@ public class MenuItem extends JPanel {
         setOpaque(false);
         setForeground(new Color(170, 170, 170));
         setLayout(new MigLayout("wrap,fillx,inset 0", "[fill]", "[fill,35!]" + (hasSubMenu ? "0[fill,30!]" : "")));
-        Item menu = new Item(true, 0);
+        Item menu = new Item(true, 0, itemName);
         menu.setGoogleIcon(item.getIcon());
         menu.setText("  " + item.getMenuName());
         menu.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
                 setForeground(menu.getMainColor());
+                
             }
 
             @Override
@@ -63,7 +67,7 @@ public class MenuItem extends JPanel {
         menu.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                runEvent(index, 0, "","");
+                runEvent(index, 0, "", "");
             }
         });
         if (hasSubMenu) {
@@ -78,7 +82,7 @@ public class MenuItem extends JPanel {
         add(menu);
         int subIndex = 0;
         for (String subMenu : item.getSubMenu()) {
-            Item sMenu = new Item(false, ++subIndex);
+            Item sMenu = new Item(false, ++subIndex,subMenu);
             sMenu.setText(subMenu);
             sMenu.addActionListener(new ActionListener() {
                 @Override
@@ -131,7 +135,7 @@ public class MenuItem extends JPanel {
 
     private void runEvent(int index, int subIndex, String key, String subKey) {
         for (EventMenuSelected evnet : events) {
-            evnet.menuSelected(index, subIndex,key, subKey);
+            evnet.menuSelected(index, subIndex, key, subKey);
         }
     }
 //     private void runEvent2(String key) {

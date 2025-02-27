@@ -19,9 +19,10 @@ public class Sincronizacion {
     public String rutaMarcadoresNeulog;
     public String emotivSync;
     public String neulogSync;
-    
-    
+    public String rutaPowers;
     public String combine;
+    public String markerName;
+            
     private BrainstormContext bCon;
 
     public Sincronizacion(String emotiv, String neulog, String markerEmotiv, String markerNeulog) {
@@ -47,26 +48,47 @@ public class Sincronizacion {
             //Cabiar el tipo de sensor en archivo Neulog
             bCon.changeDataType(dataFileNameNeulog);
             bCon.addEEGPositions(dataFileNameEmotiv);
+            
+            
             //Asignar marcadores a archivos de senales
-            dataFileNameNeulog = bCon.cargarMarcadores(dataFileNameNeulog, getRutaMarcadoresNeulog(), "100");
-            dataFileNameEmotiv = bCon.cargarMarcadores(dataFileNameEmotiv, getRutaMarcadoresEmotiv(), "100");
+            Struct dataNeulog = bCon.cargarMarcadores(dataFileNameNeulog, getRutaMarcadoresNeulog(), this.markerName);
+            Struct dataEmotiv = bCon.cargarMarcadores(dataFileNameEmotiv, getRutaMarcadoresEmotiv(), this.markerName);
+            
+            String dataNeulogFileName = (String) dataNeulog.get("FileName");
+            String dataEmotivFileName = (String) dataEmotiv.get("FileName");
+            
+            String dataScale1=bCon.scaleValues(dataEmotivFileName,"EEG", 0.001);
+            String dataScaleEmotiv=bCon.scaleValues(dataScale1,"EEG", 0.001);
+            String dataScaleNeulog=bCon.scaleValues(dataNeulogFileName,"NEULOG", 1);
             
             // Sincronizar eventos
-            Struct[] archivos= bCon.syncEvents(dataFileNameNeulog, dataFileNameEmotiv);
+            Struct[] archivos= bCon.syncEvents(dataScaleNeulog, dataScaleEmotiv, markerName);
             
-            this.emotivSync= (String) archivos[0].get("FileName");
-            this.neulogSync= (String) archivos[1].get("FileName");
+            this.emotivSync= (String) archivos[1].get("FileName");
+            this.neulogSync= (String) archivos[0].get("FileName");
             // Combinar archivos sincronizados. 
             
-            bCon.combineRecordings(emotivSync, neulogSync);
+            String dataCombine=bCon.combineRecordings(emotivSync, neulogSync);
             
             
+            String finalResult = bCon.changeStudyName(dataCombine, "SYNCED_"+dataCombine);
+            System.out.println(finalResult);
+            
+            System.out.println(dataNeulog);
+            System.out.println(dataEmotiv);
+            System.out.println(this.emotivSync);
+            System.out.println(this.neulogSync);
             
             
+            bCon.deleteStudy(dataNeulogFileName);
+            bCon.deleteStudy(dataEmotivFileName);
+            bCon.deleteStudy(dataScale1);
+            bCon.deleteStudy(dataScaleEmotiv);
+            bCon.deleteStudy(dataScaleNeulog);
+            bCon.deleteStudy(this.emotivSync);
+            bCon.deleteStudy(this.neulogSync);
             
-            
-            
-
+            bCon.reload();
         } catch (Exception e) {
 
         }
@@ -81,6 +103,7 @@ public class Sincronizacion {
         this.setRutaNeulog("");
         this.setRutaMarcadoresEmotiv("");
         this.setRutaMarcadoresNeulog("");
+        this.setMarkerName("");
     }
     /**
      * @return the rutaEmotiv
@@ -178,6 +201,34 @@ public class Sincronizacion {
      */
     public void setRutaMarcadoresNeulog(String rutaMarcadoresNeulog) {
         this.rutaMarcadoresNeulog = rutaMarcadoresNeulog;
+    }
+
+    /**
+     * @return the rutaPowers
+     */
+    public String getRutaPowers() {
+        return rutaPowers;
+    }
+
+    /**
+     * @param rutaPowers the rutaPowers to set
+     */
+    public void setRutaPowers(String rutaPowers) {
+        this.rutaPowers = rutaPowers;
+    }
+
+    /**
+     * @return the markerName
+     */
+    public String getMarkerName() {
+        return markerName;
+    }
+
+    /**
+     * @param markerName the markerName to set
+     */
+    public void setMarkerName(String markerName) {
+        this.markerName = markerName;
     }
 
 }

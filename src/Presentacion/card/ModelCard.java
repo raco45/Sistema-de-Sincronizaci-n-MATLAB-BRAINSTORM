@@ -2,14 +2,15 @@ package presentacion.card;
 
 import java.awt.Color;
 import javaswingdev.GoogleMaterialDesignIcon;
+import javax.swing.ImageIcon;
 
 public class ModelCard {
 
-    public GoogleMaterialDesignIcon getIcon() {
+    public ImageIcon getIcon() {
         return icon;
     }
 
-    public void setIcon(GoogleMaterialDesignIcon icon) {
+    public void setIcon(ImageIcon icon) {
         this.icon = icon;
     }
 
@@ -45,7 +46,7 @@ public class ModelCard {
         this.description = description;
     }
 
-    public ModelCard(GoogleMaterialDesignIcon icon, Color color1, Color color2, String values, String description) {
+    public ModelCard(ImageIcon icon, Color color1, Color color2, String values, String description) {
         this.icon = icon;
         this.color1 = color1;
         this.color2 = color2;
@@ -56,7 +57,7 @@ public class ModelCard {
     public ModelCard() {
     }
 
-    private GoogleMaterialDesignIcon icon;
+    private ImageIcon icon;
     private Color color1;
     private Color color2;
     private String values;
