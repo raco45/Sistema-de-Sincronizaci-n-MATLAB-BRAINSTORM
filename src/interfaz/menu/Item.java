@@ -1,4 +1,4 @@
-package presentacion.menu;
+package interfaz.menu;
 import javax.swing.Timer;
 
 import java.awt.AlphaComposite;
@@ -14,7 +14,7 @@ import java.awt.event.MouseEvent;
 import javaswingdev.GoogleMaterialDesignIcon;
 import javaswingdev.GoogleMaterialIcon;
 import javaswingdev.GradientType;
-import presentacion.system.SystemColor;
+import interfaz.system.SystemColor;
 import javax.swing.JButton;
 import javax.swing.border.EmptyBorder;
 import org.jdesktop.animation.timing.Animator;

@@ -1,4 +1,4 @@
-package presentacion.card;
+package interfaz.card;
 
 import java.awt.Color;
 import javaswingdev.GoogleMaterialDesignIcon;

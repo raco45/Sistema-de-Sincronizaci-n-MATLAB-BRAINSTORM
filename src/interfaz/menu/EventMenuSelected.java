@@ -1,4 +1,4 @@
-package presentacion.menu;
+package interfaz.menu;
 
 public interface EventMenuSelected {
 

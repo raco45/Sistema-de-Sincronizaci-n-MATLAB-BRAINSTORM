@@ -1,4 +1,4 @@
-package Presentacion.Main1;
+package interfaz.Main1;
 
 import brainstorm.BrainstormStart;
 import brainstorm.info.BrainstormContext;
@@ -8,9 +8,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javaswingdev.GoogleMaterialDesignIcon;
 import javax.swing.JOptionPane;
-import presentacion.form.Form_Dashboard;
-import presentacion.menu.EventMenuSelected;
-import presentacion.menu.ModelMenuItem;
+import interfaz.form.Form_Dashboard;
+import interfaz.menu.EventMenuSelected;
+import interfaz.menu.ModelMenuItem;
 
 public class Main extends javax.swing.JFrame {
 
@@ -181,7 +181,7 @@ public class Main extends javax.swing.JFrame {
 
         background = new javax.swing.JPanel();
         panelMenu = new javax.swing.JPanel();
-        menu1 = new presentacion.menu.Menu();
+        menu1 = new interfaz.menu.Menu();
         body = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -283,7 +283,7 @@ public class Main extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel background;
     private javax.swing.JPanel body;
-    private presentacion.menu.Menu menu1;
+    private interfaz.menu.Menu menu1;
     private javax.swing.JPanel panelMenu;
     // End of variables declaration//GEN-END:variables
 }

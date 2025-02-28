@@ -1,4 +1,4 @@
-package presentacion.menu;
+package interfaz.menu;
 
 import brainstorm.BrainstormStart;
 import brainstorm.info.BrainstormContext;
@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javaswingdev.GoogleMaterialDesignIcon;
-import presentacion.swing.scroll.ScrollBar;
+import interfaz.swing.scroll.ScrollBar;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;

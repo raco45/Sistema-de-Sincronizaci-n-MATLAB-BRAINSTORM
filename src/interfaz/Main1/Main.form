@@ -89,7 +89,7 @@
             </DimensionLayout>
           </Layout>
           <SubComponents>
-            <Component class="presentacion.menu.Menu" name="menu1">
+            <Component class="interfaz.menu.Menu" name="menu1">
             </Component>
           </SubComponents>
         </Container>

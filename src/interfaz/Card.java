@@ -1,4 +1,4 @@
-package Presentacion;
+package interfaz;
 
 import java.awt.Color;
 import java.awt.GradientPaint;
@@ -12,7 +12,7 @@ import javaswingdev.GoogleMaterialDesignIcon;
 import javaswingdev.GoogleMaterialIcon;
 import javaswingdev.GradientType;
 import javax.swing.ImageIcon;
-import presentacion.card.ModelCard;
+import interfaz.card.ModelCard;
 
 public class Card extends javax.swing.JPanel {
 
@@ -104,7 +104,7 @@ public class Card extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        lbIcon = new presentacion.card.LabelIcon();
+        lbIcon = new interfaz.card.LabelIcon();
         lbValues = new javax.swing.JLabel();
         lbDescription = new javax.swing.JLabel();
 
@@ -148,7 +148,7 @@ public class Card extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel lbDescription;
-    private presentacion.card.LabelIcon lbIcon;
+    private interfaz.card.LabelIcon lbIcon;
     private javax.swing.JLabel lbValues;
     // End of variables declaration//GEN-END:variables
 }

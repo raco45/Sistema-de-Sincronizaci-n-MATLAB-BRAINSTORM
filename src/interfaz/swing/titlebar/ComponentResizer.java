@@ -1,4 +1,4 @@
-package presentacion.swing.titlebar;
+package interfaz.swing.titlebar;
 
 import java.awt.Component;
 import java.awt.Cursor;

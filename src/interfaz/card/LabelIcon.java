@@ -1,11 +1,11 @@
-package presentacion.card;
+package interfaz.card;
 
 import java.awt.Color;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import presentacion.system.SystemColor;
+import interfaz.system.SystemColor;
 import javax.swing.JLabel;
 
 public class LabelIcon extends JLabel {

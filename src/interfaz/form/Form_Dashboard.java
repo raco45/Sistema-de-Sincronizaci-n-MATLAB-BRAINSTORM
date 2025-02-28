@@ -1,4 +1,4 @@
-package presentacion.form;
+package interfaz.form;
 
 import Acceso_Datos.emotiv.PreprocesarEmotiv;
 import Acceso_Datos.neulog.PreprocesarNeulog;
@@ -21,8 +21,8 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 import logica.Sincronizacion;
-import presentacion.card.ModelCard;
-import Presentacion.Main1.Main;
+import interfaz.card.ModelCard;
+import interfaz.Main1.Main;
 
 public class Form_Dashboard extends javax.swing.JPanel {
 
@@ -448,9 +448,9 @@ public class Form_Dashboard extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        card1 = new Presentacion.Card();
-        card2 = new Presentacion.Card();
-        roundPanel1 = new presentacion.swing.RoundPanel();
+        card1 = new interfaz.Card();
+        card2 = new interfaz.Card();
+        roundPanel1 = new interfaz.swing.RoundPanel();
         protocolList = new javax.swing.JComboBox<>();
         subjectList = new javax.swing.JComboBox<>();
         crearProtocolo = new javax.swing.JButton();
@@ -465,7 +465,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
         syncLabel2 = new javax.swing.JLabel();
         syncLabel3 = new javax.swing.JLabel();
         jSeparator3 = new javax.swing.JSeparator();
-        roundPanel2 = new presentacion.swing.RoundPanel();
+        roundPanel2 = new interfaz.swing.RoundPanel();
         syncLabel = new javax.swing.JLabel();
         cleanBoton = new javax.swing.JButton();
         syncLabel1 = new javax.swing.JLabel();
@@ -814,8 +814,8 @@ public class Form_Dashboard extends javax.swing.JPanel {
     }//GEN-LAST:event_subjectListActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private Presentacion.Card card1;
-    private Presentacion.Card card2;
+    private interfaz.Card card1;
+    private interfaz.Card card2;
     private javax.swing.JButton cleanBoton;
     private javax.swing.JButton crearProtocolo;
     private javax.swing.JButton deleteSubject;
@@ -829,8 +829,8 @@ public class Form_Dashboard extends javax.swing.JPanel {
     private javax.swing.JButton newSubject;
     private javax.swing.JButton powerBoton;
     private javax.swing.JComboBox<String> protocolList;
-    private presentacion.swing.RoundPanel roundPanel1;
-    private presentacion.swing.RoundPanel roundPanel2;
+    private interfaz.swing.RoundPanel roundPanel1;
+    private interfaz.swing.RoundPanel roundPanel2;
     private javax.swing.JComboBox<String> subjectList;
     private javax.swing.JButton syncButton;
     private javax.swing.JLabel syncLabel;

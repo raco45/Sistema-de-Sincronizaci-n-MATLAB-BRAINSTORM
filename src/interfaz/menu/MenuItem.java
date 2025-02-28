@@ -1,4 +1,4 @@
-package presentacion.menu;
+package interfaz.menu;
 
 import java.awt.BasicStroke;
 import java.awt.Color;

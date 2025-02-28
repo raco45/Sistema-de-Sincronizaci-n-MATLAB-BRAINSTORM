@@ -44,7 +44,7 @@
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Component class="presentacion.card.LabelIcon" name="lbIcon">
+    <Component class="interfaz.card.LabelIcon" name="lbIcon">
       <Properties>
         <Property name="horizontalAlignment" type="int" value="0"/>
       </Properties>

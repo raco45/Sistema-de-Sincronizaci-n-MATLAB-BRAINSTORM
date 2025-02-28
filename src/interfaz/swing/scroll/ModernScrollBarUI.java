@@ -1,4 +1,4 @@
-package presentacion.swing.scroll;
+package interfaz.swing.scroll;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;

@@ -1,4 +1,4 @@
-package presentacion.form;
+package interfaz.form;
 
 public class Form_Empty extends javax.swing.JPanel {
 
