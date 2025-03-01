@@ -1,6 +1,9 @@
 package interfaz.Main1;
 
 import brainstorm.BrainstormStart;
+import brainstorm.ConfigManager;
+import brainstorm.MATLABDetector;
+import brainstorm.MATLABPathSelector;
 import brainstorm.info.BrainstormContext;
 import com.mathworks.engine.EngineException;
 import java.awt.Component;
@@ -11,6 +14,12 @@ import javax.swing.JOptionPane;
 import interfaz.form.Form_Dashboard;
 import interfaz.menu.EventMenuSelected;
 import interfaz.menu.ModelMenuItem;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Main extends javax.swing.JFrame {
 
@@ -59,7 +68,6 @@ public class Main extends javax.swing.JFrame {
                     } else {
                         showForm(form);
                     }
-
                     //Hay que hacer funciones que manden el cambion a la ventana Main, desde Dashboard.
                 } else {
                     //Aqui dependiento del evento llamaremos a un caso, tendremos "Recordings", "Sincronizacion", y otras opciones una vez este realizada la sincronizacion
@@ -79,7 +87,7 @@ public class Main extends javax.swing.JFrame {
                             bCon.generateTimeSeries();
 
                         }
-                    } else if (clave.equals("Reset Dashboard")) {
+                    } else if (clave.equals("Reload Dashboard")) {
                         if (flagBrainStorm == 1) {
                             bCon.startBrainstorm();
                             form.reset();
@@ -99,7 +107,6 @@ public class Main extends javax.swing.JFrame {
                                 // En este caso, no haremos nada, así que podemos dejarlo en blanco
 //                                JOptionPane.showMessageDialog(null, "Acción cancelada.");
                             }
-
                         }
                     }
                 }
@@ -175,6 +182,28 @@ public class Main extends javax.swing.JFrame {
         return main;
     }
 
+    private static void generarLogError(Throwable ex) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
+            String timestamp = sdf.format(new Date());
+            String logFileName = "error_log_" + timestamp + ".txt";
+
+            try (PrintWriter writer = new PrintWriter(new FileWriter(logFileName, true))) {
+                writer.println("=== ERROR [" + timestamp + "] ===");
+                ex.printStackTrace(writer);
+                writer.println("\nSistema:");
+                writer.println("OS: " + System.getProperty("os.name"));
+                writer.println("Java: " + System.getProperty("java.version"));
+                writer.println("----------------------------------------");
+            }
+
+        } catch (IOException e) {
+            System.err.println("Error al escribir log: " + e.getMessage());
+        }
+    }
+
+    ;
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -243,41 +272,99 @@ public class Main extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
         try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
 
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                try {
-                    new Main().setVisible(true);
-                } catch (EngineException ex) {
-                    Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            /* Set the Nimbus look and feel */
+            //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+            /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+             */
+            try {
+                for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                    if ("Nimbus".equals(info.getName())) {
+                        javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                        break;
+                    }
+                }
+            } catch (ClassNotFoundException ex) {
+                java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            } catch (InstantiationException ex) {
+                java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            } catch (IllegalAccessException ex) {
+                java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+                java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            }
+            //</editor-fold>
+
+            /* Configurar MATLAB antes de abrir la interfaz */
+            String matlabPath = ConfigManager.loadPath(); // Cargar ruta guardada
+
+            // Si no hay ruta guardada o es inválida, detectar automáticamente
+            if (matlabPath == null || !new File(matlabPath + "\\bin\\matlab.exe").exists()) {
+                matlabPath = MATLABDetector.detectMATLABPath();
+            }
+
+            // Si la detección automática falla, pedir al usuario
+            if (matlabPath == null) {
+                int option = JOptionPane.showConfirmDialog(
+                        null,
+                        "MATLAB no se detectó. ¿Desea seleccionar la ruta manualmente?",
+                        "MATLAB no encontrado",
+                        JOptionPane.YES_NO_OPTION
+                );
+
+                if (option == JOptionPane.YES_OPTION) {
+                    matlabPath = MATLABPathSelector.selectMATLABPath();
+                    if (matlabPath != null) {
+                        ConfigManager.savePath(matlabPath); // Guardar para futuras ejecuciones
+                    } else {
+                        JOptionPane.showMessageDialog(null, "La aplicación no puede iniciar sin MATLAB.", "Error", JOptionPane.ERROR_MESSAGE);
+                        System.exit(1);
+                    }
+                } else {
+                    System.exit(1);
                 }
             }
-        });
+
+            // Configurar rutas de MATLAB
+            System.setProperty("java.library.path", matlabPath + "\\bin\\win64");
+            try {
+                System.load(matlabPath + "\\bin\\win64\\libeng.dll"); // Ejemplo para una DLL crítica
+            } catch (UnsatisfiedLinkError e) {
+                JOptionPane.showMessageDialog(null, "Error al cargar bibliotecas de MATLAB.", "Error", JOptionPane.ERROR_MESSAGE);
+                generarLogError(e);
+                System.exit(1);
+            }
+
+            /* Crear y mostrar la interfaz */
+            java.awt.EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    try {
+                        new Main().setVisible(true);
+                    } catch (EngineException | InterruptedException ex) {
+                        JOptionPane.showMessageDialog(
+                                null,
+                                "Error al iniciar MATLAB: " + ex.getMessage(),
+                                "Error crítico",
+                                JOptionPane.ERROR_MESSAGE
+                        );
+                        generarLogError(ex);
+                        System.exit(1);
+                    }
+                }
+            });
+        } catch (Throwable t) {
+            // Nuevo: Manejo global de errores no capturados
+            generarLogError(t);
+            JOptionPane.showMessageDialog(
+                    null,
+                    "Error crítico no esperado. Verifique el archivo de log.",
+                    "Error fatal",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            System.exit(1);
+        }
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

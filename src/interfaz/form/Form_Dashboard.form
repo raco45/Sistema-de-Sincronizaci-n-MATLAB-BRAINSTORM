@@ -58,6 +58,7 @@
   <SubComponents>
     <Component class="interfaz.Card" name="card1">
       <Properties>
+        <Property name="description" type="java.lang.String" value="Protocol &#xa;"/>
         <Property name="icon" type="javax.swing.ImageIcon" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
           <Connection code="new ImageIcon(&quot;src\\images\\brain.png&quot;)" type="code"/>
         </Property>
@@ -72,6 +73,7 @@
         <Property name="color2" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="aa" green="a6" red="1a" type="rgb"/>
         </Property>
+        <Property name="description" type="java.lang.String" value="Subject"/>
         <Property name="icon" type="javax.swing.ImageIcon" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
           <Connection code="new ImageIcon(&quot;src\\images\\person.png&quot;)" type="code"/>
         </Property>
@@ -284,7 +286,7 @@
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="SansSerif" size="24" style="1"/>
             </Property>
-            <Property name="text" type="java.lang.String" value="Synchronization"/>
+            <Property name="text" type="java.lang.String" value="Sync and Combine"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="syncLabel3">
@@ -373,7 +375,7 @@
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="SansSerif" size="24" style="1"/>
             </Property>
-            <Property name="text" type="java.lang.String" value="Clean "/>
+            <Property name="text" type="java.lang.String" value="Process selection "/>
           </Properties>
         </Component>
         <Component class="javax.swing.JButton" name="cleanBoton">
