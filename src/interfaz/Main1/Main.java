@@ -89,7 +89,7 @@ public class Main extends javax.swing.JFrame {
                         }else{
                             bCon.labelColor();
                         }
-                    } else if (clave.equals("Reload Dashboard")) {
+                    } else if (clave.equals("Reset Dashboard")) {
                         if (flagBrainStorm == 1) {
                             bCon.startBrainstorm();
                             form.reset();

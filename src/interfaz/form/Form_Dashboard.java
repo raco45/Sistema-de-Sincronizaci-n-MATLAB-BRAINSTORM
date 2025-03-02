@@ -644,7 +644,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
         syncLabel.setFont(new java.awt.Font("SansSerif", 1, 24)); // NOI18N
         syncLabel.setText("Process selection ");
 
-        cleanBoton.setText("Clean Data");
+        cleanBoton.setText("Open Brainstorm GUI");
         cleanBoton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cleanBotonActionPerformed(evt);

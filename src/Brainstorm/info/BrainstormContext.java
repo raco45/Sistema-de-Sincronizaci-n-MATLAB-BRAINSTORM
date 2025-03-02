@@ -5,13 +5,16 @@ import com.mathworks.engine.MatlabEngine;
 import com.mathworks.engine.MatlabExecutionException;
 import com.mathworks.engine.MatlabSyntaxException;
 import com.mathworks.matlab.types.Struct;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -508,11 +511,29 @@ public class BrainstormContext {
     //Agregar las la posicion de los electrodos
     public void addEEGPositions(String name) {
         try {
+
+            String ruta;
+            URL resourceUrl = getClass().getResource("/positionsFile/emotiv_epoc.pos");
+
+            // Verificar si estamos ejecutando desde un JAR
+            if (resourceUrl != null && resourceUrl.getProtocol().equals("jar")) {
+                // Ejecución desde JAR - Crear archivo temporal
+                try (InputStream inputStream = getClass().getResourceAsStream("/positionsFile/emotiv_epoc.pos")) {
+                    Path tempFile = Files.createTempFile("emotiv_epoc", ".pos");
+                    tempFile.toFile().deleteOnExit();
+                    Files.copy(inputStream, tempFile, StandardCopyOption.REPLACE_EXISTING);
+                    ruta = tempFile.toAbsolutePath().toString();
+                }
+            } else {
+                // Ruta normal cuando se ejecuta desde IDE
+                ruta = System.getProperty("user.dir") + "/src/positionsFile/emotiv_epoc.pos";
+                ruta = ruta.replace("\\", "/");
+            }
+
             eng.eval(String.format("sFiles = {...\n"
                     + "    '%s'};", name));
-            String archivoPos = "src\\positionsFile\\emotiv_epoc.pos";
             eng.eval(String.format("RawFiles = {...\n"
-                    + "    '%s'}", archivoPos));
+                    + "    '%s'}", ruta));
 
             eng.eval("sFiles = bst_process('CallProcess', 'process_channel_addloc', sFiles, [], ...\n"
                     + "    'channelfile', {RawFiles{1}, 'POLHEMUS'}, ...\n"
@@ -524,6 +545,7 @@ public class BrainstormContext {
         } catch (Exception e) {
 
         }
+
     }
 
     public void videoPowers(String videoFileName) {
@@ -627,7 +649,6 @@ public class BrainstormContext {
             eng.eval("""
                                  hSensorLabels =findobj(gca,'Tag','SensorsLabels');
                                  set(hSensorLabels,'Color',[0,0,0]);""");
-//            this.scaleValues();
         } catch (InterruptedException ex) {
             Logger.getLogger(BrainstormContext.class.getName()).log(Level.SEVERE, null, ex);
         } catch (MatlabSyntaxException ex) {
