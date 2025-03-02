@@ -603,8 +603,8 @@ public class BrainstormContext {
             eng.eval("panel_record('SetDisplayMode', eeg, 'Column');");
             eng.eval("panel_record('SetDisplayMode', neulog, 'Butterfly');");
 
-            eng.eval("mapa=view_topography(datas, 'EEG', '2DDisc')");
-//            this.scaleValues();
+            eng.eval("[mapa,iDS, iFig]=view_topography(datas, 'EEG', '2DDisc')");
+//            eng.eval("global GlobalData;");
 
             if (this.study.isVideo()) {
                 String videoName = this.study.dataVideoFileName();
@@ -619,6 +619,25 @@ public class BrainstormContext {
 
         } catch (Exception e) {
 
+        }
+    }
+
+    public void labelColor() {
+        try {
+            eng.eval("""
+                                 hSensorLabels =findobj(gca,'Tag','SensorsLabels');
+                                 set(hSensorLabels,'Color',[0,0,0]);""");
+//            this.scaleValues();
+        } catch (InterruptedException ex) {
+            Logger.getLogger(BrainstormContext.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (MatlabSyntaxException ex) {
+            Logger.getLogger(BrainstormContext.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (CancellationException ex) {
+            Logger.getLogger(BrainstormContext.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (EngineException ex) {
+            Logger.getLogger(BrainstormContext.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ExecutionException ex) {
+            Logger.getLogger(BrainstormContext.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

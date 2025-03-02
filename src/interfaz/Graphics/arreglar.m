@@ -1,4 +1,4 @@
-function acomodarFiguras(fig1, fig2, fig3)
+function arreglar(fig1, fig2, fig3)
     % Obtener el tamaño de la pantalla
     screenSize = get(0, 'ScreenSize');
     screenWidth = screenSize(3);

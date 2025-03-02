@@ -23,6 +23,7 @@ import javax.swing.SwingWorker;
 import logica.Sincronizacion;
 import interfaz.card.ModelCard;
 import interfaz.Main1.Main;
+import java.io.File;
 
 public class Form_Dashboard extends javax.swing.JPanel {
 
@@ -436,7 +437,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
     public void reset() {
         bCon.resetContext();
         this.main.showForm(new Form_Dashboard(main));
-        String[] aux= {""};
+        String[] aux = {""};
         this.main.addMenuItem(aux);
         this.main.updateTitleProtocolo();
         this.main.updateTitleStudy();
