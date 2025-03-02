@@ -6,11 +6,21 @@ import com.mathworks.engine.MatlabExecutionException;
 import com.mathworks.engine.MatlabSyntaxException;
 import com.mathworks.matlab.types.Struct;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
@@ -588,13 +598,13 @@ public class BrainstormContext {
 //            eng.eval("neulog.Position = [700, 500, 500, 400];");
 //
 //            eng.eval("figure_timeseries('SetDisplayMode', eeg, 'Column');");
-////
+            ////
 //            eng.eval("figure_timeseries('SetDisplayMode', neulog, 'Butterfly');");
             eng.eval("panel_record('SetDisplayMode', eeg, 'Column');");
             eng.eval("panel_record('SetDisplayMode', neulog, 'Butterfly');");
 
-            eng.eval("mapa=view_topography(datas, 'EEG', '2DDisc')");
-//            this.scaleValues();
+            eng.eval("[mapa,iDS, iFig]=view_topography(datas, 'EEG', '2DDisc')");
+//            eng.eval("global GlobalData;");
 
             if (this.study.isVideo()) {
                 String videoName = this.study.dataVideoFileName();
@@ -612,17 +622,47 @@ public class BrainstormContext {
         }
     }
 
+    public void labelColor() {
+        try {
+            eng.eval("""
+                                 hSensorLabels =findobj(gca,'Tag','SensorsLabels');
+                                 set(hSensorLabels,'Color',[0,0,0]);""");
+//            this.scaleValues();
+        } catch (InterruptedException ex) {
+            Logger.getLogger(BrainstormContext.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (MatlabSyntaxException ex) {
+            Logger.getLogger(BrainstormContext.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (CancellationException ex) {
+            Logger.getLogger(BrainstormContext.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (EngineException ex) {
+            Logger.getLogger(BrainstormContext.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ExecutionException ex) {
+            Logger.getLogger(BrainstormContext.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
     public void addPath() {
         try {
-            // Obtiene la ruta del directorio actual y agrega la carpeta de scripts
-            String ruta = System.getProperty("user.dir") + "/src/presentacion/Graphics";
-            ruta = ruta.replace("\\", "/"); // Ajuste para Windows
+            String ruta;
+            URL resourceUrl = getClass().getResource("/interfaz/Graphics");
 
-            // Comando de MATLAB para verificar si ya está en el path
+            // Verificar si estamos ejecutando desde un JAR
+            if (resourceUrl != null && resourceUrl.getProtocol().equals("jar")) {
+                // Crear directorio temporal
+                File tempDir = crearDirectorioTemporal();
+                // Extraer recursos del JAR
+                extraerRecursosDelJar(resourceUrl, tempDir);
+                ruta = tempDir.getAbsolutePath();
+            } else {
+                // Ruta normal cuando se ejecuta desde IDE
+                ruta = System.getProperty("user.dir") + "/src/interfaz/Graphics";
+                ruta = ruta.replace("\\", "/");
+            }
+
+            // Verificar y agregar al path de MATLAB
             String verificarPath = "any(strcmp(strsplit(path, ';'), '" + ruta + "'))";
             boolean enPath = eng.feval("eval", verificarPath);
 
-            // Si no está en el path, lo agrega
             if (!enPath) {
                 eng.feval("addpath", ruta);
                 System.out.println("Ruta agregada al path de MATLAB: " + ruta);
@@ -631,6 +671,45 @@ public class BrainstormContext {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private File crearDirectorioTemporal() throws IOException {
+        File tempDir = Files.createTempDirectory("matlab-graphics").toFile();
+        // Eliminar al cerrar la aplicación
+        tempDir.deleteOnExit();
+        return tempDir;
+    }
+
+    private void extraerRecursosDelJar(URL resourceUrl, File tempDir) throws IOException {
+        String jarPath = resourceUrl.getPath().split("!")[0].replace("file:", "");
+        jarPath = URLDecoder.decode(jarPath, StandardCharsets.UTF_8.toString());
+
+        // Corrección para Windows
+        if (jarPath.startsWith("/") && System.getProperty("os.name").toLowerCase().contains("win")) {
+            jarPath = jarPath.substring(1);
+        }
+
+        try (JarFile jar = new JarFile(jarPath)) {
+            Enumeration<JarEntry> entries = jar.entries();
+            String directorioDestino = "interfaz/Graphics/";
+
+            while (entries.hasMoreElements()) {
+                JarEntry entry = entries.nextElement();
+                if (entry.getName().startsWith(directorioDestino)) {
+                    String rutaRelativa = entry.getName().substring(directorioDestino.length());
+                    File archivoDestino = new File(tempDir, rutaRelativa);
+
+                    if (entry.isDirectory()) {
+                        archivoDestino.mkdirs();
+                    } else {
+                        archivoDestino.getParentFile().mkdirs();
+                        try (InputStream is = jar.getInputStream(entry)) {
+                            Files.copy(is, archivoDestino.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                        }
+                    }
+                }
+            }
         }
     }
 

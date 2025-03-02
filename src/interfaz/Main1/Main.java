@@ -40,7 +40,7 @@ public class Main extends javax.swing.JFrame {
         menu1.addTitle("STAGE: "); //Indice 3
         menu1.addTitle("FILE: "); // indice 4 en la lista de componentes del panelMenu
         menu1.addMenuItem(new ModelMenuItem(null, "Ready Files"));
-        menu1.addMenuItem(new ModelMenuItem(null, "Visualization", "Graphics"));
+        menu1.addMenuItem(new ModelMenuItem(null, "Visualization", "Graphics", "Sensor Color"));
         menu1.addMenuItemBottom(new ModelMenuItem(null, "Reset Dashboard"));
         //Fin de elementos del menu
         menu1.updateTittleProtocol(bCon.currentProtocolName());
@@ -78,6 +78,8 @@ public class Main extends javax.swing.JFrame {
                         if (indexSubMenu == 1) {
                             bCon.generateTimeSeries();
 
+                        }else{
+                            bCon.labelColor();
                         }
                     } else if (clave.equals("Reset Dashboard")) {
                         if (flagBrainStorm == 1) {
