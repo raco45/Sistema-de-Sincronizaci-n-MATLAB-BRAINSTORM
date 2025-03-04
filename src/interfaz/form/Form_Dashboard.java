@@ -24,6 +24,7 @@ import logica.Sincronizacion;
 import interfaz.card.ModelCard;
 import interfaz.Main1.Main;
 import java.io.File;
+import java.io.IOException;
 
 public class Form_Dashboard extends javax.swing.JPanel {
 
@@ -477,13 +478,13 @@ public class Form_Dashboard extends javax.swing.JPanel {
         setPreferredSize(new java.awt.Dimension(879, 661));
 
         card1.setDescription("Protocol \n");
-        card1.setIcon(new ImageIcon("src\\images\\brain.png"));
+        card1.setIcon(new ImageIcon(bCon.rutaIMG("/images/brain.png")));
         card1.setValues("");
 
         card2.setColor1(new java.awt.Color(95, 211, 226));
         card2.setColor2(new java.awt.Color(26, 166, 170));
         card2.setDescription("Subject");
-        card2.setIcon(new ImageIcon("src\\images\\person.png"));
+        card2.setIcon(new ImageIcon(bCon.rutaIMG("/images/person.png")));
         card2.setValues("");
 
         roundPanel1.setBackground(new java.awt.Color(255, 255, 255));

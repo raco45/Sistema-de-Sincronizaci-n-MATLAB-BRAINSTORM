@@ -7,16 +7,20 @@ import com.mathworks.engine.MatlabSyntaxException;
 import com.mathworks.matlab.types.Struct;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.concurrent.CancellationException;
@@ -548,6 +552,50 @@ public class BrainstormContext {
 
     }
 
+    public String rutaIMG(String path){
+        String ruta=path;
+        URL resourceUrl = getClass().getResource(path);
+//        /images/brain.png
+        // Verificar si estamos ejecutando desde un JAR
+        if (resourceUrl != null && resourceUrl.getProtocol().equals("jar")) {
+            // Ejecución desde JAR - Crear archivo temporal
+            try (InputStream inputStream = getClass().getResourceAsStream(path)) {
+                Path tempFile = Files.createTempFile("image", ".png");
+                tempFile.toFile().deleteOnExit();
+                Files.copy(inputStream, tempFile, StandardCopyOption.REPLACE_EXISTING);
+                ruta = tempFile.toAbsolutePath().toString();
+            } catch (IOException ex) {
+                this.generarLogError(ex);
+                Logger.getLogger(BrainstormContext.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } else {
+            // Ruta normal cuando se ejecuta desde IDE
+            ruta = System.getProperty("user.dir") + "/src"+path;
+            ruta = ruta.replace("\\", "/");
+        }
+        return ruta;
+    }
+    
+        public void generarLogError(Throwable ex) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
+            String timestamp = sdf.format(new Date());
+            String logFileName = "error_log_" + timestamp + ".txt";
+
+            try (PrintWriter writer = new PrintWriter(new FileWriter(logFileName, true))) {
+                writer.println("=== ERROR [" + timestamp + "] ===");
+                ex.printStackTrace(writer);
+                writer.println("\nSistema:");
+                writer.println("OS: " + System.getProperty("os.name"));
+                writer.println("Java: " + System.getProperty("java.version"));
+                writer.println("----------------------------------------");
+            }
+
+        } catch (IOException e) {
+            System.err.println("Error al escribir log: " + e.getMessage());
+        }
+    }
+
     public void videoPowers(String videoFileName) {
         try {
             eng.eval(String.format("[iNewFiles, OutputVideoFiles] = import_video(%1$s, '%2$s')", this.study.getStudyIndex(), videoFileName));
@@ -626,7 +674,8 @@ public class BrainstormContext {
             eng.eval("panel_record('SetDisplayMode', neulog, 'Butterfly');");
 
             eng.eval("[mapa,iDS, iFig]=view_topography(datas, 'EEG', '2DDisc')");
-//            eng.eval("global GlobalData;");
+            eng.eval("figure_3d('ViewSensors',mapa,1,1,1,'EEG')");
+            this.labelColor();
 
             if (this.study.isVideo()) {
                 String videoName = this.study.dataVideoFileName();
@@ -647,7 +696,7 @@ public class BrainstormContext {
     public void labelColor() {
         try {
             eng.eval("""
-                                 hSensorLabels =findobj(gca,'Tag','SensorsLabels');
+                                 hSensorLabels=findobj(gca,'Tag','SensorsLabels');
                                  set(hSensorLabels,'Color',[0,0,0]);""");
         } catch (InterruptedException ex) {
             Logger.getLogger(BrainstormContext.class.getName()).log(Level.SEVERE, null, ex);

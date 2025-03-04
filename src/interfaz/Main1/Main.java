@@ -49,11 +49,11 @@ public class Main extends javax.swing.JFrame {
         menu1.addTitle("STAGE: "); //Indice 3
         menu1.addTitle("FILE: "); // indice 4 en la lista de componentes del panelMenu
         menu1.addMenuItem(new ModelMenuItem(null, "Ready Files"));
-        menu1.addMenuItem(new ModelMenuItem(null, "Visualization", "Graphics", "Sensor Color"));
+        menu1.addMenuItem(new ModelMenuItem(null, "Visualization", "Graphics"));
         menu1.addMenuItemBottom(new ModelMenuItem(null, "Reset Dashboard"));
         //Fin de elementos del menu
-        menu1.updateTittleProtocol(bCon.currentProtocolName());
-        menu1.updateTittleSujeto(bCon.currentSujectName());
+        menu1.updateTittleProtocol("");
+        menu1.updateTittleSujeto("");
 
         menu1.addEvent(new EventMenuSelected() {
             @Override
@@ -87,7 +87,6 @@ public class Main extends javax.swing.JFrame {
                             bCon.generateTimeSeries();
 
                         }else{
-                            bCon.labelColor();
                         }
                     } else if (clave.equals("Reset Dashboard")) {
                         if (flagBrainStorm == 1) {
@@ -203,8 +202,6 @@ public class Main extends javax.swing.JFrame {
             System.err.println("Error al escribir log: " + e.getMessage());
         }
     }
-
-    ;
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents

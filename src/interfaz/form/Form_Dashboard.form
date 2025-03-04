@@ -60,7 +60,7 @@
       <Properties>
         <Property name="description" type="java.lang.String" value="Protocol &#xa;"/>
         <Property name="icon" type="javax.swing.ImageIcon" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-          <Connection code="new ImageIcon(&quot;src\\images\\brain.png&quot;)" type="code"/>
+          <Connection code="new ImageIcon(bCon.rutaIMG(&quot;/images/brain.png&quot;))" type="code"/>
         </Property>
         <Property name="values" type="java.lang.String" value=""/>
       </Properties>
@@ -75,7 +75,7 @@
         </Property>
         <Property name="description" type="java.lang.String" value="Subject"/>
         <Property name="icon" type="javax.swing.ImageIcon" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-          <Connection code="new ImageIcon(&quot;src\\images\\person.png&quot;)" type="code"/>
+          <Connection code="new ImageIcon(bCon.rutaIMG(&quot;/images/person.png&quot;))" type="code"/>
         </Property>
         <Property name="values" type="java.lang.String" value=""/>
       </Properties>
