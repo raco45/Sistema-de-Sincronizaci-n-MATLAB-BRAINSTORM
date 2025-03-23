@@ -7,8 +7,6 @@ import brainstorm.MATLABPathSelector;
 import brainstorm.info.BrainstormContext;
 import com.mathworks.engine.EngineException;
 import java.awt.Component;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javaswingdev.GoogleMaterialDesignIcon;
 import javax.swing.JOptionPane;
 import interfaz.form.Form_Dashboard;
