@@ -4,7 +4,7 @@ import com.mathworks.matlab.types.Struct;
 import javax.swing.JOptionPane;
 
 /**
- *
+ * Clase para poder extraer informacion de un estudio
  * @author raco1
  */
 public class Study {

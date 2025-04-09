@@ -1,3 +1,16 @@
+/**
+ * Este paquete contiene las clases necesarias para realizar el preprocesamiento de las senales del archivo generado por el dispositivo de Emotiv
+ * 
+ *
+ * <p>Ejemplo de uso:</p>
+ * <pre>
+ *     package Acceso_Datos.emotiv;
+ *    
+ * </pre>
+ *
+ * @author Roman
+ * @version 1.0
+ */
 package Acceso_Datos.emotiv;
 
 import org.apache.commons.csv.CSVFormat;
@@ -32,6 +45,10 @@ import javax.swing.JFileChooser;
  * @author roman
  */
 public class PreprocesarEmotiv {
+    
+    public PreprocesarEmotiv(){
+        
+    }   
 
     public static String generarArchivoMarcadores(String inputCsv) throws IOException {
         // Obtener la carpeta padre del archivo CSV

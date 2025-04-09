@@ -31,6 +31,8 @@ public class Form_Dashboard extends javax.swing.JPanel {
     private BrainstormContext bCon;
     private Main main;
     private Sincronizacion sync;
+    private PreprocesarEmotiv emo;
+    private PreprocesarNeulog emu;
     private int flag;
 
     public Form_Dashboard(Main main) {
@@ -44,6 +46,8 @@ public class Form_Dashboard extends javax.swing.JPanel {
         this.main = main;
         this.sync = new Sincronizacion("", "", "", "");
         this.flag = 0;
+        this.emo= new PreprocesarEmotiv();
+        this.emu= new PreprocesarNeulog();
         initComponents();
         init();
     }
@@ -133,17 +137,17 @@ public class Form_Dashboard extends javax.swing.JPanel {
                 if (bCon.getSubject() != null) {
                     System.out.println("Condición cumplida. Ejecutando acción...");
                     try {
-                        List<String> valores = PreprocesarEmotiv.generateFiles();
+                        List<String> valores = emo.generateFiles();
                         String value = valores.get(0);
                         String powers = valores.get(1);
                         if (value != null) {
                             JOptionPane.showMessageDialog(null, value);
                             flag += 2;
                             sync.setRutaEmotiv(value);
-                            String markerPath = PreprocesarEmotiv.generarArchivoMarcadores(value);
+                            String markerPath = emo.generarArchivoMarcadores(value);
                             if (markerPath != null) {
                                 sync.setRutaMarcadoresEmotiv(markerPath);
-                                sync.setMarkerName(PreprocesarEmotiv.extractFirstElementFromFile(markerPath));
+                                sync.setMarkerName(emo.extractFirstElementFromFile(markerPath));
                                 sync.setRutaPowers(powers);
                                 System.out.println(sync.getMarkerName());
                                 labelEmotiv.setText("File Loaded");
@@ -172,11 +176,11 @@ public class Form_Dashboard extends javax.swing.JPanel {
                 if (bCon.getSubject() != null) {
                     if (flag == 2) {
                         try {
-                            String value = PreprocesarNeulog.traerArchivo();
+                            String value = emu.traerArchivo();
                             if (value != null) {
                                 JOptionPane.showMessageDialog(null, value);
                                 sync.setRutaNeulog(value);
-                                sync.setRutaMarcadoresNeulog(PreprocesarNeulog.generarArchivoMarcadores(value, sync.getMarkerName(), sync.rutaMarcadoresEmotiv));
+                                sync.setRutaMarcadoresNeulog(emu.generarArchivoMarcadores(value, sync.getMarkerName(), sync.rutaMarcadoresEmotiv));
                                 labelNeulog.setText("File Loaded");
                                 flag += 2;
                             } else {

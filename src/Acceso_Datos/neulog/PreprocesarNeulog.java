@@ -1,3 +1,17 @@
+/**
+ * Este paquete contiene las clases necesarias para realizar el preprocesamiento de las senales del archivo NEULOG
+ * 
+ *
+ * <p>Ejemplo de uso:</p>
+ * <pre>
+ *     package Acceso_Datos.neulog;
+ *    
+ * </pre>
+ *
+ * @author Roman
+ * @version 1.0
+ */
+
 package Acceso_Datos.neulog;
 
 
@@ -14,10 +28,15 @@ import javax.swing.JOptionPane;
 import java.util.Locale;
 
 /**
- *
+ * Esta clase contiene las funciones necesarias para limpiar los archivos provenientes de los equipos neulog
+ * 
  * @author roman
  */
 public class PreprocesarNeulog {
+    
+    public PreprocesarNeulog(){
+        
+    }
 
     public static String traerArchivo() {
         JFileChooser fileChooser = new JFileChooser();

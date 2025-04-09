@@ -1,4 +1,15 @@
-
+/**
+ * Paquete para brainstorm
+ *
+ * <p>Ejemplo de uso:</p>
+ * <pre>
+ *      package brainstorm;
+ *    
+ * </pre>
+ *
+ * @author raco1
+ * @version 1.0
+ */
 package brainstorm;
 
 import brainstorm.info.BrainstormContext;

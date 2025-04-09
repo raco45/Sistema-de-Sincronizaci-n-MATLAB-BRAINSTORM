@@ -1,3 +1,16 @@
+/**
+ * En este paquete se encuentra la clase desde donde se realiza toda la logica de sincronziacion.
+ * 
+ *
+ * <p>Ejemplo de uso:</p>
+ * <pre>
+ *     package logica;
+ *    
+ * </pre>
+ *
+ * @author Raco1
+ * @version 1.0
+ */
 package logica;
 
 import brainstorm.BrainstormStart;
@@ -8,7 +21,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
+ * Clase desde donde se ejecutan todas las funciones para lograr la sincronizacion. 
  * @author raco1
  */
 public class Sincronizacion {

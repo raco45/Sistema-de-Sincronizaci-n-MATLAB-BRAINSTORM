@@ -1,0 +1,16 @@
+<component name="libraryTable">
+  <library name="Dashboard2">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/engine.jar!/" />
+      <root url="jar://$PROJECT_DIR$/commons-codec-1.18.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/commons-csv-1.13.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/commons-io-2.18.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/TimingFramework-0.55.jar!/" />
+      <root url="jar://$PROJECT_DIR$/commons-collections4-4.5.0-M3.jar!/" />
+      <root url="jar://$PROJECT_DIR$/miglayout-4.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/gradient-icon-font.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

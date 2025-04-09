@@ -1,3 +1,16 @@
+/**
+ * En este paquete se encuentran las clases para manejar los datos y las funciones de Brainstorm.
+ * 
+ *
+ * <p>Ejemplo de uso:</p>
+ * <pre>
+ *     package brainstorm.info;
+ *    
+ * </pre>
+ *
+ * @author Raco1
+ * @version 1.0
+ */
 package brainstorm.info;
 
 import com.mathworks.engine.EngineException;
@@ -427,12 +440,7 @@ public class BrainstormContext {
             eng.eval("bst_report('Start',sFiles)");
 
             String s1 = this.subject.nombreSujeto();
-            eng.eval(String.format("sFiles = bst_process('CallProcess', 'process_import_data_raw', sFiles, [], ...\n"
-                    + "    'subjectname',    '%1$s', ...\n"
-                    + "    'datafile',       {'%2$s', 'EEG-WS-CSV'}, ...\n"
-                    + "    'channelreplace', 1, ...\n"
-                    + "    'channelalign',   1, ...\n"
-                    + "    'evtmode',        'value')", s1, ruta));
+            eng.eval(String.format("sFiles = bst_process('CallProcess', 'process_import_data_raw', sFiles, [], ...\n" + "    'subjectname',    '%1$s', ...\n" + "    'datafile',       {'%2$s', 'EEG-WS-CSV'}, ...\n" + "    'channelreplace', 1, ...\n" + "    'channelalign',   1, ...\n" + "    'evtmode',        'value')", s1, ruta));
 
             this.subjectStudiesArray(s1);
             this.reload();
@@ -447,18 +455,11 @@ public class BrainstormContext {
     // Cargar marcadores y convertir en eventos simples
     public Struct cargarMarcadores(String dataFileName, String ruta, String eventName) {
         try {
-            eng.eval(String.format("sFiles = {...\n"
-                    + "    '%s'}", dataFileName));
-            eng.eval(String.format("RawFiles = {...\n"
-                    + "    '%s'};", ruta));
-            eng.eval("sFiles = bst_process('CallProcess', 'process_evt_import', sFiles, [], ...\n"
-                    + "    'evtfile', {RawFiles{1}, 'CSV-TIME'}, ...\n"
-                    + "    'evtname', 'New', ...\n"
-                    + "    'delete',  0);");
+            eng.eval(String.format("sFiles = {...\n" + "    '%s'}", dataFileName));
+            eng.eval(String.format("RawFiles = {...\n" + "    '%s'};", ruta));
+            eng.eval("sFiles = bst_process('CallProcess', 'process_evt_import', sFiles, [], ...\n" + "    'evtfile', {RawFiles{1}, 'CSV-TIME'}, ...\n" + "    'evtname', 'New', ...\n" + "    'delete',  0);");
 
-            eng.eval(String.format("sFiles = bst_process('CallProcess', 'process_evt_simple', sFiles, [], ...\n"
-                    + "    'eventname', '%s', ...\n"
-                    + "    'method',    'start');", eventName));
+            eng.eval(String.format("sFiles = bst_process('CallProcess', 'process_evt_simple', sFiles, [], ...\n" + "    'eventname', '%s', ...\n" + "    'method',    'start');", eventName));
 
             Struct prueb = eng.getVariable("sFiles");
             String dataName = (String) prueb.get("FileName");
@@ -473,14 +474,9 @@ public class BrainstormContext {
     //Sincronizar eventos. Recibe el data file name de los archivos a sincronizar. Me va a lanzar un array de struct, tengo que sacar los dos dataFileName de ahi
     public Struct[] syncEvents(String dataNameNeulog, String dataNameEmotiv, String markerName) {
         try {
-            eng.eval(String.format("sFiles = {...\n"
-                    + "    '%1s', ...\n"
-                    + "    '%2s'};", dataNameNeulog, dataNameEmotiv));
+            eng.eval(String.format("sFiles = {...\n" + "    '%1s', ...\n" + "    '%2s'};", dataNameNeulog, dataNameEmotiv));
 
-            eng.eval(String.format(
-                    "sFiles = bst_process('CallProcess', 'process_sync_recordings', sFiles, [], ...\n"
-                    + "    'src',          '%s', ...\n"
-                    + "    'method',       'xcorr'); ", markerName));
+            eng.eval(String.format("sFiles = bst_process('CallProcess', 'process_sync_recordings', sFiles, [], ...\n" + "    'src',          '%s', ...\n" + "    'method',       'xcorr');", markerName));
 
             Struct[] files = (Struct[]) eng.getVariable("sFiles");
             return files;
@@ -494,12 +490,9 @@ public class BrainstormContext {
     //Combine recordings sincronizadas
     public String combineRecordings(String dataNeulog, String dataEmotiv) {
         try {
-            eng.eval(String.format("sFiles = {...\n"
-                    + "    '%1$s', ...\n"
-                    + "    '%2$s'};", dataNeulog, dataEmotiv));
+            eng.eval(String.format("sFiles = {...\n" + "    '%1$s', ...\n" + "    '%2$s'};", dataNeulog, dataEmotiv));
 
-            eng.eval("sFiles = bst_process('CallProcess', 'process_combine_recordings', sFiles, [], ...\n"
-                    + "    'condition', 'Combined');");
+            eng.eval("sFiles = bst_process('CallProcess', 'process_combine_recordings', sFiles, [], ...\n" + "    'condition', 'Combined');");
 
             Struct prueba = (Struct) eng.getVariable("sFiles");
             String dataName = (String) prueba.get("FileName");
@@ -534,18 +527,10 @@ public class BrainstormContext {
                 ruta = ruta.replace("\\", "/");
             }
 
-            eng.eval(String.format("sFiles = {...\n"
-                    + "    '%s'};", name));
-            eng.eval(String.format("RawFiles = {...\n"
-                    + "    '%s'}", ruta));
+            eng.eval(String.format("sFiles = {...\n" + "    '%s'};", name));
+            eng.eval(String.format("RawFiles = {...\n" + "    '%s'}", ruta));
 
-            eng.eval("sFiles = bst_process('CallProcess', 'process_channel_addloc', sFiles, [], ...\n"
-                    + "    'channelfile', {RawFiles{1}, 'POLHEMUS'}, ...\n"
-                    + "    'usedefault',  '', ...  % \n"
-                    + "    'fixunits',    1, ...\n"
-                    + "    'vox2ras',     1, ...\n"
-                    + "    'mrifile',     {'', ''}, ...\n"
-                    + "    'fiducials',   [])");
+            eng.eval("sFiles = bst_process('CallProcess', 'process_channel_addloc', sFiles, [], ...\n" + "    'channelfile', {RawFiles{1}, 'POLHEMUS'}, ...\n" + "    'usedefault',  '', ...  %\n" + "    'fixunits',    1, ...\n" + "    'vox2ras',     1, ...\n" + "    'mrifile',     {'', ''}, ...\n" + "    'fiducials',   [])");
         } catch (Exception e) {
 
         }
@@ -606,11 +591,8 @@ public class BrainstormContext {
 
     public String scaleValues(String dataFileName, String type, double factor) {
         try {
-            eng.eval(String.format("sFiles = {...\n"
-                    + "    '%s'};", dataFileName));
-            eng.eval(String.format("sFiles = bst_process('CallProcess', 'process_scale', sFiles, [], ...\n"
-                    + "    'factor',      %1s, ...\n"
-                    + "    'sensortypes', '%2s');", factor, type));
+            eng.eval(String.format("sFiles = {...\n" + "    '%s'};", dataFileName));
+            eng.eval(String.format("sFiles = bst_process('CallProcess', 'process_scale', sFiles, [], ...\n" + "    'factor',      %1s, ...\n" + "    'sensortypes', '%2s');", factor, type));
 
             System.out.println("Exitoso");
             Struct prueb = eng.getVariable("sFiles");
@@ -624,11 +606,8 @@ public class BrainstormContext {
 
     public String changeStudyName(String dataFileName, String name) {
         try {
-            eng.eval(String.format("sFiles = {...\n"
-                    + "    '%s'}", dataFileName));
-            eng.eval(String.format("sFiles = bst_process('CallProcess', 'process_set_comment', sFiles, [], ...\n"
-                    + "    'tag',           '%s', ...\n"
-                    + "    'isindex',       1)", name));
+            eng.eval(String.format("sFiles = {...\n" + "    '%s'}", dataFileName));
+            eng.eval(String.format("sFiles = bst_process('CallProcess', 'process_set_comment', sFiles, [], ...\n" + "    'tag',           '%s', ...\n" + "    'isindex',       1)", name));
             Struct prueb = eng.getVariable("sFiles");
             String dataName = (String) prueb.get("FileName");
             this.reload();
@@ -695,9 +674,7 @@ public class BrainstormContext {
 
     public void labelColor() {
         try {
-            eng.eval("""
-                                 hSensorLabels=findobj(gca,'Tag','SensorsLabels');
-                                 set(hSensorLabels,'Color',[0,0,0]);""");
+            eng.eval("hSensorLabels=findobj(gca,'Tag','SensorsLabels');\n" + "set(hSensorLabels,'Color',[0,0,0]);");
         } catch (InterruptedException ex) {
             Logger.getLogger(BrainstormContext.class.getName()).log(Level.SEVERE, null, ex);
         } catch (MatlabSyntaxException ex) {

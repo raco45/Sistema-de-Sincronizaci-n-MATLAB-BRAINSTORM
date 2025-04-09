@@ -1,0 +1,16 @@
+<component name="libraryTable">
+  <library name="lib">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/dist/lib/commons-csv-1.13.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dist/lib/engine.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dist/lib/AbsoluteLayout.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dist/lib/miglayout-4.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dist/lib/commons-codec-1.18.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dist/lib/commons-io-2.18.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dist/lib/gradient-icon-font.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dist/lib/TimingFramework-0.55.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

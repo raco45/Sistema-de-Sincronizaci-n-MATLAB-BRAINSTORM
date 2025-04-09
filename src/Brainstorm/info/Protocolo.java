@@ -4,7 +4,7 @@ package brainstorm.info;
 import com.mathworks.matlab.types.Struct;
 
 /**
- *
+ * Clase para poder extraer informacion de un protocolo
  * @author raco1
  */
 public class Protocolo {
